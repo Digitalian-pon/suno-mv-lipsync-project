@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Offline Suno Creator Studio</title>
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .offline-status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #155724;
+        }
+        
+        .generate-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .big-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin: 10px;
+        }
+        
+        .big-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+        }
+        
+        .big-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .result-header {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .midjourney-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .control-group select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .theme-display {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .theme-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .saved-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .saved-indicator.show {
+            opacity: 1;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2em; }
+            .main-panel { padding: 20px; }
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat-item {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Offline Suno Creator Studio</h1>
+            <p class="subtitle">完全オフライン・無限バリエーション楽曲生成</p>
+        </header>
+        
+        <div class="main-panel">
+            <div class="offline-status">
+                ✅ <strong>100% オフライン動作</strong> - インターネット接続不要・エラーなし保証
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalGenerations">0</div>
+                    <div class="stat-label">総生成数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="uniqueThemes">20+</div>
+                    <div class="stat-label">テーマ数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">バリエーション</div>
+                </div>
+            </div>
+            
+            <div class="generate-section">
+                <button class="big-btn" onclick="generateAll()" id="generateBtn">🎲 楽曲生成スタート</button>
+            </div>
+            
+            <div class="theme-display" id="themeDisplay">
+                <div class="theme-text" id="themeText">🎯 ユニークなテーマを生成します</div>
+            </div>
+            
+            <div class="results-grid" id="resultsGrid">
+                <!-- 結果がここに表示されます -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="saved-indicator" id="savedIndicator">💾 自動保存されました</div>
+
+    <script>
+        let currentGeneration = null;
+        let totalGenerationsCount = parseInt(localStorage.getItem('totalGenerations') || '0');
+        
+        // 拡張されたテーマデータベース
+        const themes = [
+            { concept: "時をかける恋", keywords: "タイムリープ, 運命, 切ない恋, 時間, 記憶", genre: "ballad" },
+            { concept: "AI少女との恋", keywords: "人工知能, デジタル愛, 感情, 現実と仮想, 心", genre: "electronic" },
+            { concept: "異世界での失恋", keywords: "ファンタジー, 魔法, 別れ, 冒険, 帰還", genre: "epic" },
+            { concept: "ワープした先の君", keywords: "時空, 瞬間移動, 再会, 距離, 愛", genre: "synthwave" },
+            { concept: "デジタル世界の片想い", keywords: "メタバース, アバター, オンライン, 現実逃避, 孤独", genre: "cyberpop" },
+            { concept: "ループする告白", keywords: "無限ループ, 繰り返し, 諦め, 希望, 運命", genre: "indie" },
+            { concept: "AIが歌う失恋歌", keywords: "機械の心, 学習, データ, 感情模倣, 理解", genre: "experimental" },
+            { concept: "異次元恋愛事情", keywords: "パラレルワールド, 別の自分, if, 可能性, 選択", genre: "pop" },
+            { concept: "サイバー空間の初恋", keywords: "ネット, コード, プログラム, バーチャル, 接続", genre: "techno" },
+            { concept: "時間停止中の恋", keywords: "静止, 永遠, 瞬間, 時の流れ, 特別", genre: "ambient" },
+            { concept: "ホログラムの恋人", keywords: "光, 幻影, 触れられない, 美しさ, 儚さ", genre: "dreampop" },
+            { concept: "記憶を消された恋", keywords: "忘却, 思い出, 消去, 痛み, 新しい始まり", genre: "alternative" },
+            { concept: "量子もつれの愛", keywords: "量子物理学, 同期, 距離無関係, 神秘, 科学", genre: "progressive" },
+            { concept: "バーチャル結婚式", keywords: "仮想現実, セレモニー, デジタル誓い, 未来, 絆", genre: "ceremonial" },
+            { concept: "ネオンライトの下で", keywords: "都市夜景, 光, 出会い, 現代, ロマンス", genre: "citypop" },
+            { concept: "メタバースの秘密", keywords: "隠された真実, 探索, 謎, 発見, 冒険", genre: "mystery" },
+            { concept: "タイムパラドックス恋愛", keywords: "時間矛盾, 因果関係, 複雑, パズル, 運命", genre: "complex" },
+            { concept: "AIアシスタントへの想い", keywords: "人工知能, 日常, 依存, 感情移入, 現実", genre: "contemporary" },
+            { concept: "異世界転生後の再会", keywords: "転生, 前世, 記憶, 運命的再会, ファンタジー", genre: "fantasy" },
+            { concept: "未来からの手紙", keywords: "タイムメール, 予言, 警告, 愛のメッセージ, SF", genre: "futuristic" }
+        ];
+        
+        const musicStyles = {
+            ballad: ["Emotional Ballad", "Piano Ballad", "Acoustic Ballad"],
+            electronic: ["Electronic Pop", "Synthpop", "Electro"],
+            epic: ["Epic Orchestral", "Cinematic", "Adventure"],
+            synthwave: ["Synthwave", "Retrowave", "Outrun"],
+            cyberpop: ["Cyberpop", "Digital Pop", "Technopop"],
+            indie: ["Indie Pop", "Indie Rock", "Alternative Indie"],
+            experimental: ["Experimental Electronic", "Glitch", "IDM"],
+            pop: ["Modern Pop", "Mainstream Pop", "Radio Pop"],
+            techno: ["Progressive Techno", "Melodic Techno", "Cyber Techno"],
+            ambient: ["Ambient Pop", "Atmospheric", "Ethereal"],
+            dreampop: ["Dream Pop", "Shoegaze", "Ethereal Pop"],
+            alternative: ["Alternative Rock", "Alt Pop", "Modern Alternative"],
+            progressive: ["Progressive Electronic", "Art Pop", "Complex Pop"],
+            ceremonial: ["Orchestral Pop", "Cinematic Pop", "Grand"],
+            citypop: ["City Pop", "Japanese Pop", "Urban"],
+            mystery: ["Dark Pop", "Mysterious", "Noir Pop"],
+            complex: ["Art Rock", "Progressive Pop", "Intellectual"],
+            contemporary: ["Contemporary Pop", "Modern Ballad", "Reflective"],
+            fantasy: ["Fantasy Pop", "Magical", "Mystical"],
+            futuristic: ["Future Pop", "Sci-Fi Electronic", "Space Pop"]
+        };
+        
+        // 高度な生成アルゴリズム
+        function generateUniqueTheme() {
+            const baseTheme = themes[Math.floor(Math.random() * themes.length)];
+            const variations = [
+                baseTheme.concept,
+                `${baseTheme.concept} 2024`,
+                `Neo ${baseTheme.concept}`,
+                `Digital ${baseTheme.concept}`,
+                `${baseTheme.concept} Reimagined`,
+                `Virtual ${baseTheme.concept}`,
+                `Cyber ${baseTheme.concept}`,
+                `${baseTheme.concept} Protocol`
+            ];
+            
+            const finalConcept = variations[Math.floor(Math.random() * variations.length)];
+            
+            return {
+                ...baseTheme,
+                concept: finalConcept,
+                variation: Math.floor(Math.random() * 1000000) // ユニークID
+            };
+        }
+        
+        function generateUniqueTitle(theme) {
+            const prefixes = ["", "Digital ", "Neo ", "Cyber ", "Virtual ", "Electric ", "Neon ", "Quantum "];
+            const suffixes = ["", " 2024", " Protocol", " Dreams", " Reality", " Syndrome", " Algorithm", " Paradox"];
+            
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            
+            const titlePatterns = [
+                `${prefix}${theme.concept}${suffix}`,
+                `${theme.concept} ${generateRandomWord(['Code', 'Signal', 'Wave', 'Pulse', 'Stream'])}`,
+                `${generateRandomWord(['Lost', 'Found', 'Hidden', 'Secret', 'Infinite'])} ${theme.concept}`,
+                `${theme.concept}: ${generateRandomWord(['Chapter', 'Episode', 'Version', 'Phase'])} ${Math.floor(Math.random() * 10) + 1}`
+            ];
+            
+            return titlePatterns[Math.floor(Math.random() * titlePatterns.length)];
+        }
+        
+        function generateAdvancedLyrics(theme, language = 'jp') {
+            const templates = language === 'jp' ? getJapaneseLyricTemplates(theme) : getEnglishLyricTemplates(theme);
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            
+            return template;
+        }
+        
+        function getJapaneseLyricTemplates(theme) {
+            const concepts = theme.keywords.split(', ');
+            const concept1 = concepts[0] || 'time';
+            const concept2 = concepts[1] || 'love';
+            
+            return [
+                `[Verse 1]
+${generateRandomWord(['夜', '朝', '夕方', '深夜'])}の${generateRandomWord(['街角', '窓辺', '空', '海'])}で
+${concept1}を想う心
+${generateRandomWord(['デジタル', 'バーチャル', 'サイバー'])}な世界の中で
+君を探している
+
+[Pre-Chorus]
+${generateRandomWord(['ピクセル', 'データ', 'コード'])}に込めた想い
+${generateRandomWord(['スクリーン', 'モニター', 'ディスプレイ'])}越しの愛
+
+[Chorus]
+${theme.concept}が始まる
+${generateRandomWord(['ネオン', 'レーザー', 'ホログラム'])}の光の中で
+君との${generateRandomWord(['物語', 'ストーリー', '運命'])}
+${concept2}が今、動き出す
+
+[Verse 2]
+${generateRandomWord(['量子', 'フォトン', 'エネルギー'])}もつれた心で
+${generateRandomWord(['時空', '次元', '世界'])}を超えて
+${concept1}だけが真実
+この想いは本物
+
+[Chorus]
+${theme.concept}が続く
+永遠の${generateRandomWord(['ループ', 'サイクル', '円環'])}の中で
+君と僕の${generateRandomWord(['絆', '愛', '約束'])}
+${generateRandomWord(['リアル', '現実', '真実'])}を超えて`,
+
+                `[Intro]
+${generateRandomWord(['静寂', '沈黙', '無音'])}を破る${generateRandomWord(['サイン', '合図', '信号'])}
+${concept1}からのメッセージ
+
+[Verse 1]
+${generateRandomWord(['回路', 'システム', 'ネットワーク'])}に流れる
+君への想い
+${generateRandomWord(['アルゴリズム', 'プログラム', 'ソフトウェア'])}では解けない
+この${concept2}の方程式
+
+[Bridge]
+${generateRandomWord(['バイナリ', 'ヘキサ', 'ASCII'])}コードに刻まれた
+永遠の誓い
+${theme.concept}は
+時を超えて響く
+
+[Chorus]
+${generateRandomWord(['インターフェース', 'ポータル', 'ゲートウェイ'])}を開いて
+君の元へ
+${concept1}と${concept2}が
+一つになる瞬間`
+            ];
+        }
+        
+        function getEnglishLyricTemplates(theme) {
+            const concepts = theme.keywords.split(', ');
+            const concept1 = concepts[0] || 'time';
+            const concept2 = concepts[1] || 'love';
+            
+            return [
+                `[Verse 1]
+In the ${generateRandomWord(['digital', 'cyber', 'virtual'])} ${generateRandomWord(['maze', 'world', 'space'])} tonight
+${generateRandomWord(['Pixels', 'Data', 'Code'])} dancing in the ${generateRandomWord(['neon', 'laser', 'electric'])} light
+${concept1} ${generateRandomWord(['bending', 'flowing', 'streaming'])} through the cyber space
+Your ${generateRandomWord(['holographic', 'digital', 'virtual'])} ${generateRandomWord(['smile', 'face', 'eyes'])}, I can't replace
+
+[Pre-Chorus]
+Streaming ${generateRandomWord(['data', 'love', 'dreams'])} through my neural core
+${concept2} ${generateRandomWord(['uploading', 'downloading', 'processing'])} like never before
+
+[Chorus]
+${theme.concept} in the metaverse
+Breaking through the digital curse
+We're ${generateRandomWord(['glitching', 'syncing', 'connecting'])} in and out of time
+Your love's the only perfect ${generateRandomWord(['rhyme', 'line', 'sign'])}
+
+[Verse 2]
+${generateRandomWord(['Binary', 'Quantum', 'Electric'])} ${generateRandomWord(['dreams', 'hearts', 'souls'])} and cosmic highs
+See the ${generateRandomWord(['future', 'truth', 'light'])} in your ${generateRandomWord(['android', 'cyber', 'digital'])} eyes
+${generateRandomWord(['Latency', 'Distance', 'Space'])} can't slow us down
+We're the ${generateRandomWord(['kings', 'queens', 'rulers'])} of this digital town
+
+[Chorus]
+${theme.concept} never fades
+In these ${generateRandomWord(['electric', 'cyber', 'digital'])} serenades
+${generateRandomWord(['Quantum', 'Digital', 'Virtual'])} hearts that beat as one
+In this ${generateRandomWord(['cyber', 'virtual', 'digital'])} world we run`,
+
+                `[Intro]
+${generateRandomWord(['Connection', 'Signal', 'Transmission'])} established
+${concept1} ${generateRandomWord(['protocol', 'sequence', 'algorithm'])} initiated
+
+[Verse 1]
+Lost in the ${generateRandomWord(['matrix', 'network', 'grid'])} of ${concept2}
+${generateRandomWord(['Searching', 'Looking', 'Hunting'])} for the ${generateRandomWord(['code', 'key', 'password'])} to your heart
+${generateRandomWord(['Virtual', 'Digital', 'Cyber'])} reality feels so real
+When you're the ${generateRandomWord(['algorithm', 'program', 'system'])} I can feel
+
+[Bridge]
+Sometimes the server crashes down
+But we'll always come around
+Backup saved in ${generateRandomWord(['cloud', 'memory', 'cache'])} nine
+Forever you'll be mine
+
+[Final Chorus]
+${theme.concept} ${generateRandomWord(['transcending', 'breaking', 'crossing'])} space
+In this virtual reality place
+We're more than ${generateRandomWord(['ones', 'zeros', 'data'])} and ${generateRandomWord(['zeros', 'code', 'bytes'])} now
+We're real somehow`
+            ];
+        }
+        
+        function generateStylePrompt(theme) {
+            const styles = musicStyles[theme.genre] || ['Electronic Pop'];
+            const style = styles[Math.floor(Math.random() * styles.length)];
+            
+            const tempos = ['110-120 BPM', '120-130 BPM', '130-140 BPM', '100-110 BPM'];
+            const keys = ['C Major', 'A Minor', 'G Major', 'F Major', 'D Minor', 'E Minor'];
+            const moods = ['emotional', 'dreamy', 'energetic', 'melancholic', 'uplifting', 'nostalgic'];
+            
+            const tempo = tempos[Math.floor(Math.random() * tempos.length)];
+            const key = keys[Math.floor(Math.random() * keys.length)];
+            const mood = moods[Math.floor(Math.random() * moods.length)];
+            
+            const instruments = [
+                ['Synthesizers', 'Digital piano', 'Soft drums'],
+                ['Electric guitar', 'Bass synth', 'Electronic beats'],
+                ['Orchestral strings', 'Piano', 'Ambient pads'],
+                ['Vocal chops', 'Arpeggiated synths', '808 drums']
+            ];
+            
+            const instrumentSet = instruments[Math.floor(Math.random() * instruments.length)];
+            
+            return `Style: ${style}
+Mood: ${mood} and emotionally engaging
+Tempo: ${tempo}
+Key: ${key}
+Instruments: ${instrumentSet.join(', ')}
+Vocal Style: ${generateRandomWord(['Intimate', 'Powerful', 'Dreamy', 'Emotional'])} with ${generateRandomWord(['subtle autotune', 'natural reverb', 'layered harmonies'])}
+Production: ${generateRandomWord(['Clean modern mix', 'Lo-fi aesthetic', 'Polished production'])} with ${generateRandomWord(['spatial effects', 'ambient reverb', 'stereo imaging'])}
+Structure: Verse-Chorus-Verse-Chorus-Bridge-Final Chorus
+Special Elements: ${generateRandomWord(['Glitch effects', 'Vinyl warmth', 'Digital artifacts'])} during transitions
+Theme: ${theme.concept}
+Genre: ${theme.genre}
+Length: ~3 minutes`;
+        }
+        
+        function generateMidjourneyPrompt(theme) {
+            const visualStyles = [
+                'cyberpunk aesthetic with neon colors',
+                'synthwave landscape with retro-futuristic vibes',
+                'digital art style with holographic elements',
+                'anime style with cyber romance theme',
+                'vaporwave aesthetic with pastel gradients',
+                'futuristic cityscape with floating elements',
+                'abstract digital art with geometric patterns',
+                'neo-noir atmosphere with dramatic lighting'
+            ];
+            
+            const colors = [
+                'electric blue and hot pink',
+                'purple and cyan gradients',
+                'neon green and magenta',
+                'golden yellow and deep blue',
+                'holographic rainbow spectrum',
+                'warm orange and cool teal'
+            ];
+            
+            const elements = [
+                'floating geometric shapes',
+                'digital particle effects',
+                'glowing circuit patterns',
+                'holographic interfaces',
+                'light streaks and rays',
+                'crystalline structures'
+            ];
+            
+            const style = visualStyles[Math.floor(Math.random() * visualStyles.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const element = elements[Math.floor(Math.random() * elements.length)];
+            
+            return `${style}, ${theme.concept} theme, ${color}, ${element}, emotional atmosphere, cinematic composition, high detail, 4K quality, trending on artstation, digital art masterpiece, romantic mood`;
+        }
+        
+        function generateRandomWord(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        
+        // メイン生成関数
+        async function generateAll() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = '🎵 生成中...';
+            
+            try {
+                const theme = generateUniqueTheme();
+                document.getElementById('themeText').textContent = `🎯 ${theme.concept} (${theme.keywords})`;
+                
+                const resultsGrid = document.getElementById('resultsGrid');
+                resultsGrid.innerHTML = '<div class="loading full-width"><div class="spinner"></div>ユニークな楽曲コンテンツを生成中...</div>';
+                
+                // 生成遅延をシミュレート
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const generation = {
+                    title: generateUniqueTitle(theme),
+                    lyricsJP: generateAdvancedLyrics(theme, 'jp'),
+                    lyricsEN: generateAdvancedLyrics(theme, 'en'),
+                    stylePrompt: generateStylePrompt(theme),
+                    midjourneyPrompt: generateMidjourneyPrompt(theme),
+                    aspectRatio: "1:1",
+                    model: "v7",
+                    theme: theme,
+                    timestamp: new Date().toLocaleString('ja-JP'),
+                    id: Date.now()
+                };
+                
+                currentGeneration = generation;
+                displayResults(generation);
+                saveToHistory(generation);
+                updateStats();
+                showSavedIndicator();
+                
+            } catch (error) {
+                console.error('生成エラー:', error);
+                document.getElementById('resultsGrid').innerHTML = `
+                    <div class="error full-width">
+                        ❌ 生成エラーが発生しました。ページを再読み込みして再試行してください。
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎲 楽曲生成スタート';
+            }
+        }
+        
+        function displayResults(generation) {
+            const grid = document.getElementById('resultsGrid');
+            const initialModel = generation.model === 'v7' ? 'v 7' : generation.model === 'niji6' ? 'niji 6' : 'v 7';
+            
+            grid.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        🎵 楽曲タイトル
+                        <button class="copy-btn" onclick="copyToClipboard('title')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${generation.title}</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        🎌 日本語歌詞
+                        <button class="copy-btn" onclick="copyToClipboard('lyricsJP')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${generation.lyricsJP}</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        🇺🇸 英語歌詞
+                        <button class="copy-btn" onclick="copyToClipboard('lyricsEN')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${generation.lyricsEN}</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        🎨 Sunoスタイルプロンプト
+                        <button class="copy-btn" onclick="copyToClipboard('stylePrompt')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${generation.stylePrompt}</div>
+                </div>
+                
+                <div class="result-card full-width">
+                    <div class="result-header">
+                        🖼️ Midjourney画像プロンプト
+                        <button class="copy-btn" onclick="copyToClipboard('midjourneyPrompt')">📋 コピー</button>
+                    </div>
+                    <div class="midjourney-controls">
+                        <div class="control-group">
+                            <label>比率:</label>
+                            <select id="aspectRatio" onchange="updateMidjourneyPrompt()">
+                                <option value="1:1">1:1 (正方形)</option>
+                                <option value="9:16">9:16 (縦長)</option>
+                                <option value="16:9">16:9 (横長)</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>モデル:</label>
+                            <select id="mjModel" onchange="updateMidjourneyPrompt()">
+                                <option value="v7">v7</option>
+                                <option value="niji6">niji6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-content" id="midjourneyPromptContent">${generation.midjourneyPrompt} --ar 1:1 --${initialModel}</div>
+                </div>
+            `;
+        }
+        
+        function updateMidjourneyPrompt() {
+            if (!currentGeneration) return;
+            
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            const model = document.getElementById('mjModel').value;
+            const basePrompt = currentGeneration.midjourneyPrompt;
+            
+            const formattedModel = model === 'v7' ? 'v 7' : model === 'niji6' ? 'niji 6' : model;
+            const updatedPrompt = `${basePrompt} --ar ${aspectRatio} --${formattedModel}`;
+            document.getElementById('midjourneyPromptContent').textContent = updatedPrompt;
+        }
+        
+        function copyToClipboard(type) {
+            if (!currentGeneration) return;
+            
+            let text = '';
+            switch(type) {
+                case 'title':
+                    text = currentGeneration.title;
+                    break;
+                case 'lyricsJP':
+                    text = currentGeneration.lyricsJP;
+                    break;
+                case 'lyricsEN':
+                    text = currentGeneration.lyricsEN;
+                    break;
+                case 'stylePrompt':
+                    text = currentGeneration.stylePrompt;
+                    break;
+                case 'midjourneyPrompt':
+                    const aspectRatio = document.getElementById('aspectRatio')?.value || '1:1';
+                    const model = document.getElementById('mjModel')?.value || 'v7';
+                    const formattedModel = model === 'v7' ? 'v 7' : model === 'niji6' ? 'niji 6' : model;
+                    text = `${currentGeneration.midjourneyPrompt} --ar ${aspectRatio} --${formattedModel}`;
+                    break;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('📋 コピーしました！');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showMessage('📋 コピーしました！');
+            });
+        }
+        
+        function showMessage(message) {
+            const indicator = document.getElementById('savedIndicator');
+            indicator.textContent = message;
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        function showSavedIndicator() {
+            const indicator = document.getElementById('savedIndicator');
+            indicator.textContent = '💾 自動保存されました';
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        function saveToHistory(generation) {
+            let history = JSON.parse(localStorage.getItem('offlineSunoHistory') || '[]');
+            history.unshift(generation);
+            history = history.slice(0, 20); // 最新20件保持
+            localStorage.setItem('offlineSunoHistory', JSON.stringify(history));
+            
+            // 総生成数を更新
+            totalGenerationsCount++;
+            localStorage.setItem('totalGenerations', totalGenerationsCount.toString());
+        }
+        
+        function updateStats() {
+            document.getElementById('totalGenerations').textContent = totalGenerationsCount;
+        }
+        
+        // 初期化
+        window.addEventListener('load', () => {
+            updateStats();
+            
+            // 前回のデータがあれば復元
+            const lastGeneration = localStorage.getItem('lastGeneration');
+            if (lastGeneration) {
+                try {
+                    currentGeneration = JSON.parse(lastGeneration);
+                    if (currentGeneration.theme) {
+                        document.getElementById('themeText').textContent = `🎯 ${currentGeneration.theme.concept} (${currentGeneration.theme.keywords})`;
+                        displayResults(currentGeneration);
+                    }
+                } catch (e) {
+                    console.log('前回データの復元に失敗');
+                }
+            }
+        });
+        
+        // ページ離脱時に保存
+        window.addEventListener('beforeunload', () => {
+            if (currentGeneration) {
+                localStorage.setItem('lastGeneration', JSON.stringify(currentGeneration));
+            }
+        });
+    </script>
+</body>
+</html>

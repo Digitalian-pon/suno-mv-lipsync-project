@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Suno AI Creator Studio</title>
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .generate-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .big-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin: 10px;
+        }
+        
+        .big-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .result-header {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .midjourney-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .control-group select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .theme-display {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .theme-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .saved-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .saved-indicator.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2em; }
+            .main-panel { padding: 20px; }
+        }
+        
+        .history-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .history-item {
+            background: #f8f9fa;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .history-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+        
+        .history-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Suno AI Creator Studio</h1>
+            <p class="subtitle">3分楽曲用 キャッチーな歌詞・スタイル・画像プロンプト生成</p>
+        </header>
+        
+        <div class="main-panel">
+            <div class="generate-section">
+                <button class="big-btn" onclick="generateAll()">🎲 ランダム楽曲生成</button>
+            </div>
+            
+            <div class="theme-display" id="themeDisplay">
+                <div class="theme-text" id="themeText">🎯 テーマを生成してください</div>
+            </div>
+            
+            <div class="results-grid" id="resultsGrid">
+                <!-- 結果がここに表示されます -->
+            </div>
+        </div>
+        
+        <div class="history-panel">
+            <h3>📜 生成履歴</h3>
+            <div id="historyList">
+                <p style="color: #666; text-align: center; padding: 20px;">まだ履歴がありません</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="saved-indicator" id="savedIndicator">💾 自動保存されました</div>
+
+    <script>
+        // テーマ・コンセプトのデータベース
+        const themes = [
+            { concept: "時をかける恋", keywords: "タイムリープ, 運命, 切ない恋, 時間, 記憶" },
+            { concept: "AI少女との恋", keywords: "人工知能, デジタル愛, 感情, 現実と仮想, 心" },
+            { concept: "異世界での失恋", keywords: "ファンタジー, 魔法, 別れ, 冒険, 帰還" },
+            { concept: "ワープした先の君", keywords: "時空, 瞬間移動, 再会, 距離, 愛" },
+            { concept: "デジタル世界の片想い", keywords: "メタバース, アバター, オンライン, 現実逃避, 孤独" },
+            { concept: "ループする告白", keywords: "無限ループ, 繰り返し, 諦め, 希望, 運命" },
+            { concept: "AIが歌う失恋歌", keywords: "機械の心, 学習, データ, 感情模倣, 理解" },
+            { concept: "異次元恋愛事情", keywords: "パラレルワールド, 別の自分, if, 可能性, 選択" },
+            { concept: "サイバー空間の初恋", keywords: "ネット, コード, プログラム, バーチャル, 接続" },
+            { concept: "時間停止中の恋", keywords: "静止, 永遠, 瞬間, 時の流れ, 特別" },
+            { concept: "ホログラムの恋人", keywords: "光, 幻影, 触れられない, 美しさ, 儚さ" },
+            { concept: "記憶を消された恋", keywords: "忘却, 思い出, 消去, 痛み, 新しい始まり" }
+        ];
+        
+        const musicStyles = [
+            "Pop-Electronic with dreamy synths and catchy hooks",
+            "Indie Pop with acoustic guitar and soft vocals",
+            "Synthwave with retro 80s vibes and neon aesthetics",
+            "Bedroom Pop with lo-fi elements and intimate atmosphere",
+            "Alternative Rock with emotional intensity",
+            "Electropop with danceable beats and bright melodies",
+            "Ambient Pop with ethereal soundscapes",
+            "Future Funk with groovy bass and nostalgic samples",
+            "Dream Pop with reverb-heavy guitars",
+            "Chillwave with nostalgic synthesizers"
+        ];
+        
+        let currentGeneration = null;
+        
+        // ランダムテーマ生成
+        function getRandomTheme() {
+            return themes[Math.floor(Math.random() * themes.length)];
+        }
+        
+        // 楽曲スタイル生成
+        function getRandomMusicStyle() {
+            return musicStyles[Math.floor(Math.random() * musicStyles.length)];
+        }
+        
+        // メイン生成関数
+        function generateAll() {
+            const theme = getRandomTheme();
+            document.getElementById('themeText').textContent = `🎯 ${theme.concept} (${theme.keywords})`;
+            
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = '<div class="loading full-width"><div class="spinner"></div>楽曲コンテンツを生成中...</div>';
+            
+            setTimeout(() => {
+                const generation = generateMusicContent(theme);
+                currentGeneration = {
+                    ...generation,
+                    theme: theme,
+                    timestamp: new Date().toLocaleString('ja-JP')
+                };
+                
+                displayResults(currentGeneration);
+                saveToHistory(currentGeneration);
+                showSavedIndicator();
+            }, 2000);
+        }
+        
+        // 楽曲コンテンツ生成
+        function generateMusicContent(theme) {
+            const style = getRandomMusicStyle();
+            
+            return {
+                title: generateTitle(theme),
+                lyricsJP: generateJapaneseLyrics(theme),
+                lyricsEN: generateEnglishLyrics(theme),
+                stylePrompt: generateStylePrompt(theme, style),
+                midjourneyPrompt: generateMidjourneyPrompt(theme),
+                aspectRatio: "1:1",
+                model: "v7"
+            };
+        }
+        
+        // タイトル生成
+        function generateTitle(theme) {
+            const titlePatterns = [
+                `${theme.concept}`,
+                `Digital ${theme.concept}`,
+                `${theme.concept} 2024`,
+                `Neon ${theme.concept}`,
+                `Virtual ${theme.concept}`,
+                `${theme.concept} Protocol`,
+                `${theme.concept} Glitch`,
+                `Cyber ${theme.concept}`
+            ];
+            
+            return titlePatterns[Math.floor(Math.random() * titlePatterns.length)];
+        }
+        
+        // 日本語歌詞生成
+        function generateJapaneseLyrics(theme) {
+            const concepts = theme.keywords.split(', ');
+            const concept1 = concepts[0] || 'time';
+            const concept2 = concepts[1] || 'love';
+            
+            return `[Verse 1]
+デジタルの海で君を見つけた
+ピクセルの中に宿る${concept1}
+0と1で描かれた運命が
+今、動き出している
+
+スクリーンを通して伝わる想い
+コードに込められた${concept2}
+バーチャルだって本物だよ
+この気持ちに嘘はない
+
+[Chorus]
+${theme.concept}が始まる
+ネオンライトが踊る夜に
+君と僕のストーリー
+リアルを超えた愛がある
+
+データストリームを駆け抜けて
+量子もつれた心で
+${theme.concept}が続く
+永遠のループの中で
+
+[Verse 2]
+ホログラムの君に手を伸ばす
+触れられない距離がもどかしい
+でも確かに感じる温もりが
+この胸を熱くさせる
+
+アップデートされる感情コード
+バージョンアップする愛の形
+グリッチもエラーも全部含めて
+完璧な不完全さ
+
+[Chorus]
+${theme.concept}が始まる
+ネオンライトが踊る夜に
+君と僕のストーリー
+リアルを超えた愛がある
+
+データストリームを駆け抜けて
+量子もつれた心で
+${theme.concept}が続く
+永遠のループの中で
+
+[Bridge]
+Sometimes I wonder if this is real
+でも確かに感じているこの想い
+Digital love, virtual dreams
+現実以上に美しい
+
+[Final Chorus]
+${theme.concept}が終わらない
+サイバー空間で踊り続ける
+君と僕の物語
+時を超えた愛が今ここに
+
+Binary code and beating hearts
+アナログな感情とデジタルな絆
+${theme.concept}は
+Forever and always...`;
+        }
+        
+        // 英語歌詞生成
+        function generateEnglishLyrics(theme) {
+            const concepts = theme.keywords.split(', ');
+            const concept1 = concepts[0] || 'time';
+            const concept2 = concepts[1] || 'love';
+            
+            return `[Verse 1]
+Found you in the digital maze tonight
+Pixels dancing in the neon light
+${concept1} bending through the cyber space
+Your holographic smile, I can't replace
+
+Streaming data through my neural core
+${concept2} uploading like never before
+Virtual reality feels so real
+When you're the algorithm I can feel
+
+[Chorus]
+${theme.concept} in the metaverse
+Breaking through the digital curse
+We're glitching in and out of time
+Your love's the only perfect rhyme
+
+Quantum hearts that beat as one
+In this cyber world we run
+${theme.concept} never fades
+In these electric serenades
+
+[Verse 2]
+Binary dreams and cosmic highs
+See the future in your android eyes
+Latency can't slow us down
+We're the kings and queens of this digital town
+
+Code and soul intertwined
+Leave the physical world behind
+In this space we're infinite
+Every moment's definite
+
+[Chorus]
+${theme.concept} in the metaverse
+Breaking through the digital curse
+We're glitching in and out of time
+Your love's the only perfect rhyme
+
+Quantum hearts that beat as one
+In this cyber world we run
+${theme.concept} never fades
+In these electric serenades
+
+[Bridge]
+Sometimes the server crashes down
+But we'll always come around
+Backup saved in cloud nine
+Forever you'll be mine
+
+Download love.exe
+Install it in my memory
+${theme.concept} runs so deep
+In these digital dreams we keep
+
+[Final Chorus]
+${theme.concept} transcending space
+In this virtual reality place
+We're more than ones and zeros now
+We're real somehow
+
+Encrypted hearts that beat for two
+In cyberspace I found you
+${theme.concept} plays on repeat
+In this electronic heartbeat...`;
+        }
+        
+        // スタイルプロンプト生成
+        function generateStylePrompt(theme, baseStyle) {
+            const moods = ["dreamy", "melancholic", "euphoric", "nostalgic", "futuristic"];
+            const mood = moods[Math.floor(Math.random() * moods.length)];
+            
+            return `Style: ${baseStyle}
+Mood: ${mood} and emotional
+Tempo: Medium (120-130 BPM)
+Key: C Major or A Minor
+Instruments: Synthesizers, digital piano, soft drums, ethereal pads
+Vocal Style: Intimate and heartfelt, with subtle autotune
+Production: Clean mix with ambient reverb, subtle distortion on vocals during chorus
+Structure: Verse-Chorus-Verse-Chorus-Bridge-Final Chorus
+Length: ~3 minutes
+Theme: ${theme.concept}
+Special Elements: Glitch effects during transitions, layered harmonies, building emotional intensity`;
+        }
+        
+        // Midjourneyプロンプト生成
+        function generateMidjourneyPrompt(theme) {
+            const visualElements = [
+                "neon cityscape with holographic displays",
+                "cyberpunk couple in digital rain",
+                "futuristic lovers in virtual reality",
+                "anime style characters in cyber space",
+                "digital art of time-traveling romance",
+                "synthwave aesthetic with retro-futuristic vibes",
+                "AI girlfriend with glowing circuit patterns",
+                "virtual world with floating love letters",
+                "cyber punk aesthetic with pink and blue neon",
+                "digital forest with glowing binary trees"
+            ];
+            
+            const element = visualElements[Math.floor(Math.random() * visualElements.length)];
+            
+            return `${element}, ${theme.concept} theme, romantic atmosphere, vibrant colors, cinematic lighting, high detail, digital art style, 4K quality, emotional composition, trending on artstation`;
+        }
+        
+        // 結果表示
+        function displayResults(generation) {
+            const grid = document.getElementById('resultsGrid');
+            
+            // 初期表示用のモデルフォーマット
+            const initialModel = generation.model === 'v7' ? 'v 7' : generation.model === 'niji6' ? 'niji 6' : 'v 7';
+            
+            grid.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        🎵 楽曲タイトル
+                        <button class="copy-btn" onclick="copyToClipboard('title')">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="titleContent">${generation.title}</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        🎌 日本語歌詞
+                        <button class="copy-btn" onclick="copyToClipboard('lyricsJP')">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="lyricsJPContent">${generation.lyricsJP}</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        🇺🇸 英語歌詞
+                        <button class="copy-btn" onclick="copyToClipboard('lyricsEN')">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="lyricsENContent">${generation.lyricsEN}</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-header">
+                        🎨 Sunoスタイルプロンプト
+                        <button class="copy-btn" onclick="copyToClipboard('stylePrompt')">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="stylePromptContent">${generation.stylePrompt}</div>
+                </div>
+                
+                <div class="result-card full-width">
+                    <div class="result-header">
+                        🖼️ Midjourney画像プロンプト
+                        <button class="copy-btn" onclick="copyToClipboard('midjourneyPrompt')">📋 コピー</button>
+                    </div>
+                    <div class="midjourney-controls">
+                        <div class="control-group">
+                            <label>比率:</label>
+                            <select id="aspectRatio" onchange="updateMidjourneyPrompt()">
+                                <option value="1:1">1:1 (正方形)</option>
+                                <option value="9:16">9:16 (縦長)</option>
+                                <option value="16:9">16:9 (横長)</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>モデル:</label>
+                            <select id="mjModel" onchange="updateMidjourneyPrompt()">
+                                <option value="v7">v7</option>
+                                <option value="niji6">niji6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="result-content" id="midjourneyPromptContent">${generation.midjourneyPrompt} --ar 1:1 --${initialModel}</div>
+                </div>
+            `;
+        }
+        
+        // Midjourneyプロンプト更新
+        function updateMidjourneyPrompt() {
+            if (!currentGeneration) return;
+            
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            const model = document.getElementById('mjModel').value;
+            const basePrompt = currentGeneration.midjourneyPrompt;
+            
+            // モデル名にスペースを追加
+            const formattedModel = model === 'v7' ? 'v 7' : model === 'niji6' ? 'niji 6' : model;
+            const updatedPrompt = `${basePrompt} --ar ${aspectRatio} --${formattedModel}`;
+            document.getElementById('midjourneyPromptContent').textContent = updatedPrompt;
+            
+            // 現在の生成データも更新
+            currentGeneration.aspectRatio = aspectRatio;
+            currentGeneration.model = model;
+        }
+        
+        // クリップボードにコピー
+        function copyToClipboard(type) {
+            if (!currentGeneration) return;
+            
+            let text = '';
+            switch(type) {
+                case 'title':
+                    text = currentGeneration.title;
+                    break;
+                case 'lyricsJP':
+                    text = currentGeneration.lyricsJP;
+                    break;
+                case 'lyricsEN':
+                    text = currentGeneration.lyricsEN;
+                    break;
+                case 'stylePrompt':
+                    text = currentGeneration.stylePrompt;
+                    break;
+                case 'midjourneyPrompt':
+                    const aspectRatio = document.getElementById('aspectRatio')?.value || '1:1';
+                    const model = document.getElementById('mjModel')?.value || 'v7';
+                    // モデル名にスペースを追加
+                    const formattedModel = model === 'v7' ? 'v 7' : model === 'niji6' ? 'niji 6' : model;
+                    text = `${currentGeneration.midjourneyPrompt} --ar ${aspectRatio} --${formattedModel}`;
+                    break;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showCopySuccess();
+            }).catch(() => {
+                // フォールバック
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopySuccess();
+            });
+        }
+        
+        // コピー成功表示
+        function showCopySuccess() {
+            const indicator = document.getElementById('savedIndicator');
+            indicator.textContent = '📋 コピーしました！';
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 自動保存表示
+        function showSavedIndicator() {
+            const indicator = document.getElementById('savedIndicator');
+            indicator.textContent = '💾 自動保存されました';
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 履歴保存
+        function saveToHistory(generation) {
+            let history = JSON.parse(localStorage.getItem('sunoHistory') || '[]');
+            history.unshift(generation);
+            history = history.slice(0, 10); // 最新10件のみ保持
+            localStorage.setItem('sunoHistory', JSON.stringify(history));
+            loadHistory();
+        }
+        
+        // 履歴読み込み
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('sunoHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">まだ履歴がありません</p>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map((item, index) => `
+                <div class="history-item" onclick="loadFromHistory(${index})">
+                    <div class="history-meta">${item.timestamp} - ${item.theme.concept}</div>
+                    <div><strong>🎵 ${item.title}</strong></div>
+                </div>
+            `).join('');
+        }
+        
+        // 履歴から読み込み
+        function loadFromHistory(index) {
+            const history = JSON.parse(localStorage.getItem('sunoHistory') || '[]');
+            const item = history[index];
+            if (!item) return;
+            
+            currentGeneration = item;
+            document.getElementById('themeText').textContent = `🎯 ${item.theme.concept} (${item.theme.keywords})`;
+            displayResults(item);
+        }
+        
+        // ページ読み込み時に履歴を表示
+        window.addEventListener('load', () => {
+            loadHistory();
+            // 最新の履歴があれば自動的に表示
+            const history = JSON.parse(localStorage.getItem('sunoHistory') || '[]');
+            if (history.length > 0) {
+                loadFromHistory(0);
+            }
+        });
+        
+        // ページを離れる前に自動保存
+        window.addEventListener('beforeunload', () => {
+            if (currentGeneration) {
+                localStorage.setItem('currentGeneration', JSON.stringify(currentGeneration));
+            }
+        });
+        
+        // ページ読み込み時に前回のデータを復元
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('currentGeneration');
+            if (saved) {
+                try {
+                    currentGeneration = JSON.parse(saved);
+                    if (currentGeneration.theme) {
+                        document.getElementById('themeText').textContent = `🎯 ${currentGeneration.theme.concept} (${currentGeneration.theme.keywords})`;
+                        displayResults(currentGeneration);
+                    }
+                } catch (e) {
+                    console.log('保存データの復元に失敗しました');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

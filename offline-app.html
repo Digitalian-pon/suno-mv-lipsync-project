@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Prompt Studio</title>
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .prompt-editor {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .prompt-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            resize: vertical;
+        }
+        
+        .prompt-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 10px;
+            transition: transform 0.3s;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .main-content { padding: 20px; }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+        
+        .status {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Creative Prompt Studio</h1>
+            <p class="subtitle">次世代AI プロンプト作成ツール (オフライン版)</p>
+        </header>
+        
+        <div class="status">
+            ✅ <strong>ローカル版が正常に動作中</strong> - インターネット接続は不要です
+        </div>
+        
+        <div class="main-content">
+            <h2>🚀 高品質なプロンプトを簡単作成</h2>
+            <p>Creative Prompt Studioは、AI用の効果的なプロンプトを素早く作成できるWebアプリケーションです。</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>プロンプト生成</h3>
+                    <p>目的に応じた最適なプロンプトを自動生成します</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>目的別テンプレート</h3>
+                    <p>用途に合わせたプロンプトテンプレートを提供</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <h3>リアルタイム改善</h3>
+                    <p>入力内容をリアルタイムで最適化</p>
+                </div>
+            </div>
+            
+            <div class="prompt-editor">
+                <h3>📝 プロンプトエディター</h3>
+                <textarea 
+                    class="prompt-input" 
+                    placeholder="ここにプロンプトを入力してください...
+例：
+「創造的な小説の登場人物を作成してください。
+以下の条件を満たすキャラクターをお願いします：
+- 年齢：20-30代
+- 職業：芸術関係
+- 特徴的な趣味や特技
+- 興味深い背景ストーリー」"
+                    id="promptInput"></textarea>
+                <br>
+                <button class="btn" onclick="analyzePrompt()">📊 プロンプト分析</button>
+                <button class="btn" onclick="improvePrompt()">⚡ 自動改善</button>
+                <button class="btn" onclick="copyPrompt()">📋 コピー</button>
+                <button class="btn" onclick="savePrompt()">💾 保存</button>
+            </div>
+            
+            <div id="output" style="margin-top: 20px;"></div>
+            
+            <div id="savedPrompts" style="margin-top: 30px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Local Storage for offline functionality
+        function savePrompt() {
+            const input = document.getElementById('promptInput').value;
+            if (!input.trim()) {
+                showOutput('<div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 10px;">プロンプトを入力してください</div>');
+                return;
+            }
+            
+            const prompts = JSON.parse(localStorage.getItem('savedPrompts') || '[]');
+            const newPrompt = {
+                id: Date.now(),
+                content: input,
+                date: new Date().toLocaleDateString('ja-JP')
+            };
+            
+            prompts.unshift(newPrompt);
+            localStorage.setItem('savedPrompts', JSON.stringify(prompts.slice(0, 10))); // Keep only last 10
+            
+            showOutput('<div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 10px;">💾 プロンプトが保存されました！</div>');
+            loadSavedPrompts();
+        }
+        
+        function loadSavedPrompts() {
+            const prompts = JSON.parse(localStorage.getItem('savedPrompts') || '[]');
+            const container = document.getElementById('savedPrompts');
+            
+            if (prompts.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="background: #e9ecef; padding: 20px; border-radius: 15px;">
+                    <h3>💾 保存されたプロンプト</h3>
+                    ${prompts.map(prompt => `
+                        <div style="background: white; margin: 10px 0; padding: 15px; border-radius: 10px; cursor: pointer;" onclick="loadPrompt('${prompt.id}')">
+                            <small style="color: #666;">${prompt.date}</small>
+                            <p style="margin: 5px 0;">${prompt.content.substring(0, 100)}${prompt.content.length > 100 ? '...' : ''}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function loadPrompt(id) {
+            const prompts = JSON.parse(localStorage.getItem('savedPrompts') || '[]');
+            const prompt = prompts.find(p => p.id == id);
+            if (prompt) {
+                document.getElementById('promptInput').value = prompt.content;
+                showOutput('<div style="background: #cce5ff; color: #004085; padding: 15px; border-radius: 10px;">📝 プロンプトが読み込まれました</div>');
+            }
+        }
+        
+        function showOutput(html) {
+            document.getElementById('output').innerHTML = html;
+        }
+        
+        // Prompt Analysis Functions
+        function analyzePrompt() {
+            const input = document.getElementById('promptInput').value;
+            
+            if (!input.trim()) {
+                showOutput('<div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 10px;">プロンプトを入力してください</div>');
+                return;
+            }
+            
+            const wordCount = input.split(' ').length;
+            const charCount = input.length;
+            const sentences = input.split(/[.!?。！？]/).filter(s => s.trim()).length;
+            
+            showOutput(`
+                <div style="background: #d4edda; color: #155724; padding: 20px; border-radius: 10px;">
+                    <h4>📊 プロンプト分析結果</h4>
+                    <p><strong>文字数:</strong> ${charCount}</p>
+                    <p><strong>単語数:</strong> ${wordCount}</p>
+                    <p><strong>文数:</strong> ${sentences}</p>
+                    <p><strong>評価:</strong> ${getPromptQuality(wordCount, sentences)}</p>
+                    <p><strong>推奨:</strong> ${getRecommendation(wordCount, sentences)}</p>
+                </div>
+            `);
+        }
+        
+        function getPromptQuality(wordCount, sentences) {
+            if (wordCount < 10) return "❌ 短すぎます";
+            if (wordCount < 30) return "⚠️ やや短い";
+            if (wordCount < 100) return "✅ 適切";
+            if (wordCount < 200) return "✅ 詳細";
+            return "⚠️ 長すぎる可能性";
+        }
+        
+        function getRecommendation(wordCount, sentences) {
+            if (wordCount < 20) return "より具体的な指示を追加してください";
+            if (sentences < 2) return "複数の要求に分けて記述してください";
+            return "良い構造のプロンプトです";
+        }
+        
+        function improvePrompt() {
+            const input = document.getElementById('promptInput').value;
+            
+            if (!input.trim()) {
+                showOutput('<div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 10px;">プロンプトを入力してください</div>');
+                return;
+            }
+            
+            const improvements = [
+                "具体的な例を追加",
+                "期待する出力形式を明記",
+                "制約条件を明確化",
+                "段階的な指示に分割",
+                "コンテキストを追加"
+            ];
+            
+            showOutput(`
+                <div style="background: #cce5ff; color: #004085; padding: 20px; border-radius: 10px;">
+                    <h4>⚡ 改善提案</h4>
+                    ${improvements.map(imp => `<p>• ${imp}</p>`).join('')}
+                    <p style="margin-top: 15px;"><strong>改善版例:</strong></p>
+                    <p style="background: white; padding: 15px; border-radius: 5px; font-family: monospace;">
+                        ${input}<br><br>
+                        【追加提案】<br>
+                        - 出力形式: [具体的な形式を指定]<br>
+                        - 文字数: [希望する長さ]<br>
+                        - トーン: [カジュアル/フォーマル等]
+                    </p>
+                </div>
+            `);
+        }
+        
+        function copyPrompt() {
+            const input = document.getElementById('promptInput');
+            input.select();
+            document.execCommand('copy');
+            
+            showOutput('<div style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 10px;">📋 プロンプトをクリップボードにコピーしました！</div>');
+        }
+        
+        // Load saved prompts on page load
+        window.addEventListener('load', loadSavedPrompts);
+    </script>
+</body>
+</html>

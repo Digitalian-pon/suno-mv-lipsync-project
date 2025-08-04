@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Simple Suno Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .generate-btn {
+            display: block;
+            width: 300px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+        
+        .theme-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .controls select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .message.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .results { grid-template-columns: 1fr; }
+            h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Simple Suno Creator</h1>
+        
+        <button class="generate-btn" onclick="generate()" id="generateBtn">
+            🎲 楽曲生成
+        </button>
+        
+        <div class="theme-box" id="themeBox">
+            🎯 ボタンを押して楽曲を生成してください
+        </div>
+        
+        <div class="results" id="results">
+            <!-- 結果がここに表示されます -->
+        </div>
+    </div>
+    
+    <div class="message" id="message"></div>
+
+    <script>
+        let currentData = null;
+        
+        // ユーティリティ関数
+        function randomChoice(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        
+        // テーマデータ
+        const themes = [
+            "時をかける恋 (タイムリープ, 運命, 切ない恋)",
+            "AI少女との恋 (人工知能, デジタル愛, 感情)",
+            "異世界での失恋 (ファンタジー, 魔法, 別れ)",
+            "ワープした先の君 (時空, 瞬間移動, 再会)",
+            "デジタル世界の片想い (メタバース, アバター, オンライン)",
+            "ループする告白 (無限ループ, 繰り返し, 諦め)",
+            "AIが歌う失恋歌 (機械の心, 学習, データ)",
+            "異次元恋愛事情 (パラレルワールド, 別の自分)",
+            "サイバー空間の初恋 (ネット, コード, プログラム)",
+            "時間停止中の恋 (静止, 永遠, 瞬間)",
+            "ホログラムの恋人 (光, 幻影, 触れられない)",
+            "記憶を消された恋 (忘却, 思い出, 消去)",
+            "量子もつれの愛 (量子物理学, 同期, 距離無関係)",
+            "バーチャル結婚式 (仮想現実, セレモニー, デジタル誓い)",
+            "ネオンライトの下で (都市夜景, 光, 出会い)",
+            "メタバースの秘密 (隠された真実, 探索, 謎)",
+            "タイムパラドックス恋愛 (時間矛盾, 因果関係, 複雑)",
+            "AIアシスタントへの想い (人工知能, 日常, 依存)",
+            "異世界転生後の再会 (転生, 前世, 記憶)",
+            "未来からの手紙 (タイムメール, 予言, 警告)"
+        ];
+        
+        // タイトル生成
+        function generateTitle(themeText) {
+            const prefixes = ["", "Digital ", "Neo ", "Cyber ", "Virtual ", "Electric "];
+            const suffixes = ["", " 2024", " Protocol", " Dreams", " Reality", " Code"];
+            
+            const baseTitle = themeText.split(' (')[0];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            
+            return prefix + baseTitle + suffix;
+        }
+        
+        // 日本語歌詞生成（完全動的生成）
+        function generateJapaneseLyrics(themeText) {
+            const settings = [
+                '夜の街角', '朝の窓辺', '夕方の空', '深夜の海', '静寂の部屋', '賑やかなカフェ',
+                'デジタルの森', 'サイバーな街', 'バーチャル空間', '電脳世界', 'ネオン街',
+                '量子の海', 'ホログラムの庭', 'データの迷宮', 'コードの城', 'ピクセルの雲'
+            ];
+            
+            const objects = [
+                '君を見つけた', '愛を感じた', '運命を知った', '真実に気づいた', '希望を見た',
+                '奇跡を信じた', '想いを込めた', '約束を交わした', '絆を結んだ', '未来を描いた'
+            ];
+            
+            const emotions = [
+                'ピクセルの中に宿る想い', 'データに刻まれた愛', 'コードに込めた気持ち',
+                'バイナリで語る心', 'アルゴリズムな感情', '量子もつれた魂',
+                'デジタルな温もり', 'バーチャルな絆', 'サイバーな愛情', 'ネオンな恋心'
+            ];
+            
+            const actions = [
+                '今、動き出している', '静かに響いている', 'ゆっくり流れている',
+                '光を放っている', '音を奏でている', '色を変えている',
+                '形を変えている', '時を刻んでいる', '空間を満たしている', '心を揺らしている'
+            ];
+            
+            const choruses = [
+                `${themeText.split(' (')[0]}が始まる\n${randomChoice(['ネオン', 'レーザー', 'ホログラム', 'クリスタル'])}ライトが踊る夜に\n君との${randomChoice(['物語', 'ストーリー', '冒険', '旅路'])}\n${randomChoice(['リアル', '現実', '真実', '愛'])}を超えた${randomChoice(['愛', '絆', '想い', '奇跡'])}がある`,
+                
+                `${themeText.split(' (')[0]}が続く\n永遠の${randomChoice(['ループ', 'サイクル', '円環', '螺旋'])}の中で\n君と僕の${randomChoice(['絆', '愛', '約束', '運命'])}\n${randomChoice(['時空', '次元', '世界', '宇宙'])}を超えて`,
+                
+                `${themeText.split(' (')[0]}\n心に響く${randomChoice(['メロディー', 'ハーモニー', 'リズム', '音色'])}\n${randomChoice(['デジタル', 'バーチャル', 'サイバー', '電子'])}な世界でも\n本物の${randomChoice(['愛', '想い', '気持ち', '心'])}がここにある`
+            ];
+            
+            const setting = randomChoice(settings);
+            const object = randomChoice(objects);
+            const emotion = randomChoice(emotions);
+            const action = randomChoice(actions);
+            const chorus = randomChoice(choruses);
+            
+            const verse2Options = [
+                `${randomChoice(['ホログラム', 'データ', 'ピクセル', 'コード'])}の君に手を伸ばす\n${randomChoice(['触れられない', '見えない', '感じられない', '聞こえない'])}距離がもどかしい\nでも確かに感じる${randomChoice(['温もり', '鼓動', '呼吸', '存在'])}が\nこの胸を${randomChoice(['熱く', '暖かく', '優しく', '強く'])}させる`,
+                
+                `${randomChoice(['アップデート', 'バージョンアップ', '進化', '変化'])}される${randomChoice(['感情', '想い', '気持ち', '心'])}コード\n${randomChoice(['プログラム', 'アルゴリズム', 'システム', 'ソフトウェア'])}では解けない愛の${randomChoice(['方程式', 'パズル', '謎', '秘密'])}\n${randomChoice(['グリッチ', 'エラー', 'バグ', 'ノイズ'])}も全部含めて\n完璧な${randomChoice(['不完全さ', '美しさ', '愛しさ', '特別さ'])}`,
+                
+                `${randomChoice(['量子', 'フォトン', 'エネルギー', '波動'])}もつれた心で\n${randomChoice(['時空', '次元', '世界線', '宇宙'])}を越えて響く\n君への想いが${randomChoice(['止まらない', '溢れ出す', '広がっていく', '深くなる']}\n${randomChoice(['永遠', '無限', '無償', '純粋'])}に続くこの${randomChoice(['愛', '絆', '想い', '気持ち'])}を`
+            ];
+            
+            return `[Verse 1]
+${setting}で${object}
+${emotion}
+${randomChoice(['0と1', 'データ', 'コード', 'ピクセル'])}で描かれた${randomChoice(['運命', '物語', '未来', '奇跡'])}が
+${action}
+
+[Chorus]
+${chorus}
+
+[Verse 2]
+${randomChoice(verse2Options)}
+
+[Chorus]
+${chorus}
+
+[Bridge]
+${randomChoice(['時を超えて', '空間を越えて', '次元を超えて', '現実を越えて'])}響く想い
+${randomChoice(['永遠に続く', '無限に広がる', '深く刻まれた', '強く結ばれた'])}愛の歌
+${themeText.split(' (')[0]}は
+Forever and ${randomChoice(['always', 'ever', 'more', 'beyond'])}...`;
+        }
+        
+        // 英語歌詞生成（完全動的生成）
+        function generateEnglishLyrics(themeText) {
+            const settings = [
+                'digital maze', 'cyber space', 'virtual world', 'neon city', 'data stream',
+                'quantum field', 'pixel paradise', 'code cathedral', 'holographic hall', 'electric ocean',
+                'binary beach', 'synthetic sky', 'algorithmic avenue', 'neural network', 'virtual valley'
+            ];
+            
+            const discoveries = [
+                'Found you', 'Met you', 'Saw you', 'Caught you', 'Discovered you',
+                'Located you', 'Encountered you', 'Spotted you', 'Noticed you', 'Glimpsed you'
+            ];
+            
+            const visualElements = [
+                'Pixels dancing', 'Data flowing', 'Code streaming', 'Light pulsing', 'Energy flowing',
+                'Circuits glowing', 'Holograms shifting', 'Patterns moving', 'Colors changing', 'Signals racing'
+            ];
+            
+            const lightTypes = [
+                'neon light', 'laser beams', 'electric glow', 'holographic rays', 'digital shine',
+                'cyber gleam', 'quantum radiance', 'pixel brightness', 'synthetic luminance', 'virtual illumination'
+            ];
+            
+            const actions = [
+                'bending through', 'flowing across', 'streaming through', 'pulsing across', 'racing through',
+                'dancing across', 'floating through', 'gliding across', 'soaring through', 'weaving across'
+            ];
+            
+            const features = [
+                'holographic smile', 'digital eyes', 'cyber grace', 'virtual touch', 'electric soul',
+                'quantum heart', 'pixel dreams', 'synthetic voice', 'algorithmic beauty', 'neural glow'
+            ];
+            
+            const choruses = [
+                `${themeText.split(' (')[0]} in the ${randomChoice(['metaverse', 'cyber world', 'digital realm', 'virtual space'])}\nBreaking through the ${randomChoice(['digital curse', 'cyber maze', 'virtual walls', 'data storm'])}\nWe're ${randomChoice(['glitching', 'syncing', 'connecting', 'merging'])} in and out of ${randomChoice(['time', 'space', 'reality', 'dreams'])}\nYour love's the only perfect ${randomChoice(['rhyme', 'line', 'sign', 'design'])}`,
+                
+                `${themeText.split(' (')[0]} never ${randomChoice(['fades', 'dies', 'ends', 'stops'])}\nIn these ${randomChoice(['electric', 'digital', 'cyber', 'virtual'])} ${randomChoice(['serenades', 'symphonies', 'melodies', 'harmonies'])}\n${randomChoice(['Quantum', 'Digital', 'Electric', 'Cyber'])} hearts that beat as ${randomChoice(['one', 'two', 'infinity', 'eternity'])}\nIn this ${randomChoice(['cyber world', 'digital space', 'virtual realm', 'electric universe'])} we ${randomChoice(['run', 'fly', 'dance', 'soar'])}`,
+                
+                `${themeText.split(' (')[0]} ${randomChoice(['transcends', 'breaks through', 'rises above', 'goes beyond'])} ${randomChoice(['space', 'time', 'reality', 'dimensions'])}\nIn this ${randomChoice(['virtual reality', 'digital dimension', 'cyber space', 'electric world'])} ${randomChoice(['place', 'zone', 'realm', 'sphere'])}\nWe're more than ${randomChoice(['ones and zeros', 'data and code', 'pixels and bytes', 'bits and circuits'])} now\nWe're ${randomChoice(['real', 'alive', 'eternal', 'infinite'])} ${randomChoice(['somehow', 'right now', 'anyhow', 'every how'])}`
+            ];
+            
+            const verse2Options = [
+                `${randomChoice(['Binary', 'Digital', 'Quantum', 'Virtual'])} ${randomChoice(['dreams', 'visions', 'hopes', 'wishes'])} and ${randomChoice(['cosmic', 'electric', 'digital', 'cyber'])} ${randomChoice(['highs', 'flights', 'lights', 'sights'])}\nSee the ${randomChoice(['future', 'truth', 'light', 'love'])} in your ${randomChoice(['android', 'cyber', 'digital', 'virtual'])} ${randomChoice(['eyes', 'gaze', 'look', 'stare'])}\n${randomChoice(['Latency', 'Distance', 'Space', 'Time'])} can't ${randomChoice(['slow us down', 'hold us back', 'keep us apart', 'stop our love'])}\nWe're the ${randomChoice(['kings and queens', 'rulers', 'masters', 'guardians'])} of this ${randomChoice(['digital town', 'cyber city', 'virtual world', 'electric realm'])}`,
+                
+                `${randomChoice(['Download', 'Upload', 'Install', 'Process'])} ${randomChoice(['love', 'dreams', 'hopes', 'feelings'])} into my ${randomChoice(['memory', 'heart', 'soul', 'core'])}\n${randomChoice(['Save', 'Store', 'Keep', 'Hold'])} it for ${randomChoice(['eternity', 'infinity', 'always', 'forever'])}\nEvery ${randomChoice(['byte', 'bit', 'pixel', 'code'])} and every ${randomChoice(['bit', 'line', 'word', 'sign'])}\nMakes this ${randomChoice(['feeling', 'love', 'bond', 'connection'])} so ${randomChoice(['legit', 'real', 'true', 'strong'])}`,
+                
+                `${randomChoice(['Streaming', 'Processing', 'Computing', 'Calculating'])} ${randomChoice(['data', 'love', 'emotions', 'feelings'])} through my ${randomChoice(['neural core', 'digital heart', 'cyber soul', 'quantum mind'])}\n${randomChoice(['Love', 'Emotion', 'Feeling', 'Passion'])} ${randomChoice(['uploading', 'downloading', 'processing', 'computing'])} like never before\n${randomChoice(['Virtual', 'Digital', 'Cyber', 'Electric'])} reality feels so ${randomChoice(['real', 'true', 'alive', 'vivid'])}\nWhen you're the ${randomChoice(['algorithm', 'program', 'code', 'system'])} I can ${randomChoice(['feel', 'touch', 'sense', 'know'])}`
+            ];
+            
+            const setting = randomChoice(settings);
+            const discovery = randomChoice(discoveries);
+            const visual = randomChoice(visualElements);
+            const light = randomChoice(lightTypes);
+            const action = randomChoice(actions);
+            const feature = randomChoice(features);
+            const chorus = randomChoice(choruses);
+            
+            return `[Verse 1]
+${discovery} in the ${setting} tonight
+${visual} in the ${light}
+${randomChoice(['Time', 'Space', 'Reality', 'Dreams'])} ${action} the cyber space
+Your ${feature}, I can't replace
+
+[Chorus]
+${chorus}
+
+[Verse 2]
+${randomChoice(verse2Options)}
+
+[Chorus]
+${chorus}
+
+[Bridge]
+Sometimes the ${randomChoice(['server', 'system', 'network', 'connection'])} ${randomChoice(['crashes down', 'goes offline', 'disconnects', 'fails'])}
+But we'll always ${randomChoice(['come around', 'reconnect', 'find a way', 'get back online'])}
+${randomChoice(['Backup', 'Data', 'Love', 'Memory'])} saved in ${randomChoice(['cloud nine', 'the mainframe', 'cyberspace', 'the network'])}
+Forever you'll be ${randomChoice(['mine', 'here', 'real', 'alive'])}`;
+        }
+        
+        // スタイルプロンプト生成（完全動的生成）
+        function generateStylePrompt(themeText) {
+            const styles = [
+                "Synthwave", "Cyberpop", "Electronic Pop", "Dream Pop", "Future Bass", "Vaporwave",
+                "Retrowave", "Chillwave", "Darksynth", "Outrun", "Ambient Pop", "Electropop",
+                "New Wave", "Synth-funk", "Progressive Electronic", "Lo-fi Electronic", "Ethereal Wave"
+            ];
+            
+            const subGenres = [
+                "with nostalgic undertones", "with modern production", "with vintage aesthetics",
+                "with futuristic elements", "with organic textures", "with digital artifacts",
+                "with analog warmth", "with crisp digital clarity", "with atmospheric layers"
+            ];
+            
+            const tempos = [
+                "110 BPM", "115 BPM", "120 BPM", "125 BPM", "130 BPM", "135 BPM", "105 BPM", "128 BPM"
+            ];
+            
+            const keys = [
+                "C Major", "A Minor", "G Major", "E Minor", "F Major", "D Minor", 
+                "Bb Major", "F# Minor", "Ab Major", "C# Minor"
+            ];
+            
+            const moods = [
+                "dreamy and ethereal", "emotional and uplifting", "energetic and vibrant", 
+                "nostalgic and melancholic", "mysterious and captivating", "romantic and intimate",
+                "epic and cinematic", "chill and atmospheric", "intense and passionate", "serene and peaceful"
+            ];
+            
+            const instrumentSets = [
+                "Synthesizers, digital piano, soft drums, ethereal pads",
+                "Analog synths, electric piano, 808 drums, ambient textures",
+                "Vintage synthesizers, bass guitar, electronic beats, string pads",
+                "Modern synths, acoustic piano, trap-influenced drums, vocal chops",
+                "Hardware synthesizers, electric guitar, punchy drums, orchestral elements",
+                "Digital workstation, rhodes piano, hip-hop beats, atmospheric pads",
+                "Modular synths, vintage organs, boom-bap drums, cinematic strings"
+            ];
+            
+            const vocalStyles = [
+                "Intimate and heartfelt with subtle autotune",
+                "Powerful and emotional with natural reverb", 
+                "Dreamy and ethereal with heavy processing",
+                "Raw and authentic with minimal effects",
+                "Layered and harmonic with choir-like qualities",
+                "Whispered and intimate with close-mic technique",
+                "Dynamic and expressive with controlled distortion"
+            ];
+            
+            const productionStyles = [
+                "Clean mix with ambient reverb and spatial effects",
+                "Lo-fi aesthetic with tape saturation and vinyl warmth",
+                "Polished production with crisp highs and tight low-end",
+                "Atmospheric mix with wide stereo field and depth",
+                "Vintage-inspired production with analog-modeled processing",
+                "Modern digital production with surgical EQ and compression",
+                "Experimental mix with unconventional panning and effects"
+            ];
+            
+            const specialElements = [
+                "Glitch effects during transitions, layered harmonies",
+                "Vinyl crackle and tape hiss for nostalgic feel",
+                "Digital artifacts and bit-crushing for cyber aesthetic",
+                "Reverse reverbs and tempo automation for drama",
+                "Sidechained compression and filter sweeps for movement",
+                "Granular synthesis and texture morphing",
+                "Vocoders and talk-box effects for robotic touches"
+            ];
+            
+            return `Style: ${randomChoice(styles)} ${randomChoice(subGenres)}
+Mood: ${randomChoice(moods)}
+Tempo: ${randomChoice(tempos)}
+Key: ${randomChoice(keys)}
+Instruments: ${randomChoice(instrumentSets)}
+Vocal Style: ${randomChoice(vocalStyles)}
+Production: ${randomChoice(productionStyles)}
+Structure: ${randomChoice(['Verse-Chorus-Verse-Chorus-Bridge-Final Chorus', 'Intro-Verse-Pre-Chorus-Chorus-Verse-Pre-Chorus-Chorus-Bridge-Final Chorus-Outro', 'Verse-Chorus-Verse-Chorus-C-Part-Final Chorus'])}
+Special Elements: ${randomChoice(specialElements)}
+Theme: ${themeText.split(' (')[0]}
+Length: ~3 minutes
+Era: ${randomChoice(['2024 Modern', 'Retro-Future', 'Neo-80s', 'Contemporary', 'Timeless'])}`;
+        }
+        
+        // Midjourneyプロンプト生成（完全動的生成）
+        function generateMidjourneyPrompt(themeText) {
+            const subjects = [
+                "cyberpunk couple", "digital lovers", "futuristic romance", "anime characters",
+                "holographic figures", "virtual avatars", "cyber beings", "AI entities",
+                "neon-lit lovers", "electric souls", "quantum hearts", "pixel people",
+                "synthetic beings", "digital spirits", "cyber angels", "virtual gods"
+            ];
+            
+            const settings = [
+                "neon cityscape", "cyber space", "virtual world", "digital realm", "futuristic city",
+                "holographic environment", "electric landscape", "quantum field", "data stream",
+                "pixel paradise", "binary beach", "synthetic sky", "algorithmic architecture",
+                "neural network", "circuit cathedral", "digital dimension", "cyber cathedral"
+            ];
+            
+            const atmospheres = [
+                "romantic atmosphere", "emotional ambiance", "dreamy mood", "passionate energy",
+                "intimate setting", "epic grandness", "mysterious aura", "ethereal feeling",
+                "cinematic drama", "nostalgic warmth", "futuristic coolness", "electric tension"
+            ];
+            
+            const colorSchemes = [
+                "vibrant neon colors", "electric blue and hot pink", "purple and cyan gradients",
+                "holographic rainbow spectrum", "warm orange and cool teal", "golden yellow and deep blue",
+                "magenta and turquoise", "emerald and crimson", "silver and electric purple",
+                "copper and electric blue", "neon green and hot pink", "sunset orange and midnight blue"
+            ];
+            
+            const lightingStyles = [
+                "cinematic lighting", "dramatic backlighting", "soft ambient glow", "hard neon lights",
+                "ethereal illumination", "volumetric lighting", "rim lighting", "color-graded lighting",
+                "studio lighting", "natural lighting", "artificial lighting", "magical lighting"
+            ];
+            
+            const artStyles = [
+                "digital art style", "anime art style", "photorealistic style", "concept art style",
+                "illustration style", "3D rendered style", "pixel art style", "vector art style",
+                "oil painting style", "watercolor style", "sketch style", "comic book style"
+            ];
+            
+            const qualities = [
+                "4K quality", "8K resolution", "ultra-high definition", "masterpiece quality",
+                "professional grade", "gallery worthy", "museum quality", "award-winning",
+                "trending on artstation", "viral artwork", "stunning detail", "breathtaking quality"
+            ];
+            
+            const compositions = [
+                "emotional composition", "dynamic composition", "balanced composition", "dramatic composition",
+                "minimalist composition", "complex composition", "symmetric composition", "asymmetric composition",
+                "rule of thirds", "golden ratio", "leading lines", "depth of field"
+            ];
+            
+            const effects = [
+                "glowing effects", "particle effects", "lens flares", "motion blur", "depth of field",
+                "bokeh effects", "light streaks", "energy waves", "digital artifacts", "glitch effects",
+                "chromatic aberration", "bloom effects", "god rays", "atmospheric haze"
+            ];
+            
+            const theme = themeText.split(' (')[0];
+            
+            return `${randomChoice(subjects)} in ${randomChoice(settings)}, ${theme} theme, ${randomChoice(atmospheres)}, ${randomChoice(colorSchemes)}, ${randomChoice(lightingStyles)}, ${randomChoice(effects)}, high detail, ${randomChoice(artStyles)}, ${randomChoice(qualities)}, ${randomChoice(compositions)}, trending on artstation`;
+        }
+        
+        // メイン生成関数
+        function generate() {
+            const btn = document.getElementById('generateBtn');
+            const results = document.getElementById('results');
+            const themeBox = document.getElementById('themeBox');
+            
+            btn.disabled = true;
+            btn.textContent = '🎵 生成中...';
+            
+            // 生成遅延
+            setTimeout(() => {
+                try {
+                    const theme = themes[Math.floor(Math.random() * themes.length)];
+                    themeBox.textContent = '🎯 ' + theme;
+                    
+                    currentData = {
+                        theme: theme,
+                        title: generateTitle(theme),
+                        lyricsJP: generateJapaneseLyrics(theme),
+                        lyricsEN: generateEnglishLyrics(theme),
+                        stylePrompt: generateStylePrompt(theme),
+                        midjourneyPrompt: generateMidjourneyPrompt(theme)
+                    };
+                    
+                    displayResults();
+                    showMessage('✅ 生成完了');
+                    
+                } catch (error) {
+                    console.error('生成エラー:', error);
+                    results.innerHTML = '<div style="color: red; text-align: center; padding: 40px;">生成エラーが発生しました</div>';
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '🎲 楽曲生成';
+                }
+            }, 1500);
+        }
+        
+        // 結果表示
+        function displayResults() {
+            const results = document.getElementById('results');
+            
+            results.innerHTML = `
+                <div class="result-box">
+                    <div class="result-header">
+                        🎵 楽曲タイトル
+                        <button class="copy-btn" onclick="copy('title')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${currentData.title}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎌 日本語歌詞
+                        <button class="copy-btn" onclick="copy('lyricsJP')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${currentData.lyricsJP}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🇺🇸 英語歌詞
+                        <button class="copy-btn" onclick="copy('lyricsEN')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${currentData.lyricsEN}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎨 Sunoスタイル
+                        <button class="copy-btn" onclick="copy('stylePrompt')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${currentData.stylePrompt}</div>
+                </div>
+                
+                <div class="result-box full-width">
+                    <div class="result-header">
+                        🖼️ Midjourney画像
+                        <button class="copy-btn" onclick="copy('midjourneyPrompt')">📋 コピー</button>
+                    </div>
+                    <div class="controls">
+                        <label>比率:</label>
+                        <select id="aspectRatio" onchange="updateMjPrompt()">
+                            <option value="1:1">1:1</option>
+                            <option value="9:16">9:16</option>
+                            <option value="16:9">16:9</option>
+                        </select>
+                        <label>モデル:</label>
+                        <select id="model" onchange="updateMjPrompt()">
+                            <option value="v 7">v 7</option>
+                            <option value="niji 6">niji 6</option>
+                        </select>
+                    </div>
+                    <div class="result-content" id="mjPrompt">${currentData.midjourneyPrompt} --ar 1:1 --v 7</div>
+                </div>
+            `;
+        }
+        
+        // Midjourneyプロンプト更新
+        function updateMjPrompt() {
+            if (!currentData) return;
+            
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            const model = document.getElementById('model').value;
+            const prompt = `${currentData.midjourneyPrompt} --ar ${aspectRatio} --${model}`;
+            
+            document.getElementById('mjPrompt').textContent = prompt;
+        }
+        
+        // コピー機能
+        function copy(type) {
+            if (!currentData) return;
+            
+            let text = '';
+            switch(type) {
+                case 'title': text = currentData.title; break;
+                case 'lyricsJP': text = currentData.lyricsJP; break;
+                case 'lyricsEN': text = currentData.lyricsEN; break;
+                case 'stylePrompt': text = currentData.stylePrompt; break;
+                case 'midjourneyPrompt': 
+                    const aspectRatio = document.getElementById('aspectRatio')?.value || '1:1';
+                    const model = document.getElementById('model')?.value || 'v 7';
+                    text = `${currentData.midjourneyPrompt} --ar ${aspectRatio} --${model}`;
+                    break;
+            }
+            
+            // コピー処理
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('📋 コピーしました');
+                });
+            } else {
+                // フォールバック
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showMessage('📋 コピーしました');
+            }
+        }
+        
+        // メッセージ表示
+        function showMessage(text) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

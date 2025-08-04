@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Prompt Studio - Full Version</title>
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .tab-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            padding: 40px;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 10px 5px;
+            transition: transform 0.3s;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result-header {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .tab-content { padding: 20px; }
+            .tabs { flex-wrap: wrap; }
+            .tab { min-width: 50%; }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Creative Prompt Studio</h1>
+            <p class="subtitle">AI生成ツール - タイトル・歌詞・スタイル・ワークアウト</p>
+        </header>
+        
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('title')">📝 タイトル生成</button>
+                <button class="tab" onclick="showTab('lyrics')">🎵 歌詞生成</button>
+                <button class="tab" onclick="showTab('style')">🎨 スタイル生成</button>
+                <button class="tab" onclick="showTab('workout')">💪 ワークアウト</button>
+                <button class="tab" onclick="showTab('prompt')">🔧 プロンプト</button>
+            </div>
+            
+            <!-- タイトル生成タブ -->
+            <div id="title" class="tab-content active">
+                <h2>📝 タイトル生成器</h2>
+                <div class="form-group">
+                    <label for="titleGenre">ジャンル</label>
+                    <select id="titleGenre">
+                        <option value="小説">小説</option>
+                        <option value="映画">映画</option>
+                        <option value="ブログ記事">ブログ記事</option>
+                        <option value="商品">商品</option>
+                        <option value="サービス">サービス</option>
+                        <option value="イベント">イベント</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="titleKeyword">キーワード</label>
+                    <input type="text" id="titleKeyword" placeholder="例: 冒険, 恋愛, 未来">
+                </div>
+                <div class="form-group">
+                    <label for="titleMood">雰囲気</label>
+                    <select id="titleMood">
+                        <option value="明るい">明るい</option>
+                        <option value="暗い">暗い</option>
+                        <option value="神秘的">神秘的</option>
+                        <option value="コミカル">コミカル</option>
+                        <option value="ロマンチック">ロマンチック</option>
+                        <option value="スリリング">スリリング</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateTitles()">🎯 タイトル生成</button>
+                <div id="titleOutput" class="output"></div>
+            </div>
+            
+            <!-- 歌詞生成タブ -->
+            <div id="lyrics" class="tab-content">
+                <h2>🎵 歌詞生成器</h2>
+                <div class="form-group">
+                    <label for="lyricsGenre">音楽ジャンル</label>
+                    <select id="lyricsGenre">
+                        <option value="ポップ">ポップ</option>
+                        <option value="ロック">ロック</option>
+                        <option value="バラード">バラード</option>
+                        <option value="ヒップホップ">ヒップホップ</option>
+                        <option value="フォーク">フォーク</option>
+                        <option value="電子音楽">電子音楽</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="lyricsTheme">テーマ</label>
+                    <input type="text" id="lyricsTheme" placeholder="例: 失恋, 友情, 夢">
+                </div>
+                <div class="form-group">
+                    <label for="lyricsMood">感情</label>
+                    <select id="lyricsMood">
+                        <option value="喜び">喜び</option>
+                        <option value="悲しみ">悲しみ</option>
+                        <option value="怒り">怒り</option>
+                        <option value="希望">希望</option>
+                        <option value="ノスタルジア">ノスタルジア</option>
+                        <option value="情熱">情熱</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="lyricsLength">長さ</label>
+                    <select id="lyricsLength">
+                        <option value="短い">短い (1番のみ)</option>
+                        <option value="標準">標準 (1番・2番・サビ)</option>
+                        <option value="長い">長い (フル楽曲)</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateLyrics()">🎼 歌詞生成</button>
+                <div id="lyricsOutput" class="output"></div>
+            </div>
+            
+            <!-- スタイル生成タブ -->
+            <div id="style" class="tab-content">
+                <h2>🎨 スタイル・デザイン生成器</h2>
+                <div class="form-group">
+                    <label for="styleType">スタイルタイプ</label>
+                    <select id="styleType">
+                        <option value="ファッション">ファッション</option>
+                        <option value="インテリア">インテリア</option>
+                        <option value="グラフィック">グラフィックデザイン</option>
+                        <option value="ウェブサイト">ウェブサイト</option>
+                        <option value="アート">アート</option>
+                        <option value="建築">建築</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="styleEra">時代・スタイル</label>
+                    <select id="styleEra">
+                        <option value="モダン">モダン</option>
+                        <option value="クラシック">クラシック</option>
+                        <option value="ヴィンテージ">ヴィンテージ</option>
+                        <option value="未来的">未来的</option>
+                        <option value="ミニマル">ミニマル</option>
+                        <option value="ボヘミアン">ボヘミアン</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="styleColors">色の好み</label>
+                    <input type="text" id="styleColors" placeholder="例: 青, 白, 金色">
+                </div>
+                <div class="form-group">
+                    <label for="styleFeatures">特徴・要望</label>
+                    <textarea id="styleFeatures" placeholder="例: エレガント, シンプル, 目を引く"></textarea>
+                </div>
+                <button class="btn" onclick="generateStyle()">🎨 スタイル生成</button>
+                <div id="styleOutput" class="output"></div>
+            </div>
+            
+            <!-- ワークアウトタブ -->
+            <div id="workout" class="tab-content">
+                <h2>💪 ワークアウトプラン生成器</h2>
+                <div class="form-group">
+                    <label for="fitnessLevel">フィットネスレベル</label>
+                    <select id="fitnessLevel">
+                        <option value="初心者">初心者</option>
+                        <option value="中級者">中級者</option>
+                        <option value="上級者">上級者</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="workoutGoal">目標</label>
+                    <select id="workoutGoal">
+                        <option value="ダイエット">ダイエット</option>
+                        <option value="筋力アップ">筋力アップ</option>
+                        <option value="持久力向上">持久力向上</option>
+                        <option value="体幹強化">体幹強化</option>
+                        <option value="柔軟性向上">柔軟性向上</option>
+                        <option value="全身フィットネス">全身フィットネス</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="workoutTime">時間</label>
+                    <select id="workoutTime">
+                        <option value="15分">15分</option>
+                        <option value="30分">30分</option>
+                        <option value="45分">45分</option>
+                        <option value="60分">60分</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="equipment">使用可能な器具</label>
+                    <select id="equipment">
+                        <option value="なし">器具なし（自重トレーニング）</option>
+                        <option value="ダンベル">ダンベル</option>
+                        <option value="ヨガマット">ヨガマット</option>
+                        <option value="ジム設備">ジム設備一式</option>
+                        <option value="チューブ">エクササイズチューブ</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateWorkout()">🏋️ ワークアウト生成</button>
+                <div id="workoutOutput" class="output"></div>
+            </div>
+            
+            <!-- プロンプトタブ -->
+            <div id="prompt" class="tab-content">
+                <h2>🔧 カスタムプロンプト生成</h2>
+                <div class="form-group">
+                    <label for="promptInput">プロンプト入力</label>
+                    <textarea id="promptInput" placeholder="ここにプロンプトを入力してください..."></textarea>
+                </div>
+                <button class="btn" onclick="analyzePrompt()">📊 分析</button>
+                <button class="btn" onclick="improvePrompt()">⚡ 改善</button>
+                <button class="btn" onclick="copyPrompt()">📋 コピー</button>
+                <div id="promptOutput" class="output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // タブ切り替え
+        function showTab(tabName) {
+            // 全てのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 全てのタブボタンを非アクティブ
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 指定されたタブを表示
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // タイトル生成
+        function generateTitles() {
+            const genre = document.getElementById('titleGenre').value;
+            const keyword = document.getElementById('titleKeyword').value;
+            const mood = document.getElementById('titleMood').value;
+            
+            const output = document.getElementById('titleOutput');
+            output.innerHTML = '<div class="loading"><div class="spinner"></div>タイトルを生成中...</div>';
+            
+            setTimeout(() => {
+                const titles = generateTitleSuggestions(genre, keyword, mood);
+                let html = '<h3>生成されたタイトル候補:</h3>';
+                
+                titles.forEach((title, index) => {
+                    html += `
+                        <div class="result-item">
+                            <div class="result-header">案 ${index + 1}</div>
+                            <div>${title}</div>
+                            <button class="copy-btn" onclick="copyText('${title}')">📋 コピー</button>
+                        </div>
+                    `;
+                });
+                
+                output.innerHTML = html;
+            }, 1000);
+        }
+        
+        function generateTitleSuggestions(genre, keyword, mood) {
+            const templates = {
+                '小説': [
+                    `${keyword}の${mood}物語`,
+                    `${mood}なる${keyword}`,
+                    `${keyword}：${mood}な章`,
+                    `${mood}の${keyword}伝説`,
+                    `${keyword}が紡ぐ${mood}な世界`
+                ],
+                '映画': [
+                    `${keyword} - ${mood}な旅路`,
+                    `${mood}の${keyword}`,
+                    `${keyword}：最後の${mood}`,
+                    `${mood}なる${keyword}の記録`,
+                    `${keyword}が見た${mood}な夢`
+                ],
+                'ブログ記事': [
+                    `${keyword}で実現する${mood}な生活`,
+                    `${mood}な${keyword}の始め方`,
+                    `なぜ${keyword}は${mood}なのか`,
+                    `${keyword}で${mood}になれる理由`,
+                    `${mood}な${keyword}の秘密`
+                ]
+            };
+            
+            return templates[genre] || templates['小説'];
+        }
+        
+        // 歌詞生成
+        function generateLyrics() {
+            const genre = document.getElementById('lyricsGenre').value;
+            const theme = document.getElementById('lyricsTheme').value;
+            const mood = document.getElementById('lyricsMood').value;
+            const length = document.getElementById('lyricsLength').value;
+            
+            const output = document.getElementById('lyricsOutput');
+            output.innerHTML = '<div class="loading"><div class="spinner"></div>歌詞を生成中...</div>';
+            
+            setTimeout(() => {
+                const lyrics = generateLyricContent(genre, theme, mood, length);
+                output.innerHTML = `
+                    <div class="result-item">
+                        <div class="result-header">${genre} - ${theme}をテーマにした${mood}な歌詞</div>
+                        <pre style="white-space: pre-wrap; font-family: inherit;">${lyrics}</pre>
+                        <button class="copy-btn" onclick="copyText(\`${lyrics}\`)">📋 コピー</button>
+                    </div>
+                `;
+            }, 1500);
+        }
+        
+        function generateLyricContent(genre, theme, mood, length) {
+            const samples = {
+                '短い': `[1番]
+君と歩いた ${theme} の道
+${mood} な気持ちが溢れてく
+今この瞬間を忘れないで
+永遠に続く この想いを
+
+[サビ]
+${theme} が教えてくれた
+本当の ${mood} を
+心に刻んで 歩いていこう
+新しい明日へ`,
+                
+                '標準': `[1番]
+静かな夜に想う ${theme}
+${mood} な気持ちが蘇る
+あの日の約束 今も胸に
+響いてる メロディー
+
+[サビ]
+${theme} よ 教えて
+この ${mood} な想いを
+どこへ運べばいいの
+風に乗せて 飛んでいけ
+
+[2番]
+時は流れて 季節変わり
+${theme} だけが変わらずに
+${mood} な記憶を胸に抱いて
+歩き続ける この道を
+
+[サビ繰り返し]
+${theme} よ 教えて
+この ${mood} な想いを
+どこへ運べばいいの
+風に乗せて 飛んでいけ`,
+                
+                '長い': `[イントロ]
+${theme}...
+
+[1番]
+朝日が昇る 新しい日に
+${mood} な気持ちで目覚めて
+昨日の涙 今日の笑顔
+全部が ${theme} に繋がってる
+
+[Aメロ]
+歩いてきた道のり
+振り返れば見えてくる
+${theme} が導いた軌跡
+${mood} な光が射してる
+
+[サビ]
+${theme} よ ありがとう
+この ${mood} な心を
+君がくれた勇気で
+明日を迎えられる
+${theme} がある限り
+決して一人じゃない
+${mood} な想いを胸に
+歩いていこう
+
+[2番]
+雨の日も 風の日も
+${theme} が支えてくれた
+${mood} な記憶を宝物に
+新しい扉を開こう
+
+[Aメロ]
+時には迷うこともある
+道が見えなくなっても
+${theme} を信じていれば
+${mood} な答えが見つかる
+
+[サビ]
+${theme} よ ありがとう
+この ${mood} な心を
+君がくれた勇気で
+明日を迎えられる
+${theme} がある限り
+決して一人じゃない
+${mood} な想いを胸に
+歩いていこう
+
+[アウトロ]
+${theme}... 永遠に`
+            };
+            
+            return samples[length] || samples['標準'];
+        }
+        
+        // スタイル生成
+        function generateStyle() {
+            const type = document.getElementById('styleType').value;
+            const era = document.getElementById('styleEra').value;
+            const colors = document.getElementById('styleColors').value;
+            const features = document.getElementById('styleFeatures').value;
+            
+            const output = document.getElementById('styleOutput');
+            output.innerHTML = '<div class="loading"><div class="spinner"></div>スタイルを生成中...</div>';
+            
+            setTimeout(() => {
+                const style = generateStyleContent(type, era, colors, features);
+                output.innerHTML = `
+                    <div class="result-item">
+                        <div class="result-header">${era}風 ${type}スタイル提案</div>
+                        <div>${style}</div>
+                        <button class="copy-btn" onclick="copyText(\`${style}\`)">📋 コピー</button>
+                    </div>
+                `;
+            }, 1200);
+        }
+        
+        function generateStyleContent(type, era, colors, features) {
+            const styleGuides = {
+                'ファッション': {
+                    'モダン': `【モダン${type}スタイル】
+・カラーパレット: ${colors || 'ブラック、ホワイト、グレー'}
+・基本アイテム: シンプルなライン、ミニマルなシルエット
+・素材: 高品質なコットン、リネン、シルク
+・特徴: ${features || 'クリーンで洗練された印象'}
+・アクセサリー: シルバージュエリー、シンプルな時計
+・スタイリングポイント: 色数を抑え、フィット感を重視`,
+                    
+                    'ヴィンテージ': `【ヴィンテージ${type}スタイル】
+・カラーパレット: ${colors || 'アースカラー、ダークグリーン、バーガンディ'}
+・基本アイテム: レトロなパターン、クラシックなシルエット
+・素材: ヴィンテージデニム、ウール、レザー
+・特徴: ${features || 'ノスタルジックで個性的'}
+・アクセサリー: ヴィンテージ時計、レトロなバッグ
+・スタイリングポイント: 古着とモダンアイテムのミックス`
+                },
+                'インテリア': {
+                    'モダン': `【モダン${type}デザイン】
+・カラースキーム: ${colors || 'ホワイト、グレー、アクセントカラー'}
+・家具: ミニマルなライン、機能的なデザイン
+・素材: ガラス、スチール、天然木
+・特徴: ${features || '開放感のある空間、無駄のないデザイン'}
+・照明: LED、間接照明
+・レイアウト: オープンプラン、余白を活かした配置`,
+                    
+                    'クラシック': `【クラシック${type}デザイン】
+・カラースキーム: ${colors || 'アイボリー、ゴールド、ダークウッド'}
+・家具: 装飾的なディテール、伝統的なフォルム
+・素材: マホガニー、大理石、ベルベット
+・特徴: ${features || 'エレガントで格式高い'}
+・照明: シャンデリア、テーブルランプ
+・レイアウト: 対称性を重視した配置`
+                }
+            };
+            
+            return styleGuides[type]?.[era] || `【${era}風 ${type}スタイル】
+・メインカラー: ${colors || '調和の取れたカラーパレット'}
+・コンセプト: ${features || era + 'の要素を取り入れたデザイン'}
+・特徴: ${era}らしさを現代的にアレンジ
+・ポイント: 機能性と美しさの両立`;
+        }
+        
+        // ワークアウト生成
+        function generateWorkout() {
+            const level = document.getElementById('fitnessLevel').value;
+            const goal = document.getElementById('workoutGoal').value;
+            const time = document.getElementById('workoutTime').value;
+            const equipment = document.getElementById('equipment').value;
+            
+            const output = document.getElementById('workoutOutput');
+            output.innerHTML = '<div class="loading"><div class="spinner"></div>ワークアウトプランを生成中...</div>';
+            
+            setTimeout(() => {
+                const workout = generateWorkoutPlan(level, goal, time, equipment);
+                output.innerHTML = `
+                    <div class="result-item">
+                        <div class="result-header">${level}向け ${goal} ワークアウト（${time}）</div>
+                        <pre style="white-space: pre-wrap; font-family: inherit;">${workout}</pre>
+                        <button class="copy-btn" onclick="copyText(\`${workout}\`)">📋 コピー</button>
+                    </div>
+                `;
+            }, 1000);
+        }
+        
+        function generateWorkoutPlan(level, goal, time, equipment) {
+            const workouts = {
+                '初心者': {
+                    'ダイエット': {
+                        '15分': `【15分 ダイエットワークアウト - 初心者】
+
+ウォームアップ（3分）
+・軽いジョギング: 1分
+・腕回し: 30秒 × 2セット
+・屈伸運動: 30秒 × 2セット
+
+メインエクササイズ（10分）
+1. スクワット: 30秒 × 2セット（15秒休憩）
+2. 膝つき腕立て伏せ: 30秒 × 2セット（15秒休憩）
+3. マウンテンクライマー: 30秒 × 2セット（15秒休憩）
+4. プランク: 20秒 × 2セット（20秒休憩）
+
+クールダウン（2分）
+・ストレッチ: 全身をゆっくり伸ばす`,
+
+                        '30分': `【30分 ダイエットワークアウト - 初心者】
+
+ウォームアップ（5分）
+・軽いジョギング: 2分
+・動的ストレッチ: 3分
+
+メインエクササイズ（22分）
+サーキット1（8分）
+1. スクワット: 45秒（15秒休憩）
+2. 膝つき腕立て伏せ: 45秒（15秒休憩）
+3. ステップアップ: 45秒（15秒休憩）
+4. 休憩: 1分
+
+サーキット2（8分）
+1. ランジ: 45秒（15秒休憩）
+2. プランク: 30秒（30秒休憩）
+3. ジャンピングジャック: 45秒（15秒休憩）
+4. 休憩: 1分
+
+サーキット3（6分）
+1. バーピー（簡単版）: 30秒（30秒休憩）
+2. ウォールシット: 30秒（30秒休憩）
+3. ハイニー: 30秒（30秒休憩）
+
+クールダウン（3分）
+・ストレッチ: 全身リラックス`
+                    },
+                    '筋力アップ': {
+                        '30分': `【30分 筋力アップワークアウト - 初心者】
+
+ウォームアップ（5分）
+・軽い有酸素運動: 3分
+・関節回し: 2分
+
+上半身強化（10分）
+1. 膝つき腕立て伏せ: 8回 × 3セット
+2. パイクプッシュアップ: 5回 × 3セット
+3. 逆手懸垂（可能なら）: 3回 × 3セット
+4. プランク: 30秒 × 3セット
+
+下半身強化（10分）
+1. スクワット: 12回 × 3セット
+2. ランジ: 各脚8回 × 3セット
+3. カーフレイズ: 15回 × 3セット
+4. グルートブリッジ: 12回 × 3セット
+
+クールダウン（5分）
+・ストレッチング: 筋肉の緊張をほぐす`
+                    }
+                }
+            };
+            
+            return workouts[level]?.[goal]?.[time] || `【${level}向け ${goal}ワークアウト - ${time}】
+
+${equipment}を使用したトレーニングプラン
+
+基本構成:
+・ウォームアップ: ${parseInt(time)/6}分
+・メインエクササイズ: ${parseInt(time)*2/3}分
+・クールダウン: ${parseInt(time)/6}分
+
+注意事項:
+・水分補給を忘れずに
+・無理をせず自分のペースで
+・痛みを感じたら中止してください`;
+        }
+        
+        // プロンプト機能（既存）
+        function analyzePrompt() {
+            const input = document.getElementById('promptInput').value;
+            const output = document.getElementById('promptOutput');
+            
+            if (!input.trim()) {
+                output.innerHTML = '<div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 10px;">プロンプトを入力してください</div>';
+                return;
+            }
+            
+            const wordCount = input.split(' ').length;
+            const charCount = input.length;
+            const sentences = input.split(/[.!?。！？]/).filter(s => s.trim()).length;
+            
+            output.innerHTML = `
+                <div style="background: #d4edda; color: #155724; padding: 20px; border-radius: 10px;">
+                    <h4>📊 プロンプト分析結果</h4>
+                    <p><strong>文字数:</strong> ${charCount}</p>
+                    <p><strong>単語数:</strong> ${wordCount}</p>
+                    <p><strong>文数:</strong> ${sentences}</p>
+                    <p><strong>評価:</strong> ${getPromptQuality(wordCount, sentences)}</p>
+                    <p><strong>推奨:</strong> ${getRecommendation(wordCount, sentences)}</p>
+                </div>
+            `;
+        }
+        
+        function improvePrompt() {
+            const input = document.getElementById('promptInput').value;
+            const output = document.getElementById('promptOutput');
+            
+            if (!input.trim()) {
+                output.innerHTML = '<div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 10px;">プロンプトを入力してください</div>';
+                return;
+            }
+            
+            const improvements = [
+                "具体的な例を追加",
+                "期待する出力形式を明記",
+                "制約条件を明確化",
+                "段階的な指示に分割",
+                "コンテキストを追加"
+            ];
+            
+            output.innerHTML = `
+                <div style="background: #cce5ff; color: #004085; padding: 20px; border-radius: 10px;">
+                    <h4>⚡ 改善提案</h4>
+                    ${improvements.map(imp => `<p>• ${imp}</p>`).join('')}
+                    <p style="margin-top: 15px;"><strong>改善版例:</strong></p>
+                    <p style="background: white; padding: 15px; border-radius: 5px; font-family: monospace;">
+                        ${input}<br><br>
+                        【追加提案】<br>
+                        - 出力形式: [具体的な形式を指定]<br>
+                        - 文字数: [希望する長さ]<br>
+                        - トーン: [カジュアル/フォーマル等]
+                    </p>
+                </div>
+            `;
+        }
+        
+        function copyPrompt() {
+            const input = document.getElementById('promptInput');
+            input.select();
+            document.execCommand('copy');
+            
+            document.getElementById('promptOutput').innerHTML = '<div style="background: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 10px;">📋 プロンプトをクリップボードにコピーしました！</div>';
+        }
+        
+        function getPromptQuality(wordCount, sentences) {
+            if (wordCount < 10) return "❌ 短すぎます";
+            if (wordCount < 30) return "⚠️ やや短い";
+            if (wordCount < 100) return "✅ 適切";
+            if (wordCount < 200) return "✅ 詳細";
+            return "⚠️ 長すぎる可能性";
+        }
+        
+        function getRecommendation(wordCount, sentences) {
+            if (wordCount < 20) return "より具体的な指示を追加してください";
+            if (sentences < 2) return "複数の要求に分けて記述してください";
+            return "良い構造のプロンプトです";
+        }
+        
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('📋 コピーしました！');
+            }).catch(() => {
+                // フォールバック
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('📋 コピーしました！');
+            });
+        }
+    </script>
+</body>
+</html>
