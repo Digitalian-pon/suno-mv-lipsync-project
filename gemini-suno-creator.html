@@ -425,19 +425,28 @@
         
         // AI生成関数
         async function generateWithAI(theme) {
-            // ランダム性を高めるためにタイムスタンプを追加
-            const randomSeed = Date.now() % 10000;
+            // 強化されたランダム性とユニーク性
+            const timestamp = Date.now();
+            const randomSeed = timestamp % 100000;
+            const extraRandom = Math.floor(Math.random() * 999999);
+            
+            // さらに多様化を促すプロンプト
+            const styleVariations = ['experimental', 'traditional', 'modern', 'vintage', 'futuristic', 'minimalist', 'epic', 'intimate'];
+            const styleHint = styleVariations[Math.floor(Math.random() * styleVariations.length)];
+            
+            const moodVariations = ['mysterious', 'uplifting', 'melancholic', 'energetic', 'dreamy', 'intense', 'peaceful', 'dramatic'];
+            const moodHint = moodVariations[Math.floor(Math.random() * moodVariations.length)];
             
             const prompts = {
-                title: `Create a unique song title for "${theme}". Make it creative and different. Random seed: ${randomSeed}. Title only.`,
+                title: `Create a completely unique and original song title for "${theme}". Make it ${styleHint} and memorable. Avoid common words. Unique ID: ${randomSeed}-${extraRandom}. ONLY the title.`,
                 
-                lyricsJP: `Write original Japanese lyrics about "${theme}". Use creative expressions. Include [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Final Chorus]. Avoid common phrases. Seed: ${randomSeed}. Lyrics only.`,
+                lyricsJP: `Create completely original Japanese lyrics for "${theme}" with ${moodHint} mood. Use unique metaphors and fresh expressions. Structure: [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Final Chorus]. Make it totally different from typical songs. ID: ${randomSeed}${extraRandom}. ONLY lyrics.`,
                 
-                lyricsEN: `Write original English lyrics about "${theme}". Be creative and unique. Include [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Final Chorus]. Avoid repetitive phrases. Seed: ${randomSeed + 1}. Lyrics only.`,
+                lyricsEN: `Write totally original English lyrics for "${theme}" with ${styleHint} style. Use creative wordplay and unique imagery. Structure: [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Final Chorus]. Make it completely fresh and different. ID: ${randomSeed + extraRandom}. ONLY lyrics.`,
                 
-                stylePrompt: `Short style for "${theme}": Genre, mood, tempo. 20 words max. Seed: ${randomSeed + 2}.`,
+                stylePrompt: `Create ${styleHint} style for "${theme}": Unique genre, ${moodHint} mood, specific tempo. 25 words max. ID: ${randomSeed + 1000}.`,
                 
-                midjourneyPrompt: `"${theme}" art: style, colors. 15 words max. Seed: ${randomSeed + 3}.`
+                midjourneyPrompt: `"${theme}" ${styleHint} art: unique style, specific colors, ${moodHint} atmosphere. 20 words max. ID: ${extraRandom}.`
             };
             
             const results = {};
@@ -456,19 +465,72 @@
             return results;
         }
         
-        // ローカル生成（フォールバック）
+        // 大幅強化されたローカル生成
         function generateLocally(theme) {
             const themeBase = theme.split(' (')[0];
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 999999);
+            
+            // タイトル生成バリエーション
+            const titlePrefixes = ['', 'Digital ', 'Neon ', 'Cyber ', 'Virtual ', 'Electric ', 'Quantum ', 'Holographic ', 'Synthetic ', 'Neural ', 'Binary ', 'Cosmic ', 'Ethereal ', 'Phantom ', 'Crystal '];
+            const titleSuffixes = ['', ' 2024', ' Protocol', ' Dreams', ' Reality', ' Code', ' Pulse', ' Wave', ' Matrix', ' Glitch', ' Symphony', ' Echo', ' Mirage', ' Paradox', ' Algorithm'];
+            const titleStyles = ['', '∞', '◊', '◇', '△', '▽', '◯', '◎', '★', '☆', '♦', '♢', '⟡', '⬟', '⬢'];
+            
+            const titlePrefix = titlePrefixes[Math.floor(Math.random() * titlePrefixes.length)];
+            const titleSuffix = titleSuffixes[Math.floor(Math.random() * titleSuffixes.length)];
+            const titleStyle = titleStyles[Math.floor(Math.random() * titleStyles.length)];
+            
+            // 日本語歌詞バリエーション
+            const jpSettings = ['夜の街角', '朝の窓辺', '夕方の空', '深夜の海', '静寂の部屋', '賑やかなカフェ', 'デジタルの森', 'サイバーな街', 'バーチャル空間', '電脳世界', 'ネオン街', '量子の海', 'ホログラムの庭', 'データの迷宮', 'コードの城', 'ピクセルの雲', '光の回廊', '音の結界', '時の隙間', '夢の境界'];
+            const jpActions = ['君を見つけた', '愛を感じた', '運命を知った', '真実に気づいた', '希望を見た', '奇跡を信じた', '想いを込めた', '約束を交わした', '絆を結んだ', '未来を描いた', '過去を振り返った', '今を生きている', '心を開いた', '扉を叩いた', '答えを探した'];
+            const jpEmotions = ['ピクセルの中に宿る想い', 'データに刻まれた愛', 'コードに込めた気持ち', 'バイナリで語る心', 'アルゴリズムな感情', '量子もつれた魂', 'デジタルな温もり', 'バーチャルな絆', 'サイバーな愛情', 'ネオンな恋心', '電子の鼓動', '光の記憶', '音の想い出', '色の感情', '形の願い'];
+            const jpChorus = ['輝く', '光る', '響く', '流れる', '踊る', '歌う', '奏でる', '紡ぐ', '織りなす', '描く', '刻む', '結ぶ', '繋ぐ', '広がる', '深まる'];
+            
+            // 英語歌詞バリエーション
+            const enSettings = ['digital maze', 'cyber space', 'virtual world', 'neon city', 'data stream', 'quantum field', 'pixel paradise', 'code cathedral', 'holographic hall', 'electric ocean', 'binary beach', 'synthetic sky', 'algorithmic avenue', 'neural network', 'virtual valley', 'crystal chamber', 'sonic sanctuary', 'photon plaza', 'electron estate', 'quantum quarters'];
+            const enDiscoveries = ['Found you', 'Met you', 'Saw you', 'Caught you', 'Discovered you', 'Located you', 'Encountered you', 'Spotted you', 'Noticed you', 'Glimpsed you', 'Reached you', 'Touched you', 'Felt you', 'Heard you', 'Sensed you'];
+            const enVisuals = ['Pixels dancing', 'Data flowing', 'Code streaming', 'Light pulsing', 'Energy flowing', 'Circuits glowing', 'Holograms shifting', 'Patterns moving', 'Colors changing', 'Signals racing', 'Waves crashing', 'Sparks flying', 'Beams crossing', 'Rays bending', 'Streams merging'];
+            const enFeels = ['electric soul', 'digital heart', 'cyber mind', 'quantum spirit', 'virtual essence', 'synthetic dreams', 'holographic thoughts', 'binary emotions', 'algorithmic love', 'neural connections', 'photonic pulse', 'sonic vibration', 'chromatic feeling', 'geometric passion', 'fractal desire'];
+            
+            // スタイル生成バリエーション
+            const genres = ['Electronic Pop', 'Synthwave', 'Cyberpop', 'Future Bass', 'Chillwave', 'Darksynth', 'Vaporwave', 'Retrowave', 'Ambient Pop', 'Electropop', 'Dream Pop', 'Synthpop', 'New Wave', 'Progressive Electronic', 'Ethereal Wave', 'Digital Funk', 'Cyber Jazz', 'Quantum Blues', 'Virtual Rock', 'Holographic Hip-Hop'];
+            const moods = ['emotional', 'dreamy', 'energetic', 'melancholic', 'uplifting', 'mysterious', 'intense', 'peaceful', 'dramatic', 'romantic', 'nostalgic', 'futuristic', 'ethereal', 'powerful', 'intimate', 'epic', 'minimalist', 'experimental', 'cinematic', 'ambient'];
+            const tempos = ['80 BPM', '90 BPM', '100 BPM', '110 BPM', '120 BPM', '130 BPM', '140 BPM', '85 BPM', '95 BPM', '105 BPM', '115 BPM', '125 BPM', '135 BPM', '72 BPM', '128 BPM', '150 BPM', '160 BPM', '75 BPM', '88 BPM', '132 BPM'];
+            
+            // Midjourneyバリエーション
+            const artStyles = ['cyberpunk', 'synthwave', 'vaporwave', 'futuristic', 'digital art', 'neon art', 'holographic', 'glitch art', 'pixel art', 'vector art', 'abstract', 'minimalist', 'surreal', 'cosmic', 'ethereal', 'cinematic', 'photorealistic', 'impressionist', 'expressionist', 'pop art'];
+            const colorSchemes = ['neon colors', 'pastel gradients', 'electric blue', 'hot pink', 'purple hues', 'cyan tones', 'golden yellow', 'emerald green', 'crimson red', 'violet shades', 'turquoise', 'magenta', 'amber glow', 'silver gleam', 'copper shine', 'rainbow spectrum', 'monochrome', 'sepia tones', 'technicolor', 'prismatic'];
+            const atmospheres = ['romantic', 'mysterious', 'dramatic', 'peaceful', 'intense', 'dreamy', 'epic', 'intimate', 'nostalgic', 'futuristic', 'ethereal', 'powerful', 'serene', 'vibrant', 'melancholic', 'uplifting', 'dark', 'bright', 'cosmic', 'urban'];
+            
+            // ランダム選択
+            const jpSetting = jpSettings[random % jpSettings.length];
+            const jpAction = jpActions[(random + 1) % jpActions.length];
+            const jpEmotion = jpEmotions[(random + 2) % jpEmotions.length];
+            const jpChorusWord = jpChorus[(random + 3) % jpChorus.length];
+            
+            const enSetting = enSettings[random % enSettings.length];
+            const enDiscovery = enDiscoveries[(random + 1) % enDiscoveries.length];
+            const enVisual = enVisuals[(random + 2) % enVisuals.length];
+            const enFeel = enFeels[(random + 3) % enFeels.length];
+            
+            const genre = genres[random % genres.length];
+            const mood = moods[(random + 1) % moods.length];
+            const tempo = tempos[(random + 2) % tempos.length];
+            
+            const artStyle = artStyles[random % artStyles.length];
+            const colorScheme = colorSchemes[(random + 1) % colorSchemes.length];
+            const atmosphere = atmospheres[(random + 2) % atmospheres.length];
             
             return {
-                title: `Digital ${themeBase} 2024`,
-                lyricsJP: `[Verse 1]\nデジタルの世界で君を見つけた\n${themeBase}の物語が始まる\n心に響く想いを込めて\n永遠に続くこの愛を\n\n[Chorus]\n${themeBase}が輝く夜に\n君と僕の未来を描こう\nリアルを超えた絆で\n新しい世界へ歩いていこう\n\n[Verse 2]\nピクセルに込められた想い\nコードで歌う愛の歌\nバーチャルでも本物の\n気持ちがここにある\n\n[Chorus]\n${themeBase}が輝く夜に\n君と僕の未来を描こう\nリアルを超えた絆で\n新しい世界へ歩いていこう\n\n[Bridge]\n時を超えて響く愛\n永遠に続く物語\n${themeBase}は\nForever and always`,
+                title: `${titlePrefix}${themeBase}${titleSuffix}${titleStyle}`,
                 
-                lyricsEN: `[Verse 1]\nFound you in the digital world tonight\n${themeBase} story begins to shine\nWith feelings deep inside my heart\nThis love will last for all time\n\n[Chorus]\nIn the night where ${themeBase} glows\nLet's paint our future, you and me\nWith bonds that transcend reality\nWe'll walk into a world so free\n\n[Verse 2]\nEmotions coded in every pixel\nLove songs written in digital code\nEven in virtual spaces\nThese feelings are real and true\n\n[Chorus]\nIn the night where ${themeBase} glows\nLet's paint our future, you and me\nWith bonds that transcend reality\nWe'll walk into a world so free\n\n[Bridge]\nLove that echoes across time\nA story that will never end\n${themeBase}\nForever and always`,
+                lyricsJP: `[Verse 1]\n${jpSetting}で${jpAction}\n${jpEmotion}\n${themeBase}が心に響いて\n新しい世界が始まる\n\n[Chorus]\n${themeBase}が${jpChorusWord}夜に\n君と僕の物語を描こう\n${mood}な絆で結ばれて\n未来への扉を開こう\n\n[Verse 2]\n時を超えた想いが\nコードとなって流れてく\nバーチャルでも本物の\n愛がここにある\n\n[Chorus]\n${themeBase}が${jpChorusWord}夜に\n君と僕の物語を描こう\n${mood}な絆で結ばれて\n未来への扉を開こう\n\n[Bridge]\n${jpEmotion}が\n永遠に響き続ける\n${themeBase}は\nForever and beyond`,
                 
-                stylePrompt: `Electronic Pop, emotional, 120 BPM`,
+                lyricsEN: `[Verse 1]\n${enDiscovery} in the ${enSetting} tonight\n${enVisual} in the ${colorScheme} light\nYour ${enFeel} calling out to me\nIn this ${atmosphere} symphony\n\n[Chorus]\n${themeBase} ${mood} and free\nDancing through eternity\nWith ${genre} in our hearts\nWe'll never be apart\n\n[Verse 2]\n${enVisual} through the digital space\nYour ${enFeel} I can't replace\nIn this world of ones and zeros\nWe're the ultimate heroes\n\n[Chorus]\n${themeBase} ${mood} and free\nDancing through eternity\nWith ${genre} in our hearts\nWe'll never be apart\n\n[Bridge]\nSometimes the signals fade away\nBut our love is here to stay\n${themeBase} will always be\nOur ${atmosphere} destiny`,
                 
-                midjourneyPrompt: `${themeBase}, neon, digital art`
+                stylePrompt: `${genre}, ${mood}, ${tempo}`,
+                
+                midjourneyPrompt: `${themeBase}, ${artStyle}, ${colorScheme}, ${atmosphere}`
             };
         }
         
