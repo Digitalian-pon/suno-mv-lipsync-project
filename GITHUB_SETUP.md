@@ -14,7 +14,7 @@
 3. **「New repository」をクリック** (右上の + ボタン)
 4. **リポジトリ設定**:
    ```
-   Repository name: creative-prompt-studio
+   Repository name: suno-ai-music-generator
    Description: 🎵 AI-Powered Suno Music Generation App with Gemini Integration
    ✅ Public (推奨)
    ❌ Add a README file (既にあるのでチェックしない)
@@ -33,7 +33,7 @@ pwd
 # → /data/data/com.termux/files/home/CreativePromptStudioApp
 
 # リモートリポジトリを追加 (your-usernameを実際のユーザー名に変更)
-git remote add origin https://github.com/your-username/creative-prompt-studio.git
+git remote add origin https://github.com/your-username/suno-ai-music-generator.git
 
 # リモート接続を確認
 git remote -v

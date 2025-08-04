@@ -1,4 +1,4 @@
-# 🎵 Creative Prompt Studio - Suno AI Music Generation App
+# 🎵 Suno AI Music Generator - AI-Powered Music Creation App
 
 **完全なAI音楽生成アプリケーション** - Gemini AI統合とオフライン機能を備えた包括的な楽曲制作ツール
 
@@ -106,10 +106,10 @@ open gemini-suno-creator.html
 ### ローカルインストール
 ```bash
 # リポジトリをクローン
-git clone https://github.com/your-username/creative-prompt-studio.git
+git clone https://github.com/your-username/suno-ai-music-generator.git
 
 # ディレクトリに移動
-cd creative-prompt-studio
+cd suno-ai-music-generator
 
 # ブラウザで開く
 open gemini-suno-creator.html
@@ -118,8 +118,8 @@ open gemini-suno-creator.html
 ### Termuxでの使用
 ```bash
 # Termuxで直接作成
-git clone <repository-url>
-cd creative-prompt-studio
+git clone https://github.com/YOUR-USERNAME/suno-ai-music-generator.git
+cd suno-ai-music-generator
 
 # Termuxブラウザで表示
 termux-open gemini-suno-creator.html
@@ -144,7 +144,7 @@ termux-open gemini-suno-creator.html
 ### 1. GitHub上でリポジトリ作成
 - [GitHub](https://github.com)にアクセス
 - 「New repository」をクリック  
-- リポジトリ名: `creative-prompt-studio`
+- リポジトリ名: `suno-ai-music-generator`
 - Description: `🎵 AI-Powered Suno Music Generation App`
 - Public を選択
 - 「Create repository」をクリック
@@ -152,7 +152,7 @@ termux-open gemini-suno-creator.html
 ### 2. ローカルからプッシュ
 ```bash
 # リモートリポジトリを追加
-git remote add origin https://github.com/your-username/creative-prompt-studio.git
+git remote add origin https://github.com/your-username/suno-ai-music-generator.git
 
 # メインブランチに変更
 git branch -M main
