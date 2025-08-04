@@ -97,8 +97,13 @@ open gemini-suno-creator.html
 - インターネット接続 (AI機能用)
 - Gemini API Key (AI機能用)
 
-## 🚀 インストール
+## 🚀 使用方法・インストール
 
+### オンライン使用 (推奨)
+1. 直接ブラウザでアクセス：`gemini-suno-creator.html`
+2. Gemini API Keyを設定してAI生成を体験
+
+### ローカルインストール
 ```bash
 # リポジトリをクローン
 git clone https://github.com/your-username/creative-prompt-studio.git
@@ -108,6 +113,16 @@ cd creative-prompt-studio
 
 # ブラウザで開く
 open gemini-suno-creator.html
+```
+
+### Termuxでの使用
+```bash
+# Termuxで直接作成
+git clone <repository-url>
+cd creative-prompt-studio
+
+# Termuxブラウザで表示
+termux-open gemini-suno-creator.html
 ```
 
 ## 📖 ドキュメント
@@ -121,6 +136,30 @@ open gemini-suno-creator.html
 - 生成履歴はlocalStorageに保存
 - ブラウザデータ削除時にリセット
 - プライバシー完全保護
+
+## 🌐 GitHubリポジトリ作成
+
+このプロジェクトをGitHubにアップロードする手順：
+
+### 1. GitHub上でリポジトリ作成
+- [GitHub](https://github.com)にアクセス
+- 「New repository」をクリック  
+- リポジトリ名: `creative-prompt-studio`
+- Description: `🎵 AI-Powered Suno Music Generation App`
+- Public を選択
+- 「Create repository」をクリック
+
+### 2. ローカルからプッシュ
+```bash
+# リモートリポジトリを追加
+git remote add origin https://github.com/your-username/creative-prompt-studio.git
+
+# メインブランチに変更
+git branch -M main
+
+# すべてをプッシュ
+git push -u origin main
+```
 
 ## 🤝 貢献
 
