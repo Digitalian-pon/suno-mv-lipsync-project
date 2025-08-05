@@ -1,17 +1,28 @@
 {
-  "name": "com.digitalian.creativeprompt",
-  "displayName": "Creative Prompt Studio",
+  "name": "suno-ai-music-generator",
+  "displayName": "Suno AI Music Generator",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
-  "main": "index.js",
+  "description": "🎵 AI-Powered Suno Music Generation App with Gemini API integration",
+  "main": "api-server.js",
   "scripts": {
+    "start": "node api-server.js",
+    "dev": "node api-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "ecosystem:cordova"
+    "music",
+    "ai",
+    "suno",
+    "generator",
+    "gemini",
+    "api",
+    "proxy"
   ],
-  "author": "Apache Cordova Team",
-  "license": "Apache-2.0",
+  "author": "Digitalian-pon",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "devDependencies": {
     "cordova-android": "^14.0.1"
   },

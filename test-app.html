@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Suno Creator - Debug Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            display: none;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Suno Creator - デバッグ版</h1>
+        
+        <div id="status" class="success">JavaScriptが正常に動作しています！</div>
+        
+        <h2>テスト機能</h2>
+        <button onclick="testButton()">ボタンテスト</button>
+        <button onclick="generateTest()">生成テスト</button>
+        <button onclick="generateLocal()">ローカル生成</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // 即座にステータス表示
+        console.log('JavaScript loaded');
+        
+        function testButton() {
+            alert('ボタンが正常に動作しています！');
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result').textContent = 'テスト成功: ' + new Date().toLocaleString();
+        }
+        
+        function generateTest() {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.textContent = '生成テスト中...\n';
+            
+            setTimeout(() => {
+                result.textContent += '\n✅ 生成機能は正常です！\n';
+                result.textContent += 'タイトル: テスト楽曲\n';
+                result.textContent += '歌詞: ラララ〜♪';
+            }, 1000);
+        }
+        
+        function generateLocal() {
+            const themes = [
+                "時をかける恋",
+                "AI少女との恋",
+                "異世界での失恋",
+                "デジタル世界の片想い"
+            ];
+            
+            const theme = themes[Math.floor(Math.random() * themes.length)];
+            const title = `星空の${theme}メロディー`;
+            
+            const lyrics = `[Verse 1]
+デジタル空間で君と出会った
+切ない気持ちが胸を締め付ける
+${theme}が心に響いて
+新しい世界が始まる
+
+[Chorus]
+${theme}が輝いてる夜に
+君と僕の物語を描こう
+永遠の絆で結ばれて
+未来への扉を開こう`;
+            
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.textContent = `🎯 テーマ: ${theme}\n\n`;
+            result.textContent += `🎵 タイトル: ${title}\n\n`;
+            result.textContent += `📝 歌詞:\n${lyrics}\n\n`;
+            result.textContent += `🎨 スタイル: Electronic Pop, Emotional, 120 BPM`;
+        }
+        
+        // エラーハンドリング
+        window.onerror = function(msg, url, line, col, error) {
+            document.getElementById('status').className = 'error';
+            document.getElementById('status').textContent = `エラー: ${msg} (Line: ${line})`;
+            return false;
+        };
+    </script>
+</body>
+</html>
