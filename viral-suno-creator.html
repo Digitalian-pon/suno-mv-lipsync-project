@@ -169,7 +169,8 @@
         
         .generate-btn {
             display: block;
-            width: 350px;
+            width: 90%;
+            max-width: 350px;
             margin: 30px auto;
             padding: 20px;
             background: linear-gradient(135deg, #FF006E 0%, #8338EC 50%, #3A86FF 100%);
@@ -684,9 +685,12 @@
                     }
                 
                 case 'midjourneyPrompt':
-                    const styles = viral ? ['anime aesthetic', 'vaporwave', 'Y2K revival', 'weirdcore'] : ['cyberpunk', 'synthwave', 'digital art'];
-                    const colors = viral ? ['pastel chaos', 'neon explosion', 'holographic', 'glitchcore'] : ['neon', 'purple', 'cyan'];
-                    return `${theme}, ${styles[Math.floor(Math.random() * styles.length)]}, ${colors[Math.floor(Math.random() * colors.length)]}`;
+                    // 英語のアートワークプロンプト（シンプルに1つだけ）
+                    if (viral) {
+                        return `${theme}, viral aesthetic, trending style, high quality`;
+                    } else {
+                        return `${theme}, digital art, modern design, professional`;
+                    }
                 
                 default:
                     return '生成エラー';
@@ -798,11 +802,12 @@
                         </select>
                         <label>モデル:</label>
                         <select id="model" onchange="updateMjPrompt()">
+                            <option value="v 7">v 7 (最新)</option>
                             <option value="v 6">v 6</option>
                             <option value="niji 6">niji 6 (アニメ)</option>
                         </select>
                     </div>
-                    <div class="result-content" id="mjPrompt">${currentData.midjourneyPrompt} --ar 1:1 --v 6</div>
+                    <div class="result-content" id="mjPrompt">${currentData.midjourneyPrompt} --ar 1:1 --v 7</div>
                 </div>
             `;
         }
@@ -841,7 +846,7 @@
                     break;
                 case 'midjourneyPrompt': 
                     const aspectRatio = document.getElementById('aspectRatio')?.value || '1:1';
-                    const model = document.getElementById('model')?.value || 'v 6';
+                    const model = document.getElementById('model')?.value || 'v 7';
                     text = `${currentData.midjourneyPrompt || ''} --ar ${aspectRatio} --${model}`;
                     break;
                 default:
