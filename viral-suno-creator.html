@@ -626,15 +626,15 @@
             const viralSuffix = isViral ? 'TikTokで使われそうな' : '';
             
             const prompts = {
-                title: `${viralPrefix}キャッチーな楽曲タイトルを生成「${theme}」。${viralSuffix}ユニークで印象的に。タイトルのみ出力。`,
+                title: `Create ONE catchy song title for "${theme}". ${isViral ? 'Make it viral and trendy for TikTok.' : 'Make it unique and memorable.'} Output ONLY the title, nothing else. Just one title.`,
                 
                 lyricsJP: `${viralPrefix}日本語歌詞「${theme}」。${viralSuffix}エモくて共感性高く。[Verse][Chorus]形式で。歌詞のみ出力。`,
                 
-                lyricsEN: `${viralPrefix}英語歌詞「${theme}」。${viralSuffix}グローバルに響く。[Verse][Chorus]形式で。歌詞のみ出力。`,
+                lyricsEN: `Create English lyrics for "${theme}". ${isViral ? 'Make it viral and catchy for TikTok.' : 'Make it emotional and meaningful.'} Use [Verse][Chorus] format. Output lyrics only.`,
                 
-                stylePrompt: `${theme}の${viralPrefix}音楽スタイル。ジャンル、BPM、雰囲気を簡潔に。`,
+                stylePrompt: `Create ONE music style for "${theme}". ${isViral ? 'Viral TikTok style' : 'Modern style'}. Include genre, mood, and BPM. Maximum 20 words.`,
                 
-                midjourneyPrompt: `${theme}の${viralPrefix}アルバムアート。視覚的インパクト重視。20語以内。`
+                midjourneyPrompt: `Album art for "${theme}", ${isViral ? 'viral aesthetic, trending style' : 'digital art, modern design'}, vibrant colors, high impact visual, professional artwork`
             };
             
             const results = {};
