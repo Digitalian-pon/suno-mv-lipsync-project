@@ -464,49 +464,34 @@
             status.innerHTML = '<span style="color: blue;">🔄 接続テスト中...</span>';
             
             try {
-                // プロキシサーバー経由で接続
-                const response = await fetch('http://localhost:3000/api/gemini', {
+                // 直接API接続（gemini-suno-creator.htmlと同じ方法）
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        apiKey: apiKey,
-                        prompt: "Hello, test connection"
+                        contents: [{ parts: [{ text: "Hello test" }] }],
+                        generationConfig: { 
+                            temperature: 0.1, 
+                            maxOutputTokens: 10 
+                        }
                     })
                 });
                 
-                if (response.ok) {
+                const data = await response.json();
+                
+                if (response.ok && data.candidates) {
                     apiConnected = true;
                     localStorage.setItem('geminiApiKey', apiKey);
                     status.innerHTML = '<span style="color: green;">✅ 接続成功！AI生成が利用可能です</span>';
                     showMessage('API接続成功！', 'success');
                 } else {
-                    throw new Error('API connection failed');
+                    throw new Error(data.error?.message || 'API connection failed');
                 }
             } catch (error) {
-                // 直接接続を試みる
-                try {
-                    const directResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: "Hello" }] }],
-                            generationConfig: { temperature: 0.1, maxOutputTokens: 10 }
-                        })
-                    });
-                    
-                    if (directResponse.ok) {
-                        apiConnected = true;
-                        localStorage.setItem('geminiApiKey', apiKey);
-                        status.innerHTML = '<span style="color: green;">✅ 接続成功！AI生成が利用可能です（直接接続）</span>';
-                        showMessage('API接続成功！', 'success');
-                    } else {
-                        throw new Error('Direct API connection also failed');
-                    }
-                } catch (directError) {
-                    apiConnected = false;
-                    status.innerHTML = '<span style="color: orange;">⚠️ API接続失敗。ローカルモードで使用してください</span>';
-                    showMessage('API接続失敗。ローカルモードで使用可能です', 'warning');
-                }
+                console.error('API接続エラー:', error);
+                apiConnected = false;
+                status.innerHTML = '<span style="color: red;">❌ 接続失敗。APIキーを確認してください</span>';
+                showMessage('API接続失敗: ' + error.message, 'error');
             }
         }
         
@@ -598,56 +583,40 @@
             document.getElementById('themeBox').textContent = '🎲 ' + currentTheme;
         }
         
-        // Gemini API呼び出し
+        // Gemini API呼び出し（gemini-suno-creator.htmlと同じ実装）
         async function callGeminiAPI(prompt) {
-            try {
-                // まずプロキシサーバー経由で試行
-                const proxyResponse = await fetch('http://localhost:3000/api/gemini', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        apiKey: apiKey,
-                        prompt: prompt
-                    })
-                });
-                
-                const proxyData = await proxyResponse.json();
-                
-                if (proxyResponse.ok && proxyData.candidates && proxyData.candidates[0]) {
-                    return proxyData.candidates[0].content.parts[0].text;
-                }
-                
-                // プロキシ失敗時は直接接続
-                throw new Error('Proxy failed, trying direct connection');
-                
-            } catch (proxyError) {
-                console.log('プロキシ接続失敗、直接接続を試行:', proxyError.message);
-                
-                // 直接接続を試行
-                const directResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            temperature: selectedMode === 'viral' ? 1.2 : 0.9,
-                            maxOutputTokens: 1500,
-                        }
-                    })
-                });
-                
-                const directData = await directResponse.json();
-                
-                if (!directResponse.ok) {
-                    throw new Error(`API Error: ${directData.error?.message || 'Unknown error'}`);
-                }
-                
-                if (directData.candidates && directData.candidates[0]) {
-                    return directData.candidates[0].content.parts[0].text;
-                }
-                
-                throw new Error('No valid response from API');
+            if (!apiKey) {
+                throw new Error('API Key not found');
             }
+            
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }],
+                    generationConfig: {
+                        temperature: selectedMode === 'viral' ? 1.2 : 0.9,
+                        maxOutputTokens: 1500,
+                    }
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Gemini API Response:', data);
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status} - ${data.error?.message || 'Unknown error'}`);
+            }
+            
+            if (!data.candidates || data.candidates.length === 0) {
+                throw new Error('No response generated');
+            }
+            
+            return data.candidates[0].content.parts[0].text;
         }
         
         // AI生成関数（バイラル強化版）
