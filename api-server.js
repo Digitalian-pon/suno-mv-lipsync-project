@@ -23,8 +23,75 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // APIプロキシエンドポイント
-    if (pathname === '/api/gemini' && req.method === 'POST') {
+    // Claude APIプロキシエンドポイント
+    if (pathname === '/api/claude' && req.method === 'POST') {
+        let body = '';
+        
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        
+        req.on('end', () => {
+            try {
+                const requestData = JSON.parse(body);
+                const apiKey = requestData.apiKey;
+                const prompt = requestData.prompt;
+                const temperature = requestData.temperature || 0.9;
+                
+                // Claude APIへのリクエスト
+                const claudeData = JSON.stringify({
+                    model: 'claude-3-haiku-20240307',
+                    max_tokens: 1500,
+                    temperature: temperature,
+                    messages: [{ 
+                        role: 'user', 
+                        content: prompt 
+                    }]
+                });
+                
+                const options = {
+                    hostname: 'api.anthropic.com',
+                    path: '/v1/messages',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'Content-Length': Buffer.byteLength(claudeData)
+                    }
+                };
+                
+                const claudeReq = https.request(options, (claudeRes) => {
+                    let responseData = '';
+                    
+                    claudeRes.on('data', (chunk) => {
+                        responseData += chunk;
+                    });
+                    
+                    claudeRes.on('end', () => {
+                        res.writeHead(claudeRes.statusCode, { 'Content-Type': 'application/json' });
+                        res.end(responseData);
+                    });
+                });
+                
+                claudeReq.on('error', (error) => {
+                    console.error('Claude API error:', error);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Claude API request failed' }));
+                });
+                
+                claudeReq.write(claudeData);
+                claudeReq.end();
+                
+            } catch (error) {
+                console.error('Request parsing error:', error);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid request' }));
+            }
+        });
+        
+    // Gemini APIプロキシエンドポイント
+    } else if (pathname === '/api/gemini' && req.method === 'POST') {
         let body = '';
         
         req.on('data', chunk => {
