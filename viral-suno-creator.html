@@ -656,9 +656,14 @@
             
             switch(type) {
                 case 'title':
-                    const prefixes = viral ? ['超', 'ガチ', 'マジ', '激', '神'] : ['', 'Digital', 'Cyber'];
-                    const suffixes = viral ? ['なう', 'った件', 'してみた', 'の真実', 'ガチ勢'] : ['', '2024', 'Protocol'];
-                    return `${prefixes[Math.floor(Math.random() * prefixes.length)]}${theme}${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
+                    // シンプルなタイトル生成（1つだけ）
+                    if (viral) {
+                        const prefix = ['超', 'ガチ', 'マジ', '激', '神'][Math.floor(Math.random() * 5)];
+                        const suffix = ['なう', 'った件', 'してみた', 'の真実', 'ガチ勢'][Math.floor(Math.random() * 5)];
+                        return `${prefix}${theme}${suffix}`;
+                    } else {
+                        return `${theme} - Digital Dreams`;
+                    }
                 
                 case 'lyricsJP':
                     return viral ? 
@@ -671,10 +676,12 @@
                         `[Verse 1]\nIn the digital space we meet\n${theme} in binary beat\nVirtual love, synthetic dreams\nNothing is quite what it seems\n\n[Chorus]\n${theme} lighting up the night\nPixels dancing in the light\nCyber world, electric soul\nTogether we are whole`;
                 
                 case 'stylePrompt':
-                    const genres = viral ? ['Hyperpop', 'TikTok Viral', 'Kawaii Future Bass', 'Emo Trap'] : ['Synthwave', 'Future Bass', 'Electropop'];
-                    const moods = viral ? ['chaotic', 'manic', 'euphoric', 'unhinged'] : ['dreamy', 'nostalgic', 'energetic'];
-                    const bpms = viral ? ['150', '160', '170', '180'] : ['120', '128', '130', '140'];
-                    return `${genres[Math.floor(Math.random() * genres.length)]}, ${moods[Math.floor(Math.random() * moods.length)]}, ${bpms[Math.floor(Math.random() * bpms.length)]} BPM`;
+                    // シンプルなスタイル生成（1つだけ）
+                    if (viral) {
+                        return `Hyperpop, euphoric, 160 BPM`;
+                    } else {
+                        return `Synthwave, dreamy, 120 BPM`;
+                    }
                 
                 case 'midjourneyPrompt':
                     const styles = viral ? ['anime aesthetic', 'vaporwave', 'Y2K revival', 'weirdcore'] : ['cyberpunk', 'synthwave', 'digital art'];
@@ -821,29 +828,71 @@
             let text = '';
             switch(type) {
                 case 'title': 
-                    text = currentData.title; 
+                    text = currentData.title || ''; 
                     break;
                 case 'lyricsJP': 
-                    text = currentData.lyricsJP; 
+                    text = currentData.lyricsJP || ''; 
                     break;
                 case 'lyricsEN': 
-                    text = currentData.lyricsEN; 
+                    text = currentData.lyricsEN || ''; 
                     break;
                 case 'stylePrompt': 
-                    text = currentData.stylePrompt; 
+                    text = currentData.stylePrompt || ''; 
                     break;
                 case 'midjourneyPrompt': 
                     const aspectRatio = document.getElementById('aspectRatio')?.value || '1:1';
                     const model = document.getElementById('model')?.value || 'v 6';
-                    text = `${currentData.midjourneyPrompt} --ar ${aspectRatio} --${model}`;
+                    text = `${currentData.midjourneyPrompt || ''} --ar ${aspectRatio} --${model}`;
                     break;
+                default:
+                    showMessage('不明なタイプ', 'error');
+                    return;
             }
             
-            navigator.clipboard.writeText(text).then(() => {
-                showMessage('📋 コピーしました！', 'success');
-            }).catch(() => {
+            if (!text) {
+                showMessage('コピーするテキストがありません', 'error');
+                return;
+            }
+            
+            // Fallback for older browsers
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('📋 コピーしました！', 'success');
+                }).catch((err) => {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+        
+        // Fallback copy function
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showMessage('📋 コピーしました！', 'success');
+                } else {
+                    showMessage('コピーに失敗しました', 'error');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
                 showMessage('コピーに失敗しました', 'error');
-            });
+            }
+            
+            document.body.removeChild(textArea);
         }
         
         // メッセージ表示
