@@ -69,15 +69,31 @@ const server = http.createServer((req, res) => {
                     });
                     
                     claudeRes.on('end', () => {
-                        res.writeHead(claudeRes.statusCode, { 'Content-Type': 'application/json' });
-                        res.end(responseData);
+                        console.log('Claude API Response Status:', claudeRes.statusCode);
+                        console.log('Claude API Response Headers:', claudeRes.headers);
+                        
+                        if (claudeRes.statusCode === 429) {
+                            console.error('Rate limit exceeded');
+                            const retryAfter = claudeRes.headers['retry-after'] || '5';
+                            res.writeHead(429, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ 
+                                error: 'Rate limit exceeded. Please wait and try again.',
+                                retryAfter: retryAfter 
+                            }));
+                        } else {
+                            res.writeHead(claudeRes.statusCode, { 'Content-Type': 'application/json' });
+                            res.end(responseData);
+                        }
                     });
                 });
                 
                 claudeReq.on('error', (error) => {
                     console.error('Claude API error:', error);
                     res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Claude API request failed' }));
+                    res.end(JSON.stringify({ 
+                        error: 'Claude API request failed',
+                        details: error.message 
+                    }));
                 });
                 
                 claudeReq.write(claudeData);

@@ -485,6 +485,20 @@
                 });
                 
                 const data = await response.json();
+                console.log('Connection test response:', response.status, data);
+                
+                if (response.status === 429) {
+                    // レート制限エラー
+                    const retryAfter = data.retryAfter || 5;
+                    status.innerHTML = `<span style="color: orange;">⏳ レート制限中。${retryAfter}秒後に再試行してください</span>`;
+                    showMessage(`レート制限中。${retryAfter}秒後に再試行してください`, 'warning');
+                    
+                    // 自動再試行
+                    setTimeout(() => {
+                        testConnection();
+                    }, retryAfter * 1000);
+                    return;
+                }
                 
                 if (response.ok && data.content) {
                     apiConnected = true;
@@ -492,13 +506,23 @@
                     status.innerHTML = '<span style="color: green;">✅ 接続成功！Claude AI生成が利用可能です</span>';
                     showMessage('Claude API接続成功！', 'success');
                 } else {
-                    throw new Error(data.error?.message || 'API connection failed');
+                    const errorMsg = data.error || data.error?.message || 'API connection failed';
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
                 console.error('API接続エラー:', error);
                 apiConnected = false;
-                status.innerHTML = '<span style="color: red;">❌ 接続失敗。APIキーを確認してください</span>';
-                showMessage('API接続失敗: ' + error.message, 'error');
+                
+                // エラーメッセージの詳細表示
+                let errorMessage = error.message;
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'サーバーに接続できません。api-server.jsが起動していることを確認してください。';
+                } else if (error.message.includes('invalid_api_key')) {
+                    errorMessage = 'APIキーが無効です。正しいキーを入力してください。';
+                }
+                
+                status.innerHTML = `<span style="color: red;">❌ 接続失敗: ${errorMessage}</span>`;
+                showMessage('API接続失敗: ' + errorMessage, 'error');
             }
         }
         
@@ -591,34 +615,47 @@
         }
         
         // Claude API呼び出し
-        async function callClaudeAPI(prompt) {
+        async function callClaudeAPI(prompt, retryCount = 0) {
             if (!apiKey) {
                 throw new Error('API Key not found');
             }
             
-            // プロキシサーバー経由で接続
-            const response = await fetch('http://localhost:3000/api/claude', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    apiKey: apiKey,
-                    prompt: prompt,
-                    temperature: selectedMode === 'viral' ? 1.0 : 0.9
-                })
-            });
-            
-            const data = await response.json();
-            console.log('Claude API Response:', data);
-            
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status} - ${data.error?.message || 'Unknown error'}`);
+            try {
+                // プロキシサーバー経由で接続
+                const response = await fetch('http://localhost:3000/api/claude', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        prompt: prompt,
+                        temperature: selectedMode === 'viral' ? 1.0 : 0.9
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Claude API Response:', response.status, data);
+                
+                // レート制限の場合
+                if (response.status === 429 && retryCount < 3) {
+                    const retryAfter = parseInt(data.retryAfter || 5) * 1000;
+                    console.log(`Rate limited. Waiting ${retryAfter}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, retryAfter));
+                    return callClaudeAPI(prompt, retryCount + 1);
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} - ${data.error || data.error?.message || 'Unknown error'}`);
+                }
+                
+                if (!data.content || data.content.length === 0) {
+                    throw new Error('No response generated');
+                }
+                
+                return data.content[0].text;
+            } catch (error) {
+                console.error('Claude API call error:', error);
+                throw error;
             }
-            
-            if (!data.content || data.content.length === 0) {
-                throw new Error('No response generated');
-            }
-            
-            return data.content[0].text;
         }
         
         // AI生成関数（Claude版）
