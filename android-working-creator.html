@@ -751,33 +751,33 @@
                 
                 // 日本語歌詞生成（3分楽曲用）
                 const lyricsJP = await callAI(`${currentTheme}の日本語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で作成してください：
-[Intro] (4行)
-[Verse 1] (8行)
-[Pre-Chorus] (4行)
-[Chorus] (8行)
-[Verse 2] (8行)
-[Pre-Chorus] (4行)
-[Chorus] (8行)
-[Bridge] (6行)
-[Chorus] (8行)
-[Outro] (4行)
+[Intro] (2行)
+[Verse 1] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Verse 2] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Bridge] (4行)
+[Chorus] (4行)
+[Outro] (2行)
 
-各パートに感情の起伏を持たせ、ストーリー性のある歌詞にしてください。歌詞のみを出力してください。`);
+合計32行程度。各パートは簡潔に、感情を込めて。歌詞のみを出力してください。`);
                 
                 // 英語歌詞生成（3分楽曲用）
                 const lyricsEN = await callAI(`${currentTheme}の英語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で作成してください：
-[Intro] (4行)
-[Verse 1] (8行)
-[Pre-Chorus] (4行)
-[Chorus] (8行)
-[Verse 2] (8行)
-[Pre-Chorus] (4行)
-[Chorus] (8行)
-[Bridge] (6行)
-[Chorus] (8行)
-[Outro] (4行)
+[Intro] (2行)
+[Verse 1] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Verse 2] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Bridge] (4行)
+[Chorus] (4行)
+[Outro] (2行)
 
-感情的でキャッチーな英語歌詞にしてください。歌詞のみを出力してください。`);
+合計32行程度。簡潔でキャッチーな英語歌詞。歌詞のみを出力してください。`);
                 
                 // スタイル生成
                 const style = await callAI(`"${currentTheme}"の音楽スタイルを生成してください。ジャンル、ムード、BPMを含めて20語以内で。`);
