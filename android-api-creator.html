@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🎵 Android API Creator - Gemini対応</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .api-key-container {
+            margin: 15px 0;
+        }
+        
+        .api-key-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        /* 重要: テキストエリアをシンプルに */
+        .api-key-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: white;
+            color: #333;
+            /* Androidでの入力を改善 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            /* タッチしやすくする */
+            touch-action: manipulation;
+        }
+        
+        .api-key-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fafafa;
+        }
+        
+        /* ボタンをタッチしやすく */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            /* タッチ反応を改善 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .help-text {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .theme-display {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .result-header {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .result-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Android API Creator</h1>
+        <div class="subtitle">Gemini AI 楽曲ジェネレーター</div>
+        
+        <!-- Gemini API設定 -->
+        <div class="section">
+            <h3>💎 Gemini API設定</h3>
+            
+            <div class="help-text">
+                <strong>📱 Android用手順：</strong><br>
+                1. <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>を開く<br>
+                2. 「Create API Key」をタップ<br>
+                3. APIキー全体を選択してコピー<br>
+                4. 下の入力欄をタップ<br>
+                5. 入力欄を<strong>長押し</strong><br>
+                6. 「貼り付け」メニューが出たらタップ
+            </div>
+            
+            <div class="api-key-container">
+                <label class="api-key-label" for="apiKeyInput">
+                    Gemini APIキー (AIzaSy... で始まる40文字程度)
+                </label>
+                <textarea 
+                    id="apiKeyInput" 
+                    class="api-key-input"
+                    placeholder="ここをタップして、長押し→貼り付け"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"></textarea>
+                <div class="char-count" id="charCount">0文字</div>
+            </div>
+            
+            <button class="btn" onclick="testConnection()" id="testBtn">
+                🔌 接続テスト
+            </button>
+            
+            <button class="btn btn-danger" onclick="clearApiKey()">
+                🗑️ クリア
+            </button>
+            
+            <div id="apiStatus"></div>
+        </div>
+        
+        <!-- テーマ生成 -->
+        <div class="section">
+            <h3>🎯 楽曲テーマ</h3>
+            <button class="btn btn-secondary" onclick="generateTheme()" id="themeBtn">
+                🎲 ランダムテーマ生成
+            </button>
+            <div class="theme-display" id="themeDisplay">
+                テーマを生成してください
+            </div>
+        </div>
+        
+        <!-- 楽曲生成 -->
+        <div class="section">
+            <button class="btn" onclick="generateSong()" id="generateBtn" disabled>
+                🚀 3分楽曲を生成（要API接続）
+            </button>
+        </div>
+        
+        <!-- 結果表示 -->
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        let apiKey = '';
+        let apiConnected = false;
+        let currentTheme = '';
+        let isGenerating = false;
+        
+        // テーマリスト
+        const themes = [
+            '時をかける恋', 'AI少女との恋', '異世界での失恋',
+            'デジタル世界の片想い', 'サイバー空間の初恋',
+            '仮想現実の永遠', 'ホログラムの記憶', 'ピクセルの涙',
+            '推しとのシンクロ率200%', '深夜2時の既読スルー'
+        ];
+        
+        // 初期化
+        window.onload = function() {
+            // 保存されたAPIキーを復元
+            const savedKey = localStorage.getItem('geminiApiKey');
+            if (savedKey) {
+                document.getElementById('apiKeyInput').value = savedKey;
+                updateCharCount();
+                // 自動で接続テスト
+                setTimeout(() => testConnection(), 1000);
+            }
+            
+            // 文字数カウント
+            document.getElementById('apiKeyInput').addEventListener('input', function() {
+                updateCharCount();
+                // 自動保存
+                const value = this.value.trim();
+                if (value) {
+                    localStorage.setItem('geminiApiKey', value);
+                }
+            });
+            
+            // フォーカス時に全選択
+            document.getElementById('apiKeyInput').addEventListener('focus', function() {
+                setTimeout(() => this.select(), 100);
+            });
+        };
+        
+        // 文字数更新
+        function updateCharCount() {
+            const input = document.getElementById('apiKeyInput');
+            const count = document.getElementById('charCount');
+            const length = input.value.length;
+            
+            if (length === 0) {
+                count.textContent = '0文字';
+                count.style.color = '#666';
+            } else if (input.value.startsWith('AIzaSy') && length >= 39) {
+                count.innerHTML = `${length}文字 <span style="color: green;">✅</span>`;
+            } else {
+                count.innerHTML = `${length}文字 <span style="color: red;">❌</span>`;
+            }
+        }
+        
+        // APIキークリア
+        function clearApiKey() {
+            if (confirm('APIキーをクリアしますか？')) {
+                document.getElementById('apiKeyInput').value = '';
+                updateCharCount();
+                localStorage.removeItem('geminiApiKey');
+                apiConnected = false;
+                document.getElementById('generateBtn').disabled = true;
+                document.getElementById('apiStatus').innerHTML = '';
+                alert('APIキーをクリアしました');
+            }
+        }
+        
+        // API接続テスト
+        async function testConnection() {
+            const input = document.getElementById('apiKeyInput');
+            const status = document.getElementById('apiStatus');
+            const testBtn = document.getElementById('testBtn');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            apiKey = input.value.trim();
+            
+            if (!apiKey) {
+                status.innerHTML = '<div class="status error">❌ APIキーを入力してください</div>';
+                return;
+            }
+            
+            if (!apiKey.startsWith('AIzaSy')) {
+                status.innerHTML = '<div class="status error">❌ 無効なAPIキー形式です</div>';
+                return;
+            }
+            
+            testBtn.disabled = true;
+            testBtn.textContent = '🔄 テスト中...';
+            status.innerHTML = '<div class="status warning">⏳ 接続テスト中...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/gemini', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        prompt: 'Hello test',
+                        temperature: 0.1
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.candidates) {
+                    apiConnected = true;
+                    generateBtn.disabled = false;
+                    status.innerHTML = '<div class="status success">✅ 接続成功！AI生成が利用可能です</div>';
+                    localStorage.setItem('geminiApiKey', apiKey);
+                } else {
+                    throw new Error(data.error || 'Connection failed');
+                }
+            } catch (error) {
+                apiConnected = false;
+                generateBtn.disabled = true;
+                status.innerHTML = `<div class="status error">❌ 接続失敗: ${error.message}<br>api-server.jsが起動していることを確認してください</div>`;
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = '🔌 接続テスト';
+            }
+        }
+        
+        // テーマ生成
+        function generateTheme() {
+            currentTheme = themes[Math.floor(Math.random() * themes.length)];
+            document.getElementById('themeDisplay').textContent = '🎯 ' + currentTheme;
+        }
+        
+        // 楽曲生成
+        async function generateSong() {
+            if (!currentTheme) {
+                alert('先にテーマを生成してください');
+                return;
+            }
+            
+            if (!apiConnected) {
+                alert('先にAPI接続テストを成功させてください');
+                return;
+            }
+            
+            if (isGenerating) return;
+            
+            const btn = document.getElementById('generateBtn');
+            const results = document.getElementById('results');
+            
+            isGenerating = true;
+            btn.disabled = true;
+            btn.textContent = '🔄 生成中...';
+            
+            results.innerHTML = '<div class="status warning">🎵 楽曲を生成中...</div>';
+            
+            try {
+                // タイトル生成
+                const title = await callGeminiAPI(`"${currentTheme}"の楽曲タイトルを1つ生成してください。印象的で覚えやすいタイトル。タイトルのみ出力。`);
+                
+                // 日本語歌詞生成（3分楽曲用）
+                const lyricsJP = await callGeminiAPI(`${currentTheme}の日本語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で作成してください：
+[Intro] (4行)
+[Verse 1] (8行)
+[Pre-Chorus] (4行)
+[Chorus] (8行)
+[Verse 2] (8行)
+[Pre-Chorus] (4行)
+[Chorus] (8行)
+[Bridge] (6行)
+[Chorus] (8行)
+[Outro] (4行)
+
+各パートに感情の起伏を持たせ、ストーリー性のある歌詞にしてください。歌詞のみを出力してください。`);
+                
+                // スタイル生成
+                const style = await callGeminiAPI(`"${currentTheme}"の音楽スタイルを生成してください。ジャンル、ムード、BPMを含めて20語以内で。`);
+                
+                // 結果表示
+                displayResults({
+                    title: title,
+                    lyricsJP: lyricsJP,
+                    style: style
+                });
+                
+            } catch (error) {
+                results.innerHTML = `<div class="status error">❌ 生成エラー: ${error.message}</div>`;
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.textContent = '🚀 3分楽曲を生成（要API接続）';
+            }
+        }
+        
+        // Gemini API呼び出し
+        async function callGeminiAPI(prompt) {
+            const response = await fetch('http://localhost:3000/api/gemini', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    apiKey: apiKey,
+                    prompt: prompt,
+                    temperature: 0.9
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'API Error');
+            }
+            
+            if (data.candidates && data.candidates[0]) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                throw new Error('No response from API');
+            }
+        }
+        
+        // 結果表示
+        function displayResults(content) {
+            const results = document.getElementById('results');
+            
+            results.innerHTML = `
+                <div class="result-box">
+                    <div class="result-header">
+                        🎵 楽曲タイトル
+                        <button class="copy-btn" onclick="copyText('${content.title.replace(/'/g, "\\'")}')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${content.title}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎌 日本語歌詞（3分楽曲用）
+                        <button class="copy-btn" onclick="copyLyrics()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="lyricsContent">${content.lyricsJP}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎨 音楽スタイル
+                        <button class="copy-btn" onclick="copyText('${content.style.replace(/'/g, "\\'")}')">📋 コピー</button>
+                    </div>
+                    <div class="result-content">${content.style}</div>
+                </div>
+            `;
+        }
+        
+        // コピー機能
+        function copyText(text) {
+            // フォールバック用のテキストエリア作成
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('📋 コピーしました！');
+            } catch (err) {
+                alert('コピーに失敗しました。手動でコピーしてください。');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        // 歌詞コピー専用
+        function copyLyrics() {
+            const lyrics = document.getElementById('lyricsContent').textContent;
+            copyText(lyrics);
+        }
+    </script>
+</body>
+</html>

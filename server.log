@@ -1,11 +1,342 @@
+APIサーバーが起動しました: http://localhost:3000
+Gemini APIプロキシ: http://localhost:3000/api/gemini
 
-🚀 Working API Server 起動成功！
-
-📱 アクセス: http://localhost:3001/
-
-✅ 確実にAPI接続できます！
-
-💡 使用方法:
-1. ブラウザでアプリを開く
-2. Gemini API Keyを入力
-3. 接続テスト → 楽曲生成
+ブラウザで開く: http://localhost:3000/
+(node:6681) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Received request data: { apiKey: 'test-key', prompt: 'Hello', temperature: 0.9 }
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 06:42:03 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'cf-ray': '96b4caafca17d3ca-KIX',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRstokP9drfx7s7MT3ytX',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare'
+}
+Received request data: {
+  apiKey: 'デバッグログ: [15:40:21] API connection failed: {"error":"Invalid request"} [15:40:21] Connection test error: Invalid request',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Request parsing error: TypeError [ERR_INVALID_CHAR]: Invalid character in header content ["x-api-key"]
+    at ClientRequest.setHeader (node:_http_outgoing:645:3)
+    at new ClientRequest (node:_http_client:302:14)
+    at Object.request (node:https:381:10)
+    at IncomingMessage.<anonymous> (/data/data/com.termux/files/home/suno-ai-music-generator/api-server.js:73:41)
+    at IncomingMessage.emit (node:events:507:28)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ERR_INVALID_CHAR'
+}
+Request body was: {"apiKey":"デバッグログ: [15:40:21] API connection failed: {\"error\":\"Invalid request\"} [15:40:21] Connection test error: Invalid request","prompt":"Hello test","temperature":0.1}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 06:42:44 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRstrnMoGr3doMtkTx7nT',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b4cbb11e70494e-KIX'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 06:42:49 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRstsBZ4pGGr8YP3acvoo',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b4cbd2fda0fcb4-KIX'
+}
+Received request data: {
+  apiKey: 'デバッグログ: [15:42:17] API connection failed: {"error":"Invalid request","details":"Invalid character in header content [\\"x-api-key\\"]","body":"{\\"apiKey\\":\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\"error\\\\\\":\\\\\\"Invalid request\\\\\\"} [15:40:21] Connection test error: Invalid request\\",\\"prompt\\":\\"Hello test\\",\\"temperature\\":0.1}"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:49] Connection test error: invalid x-api-key',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Request parsing error: TypeError [ERR_INVALID_CHAR]: Invalid character in header content ["x-api-key"]
+    at ClientRequest.setHeader (node:_http_outgoing:645:3)
+    at new ClientRequest (node:_http_client:302:14)
+    at Object.request (node:https:381:10)
+    at IncomingMessage.<anonymous> (/data/data/com.termux/files/home/suno-ai-music-generator/api-server.js:73:41)
+    at IncomingMessage.emit (node:events:507:28)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ERR_INVALID_CHAR'
+}
+Request body was: {"apiKey":"デバッグログ: [15:42:17] API connection failed: {\"error\":\"Invalid request\",\"details\":\"Invalid character in header content [\\\"x-api-key\\\"]\",\"body\":\"{\\\"apiKey\\\":\\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\\"error\\\\\\\":\\\\\\\"Invalid request\\\\\\\"} [15:40:21] Connection test error: Invalid request\\\",\\\"prompt\\\":\\\"Hello test\\\",\\\"temperature\\\":0.1}\"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:49] Connection test error: invalid x-api-key","prompt":"Hello test","temperature":0.1}
+Received request data: {
+  apiKey: 'デバッグログ: [15:42:17] API connection failed: {"error":"Invalid request","details":"Invalid character in header content [\\"x-api-key\\"]","body":"{\\"apiKey\\":\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\"error\\\\\\":\\\\\\"Invalid request\\\\\\"} [15:40:21] Connection test error: Invalid request\\",\\"prompt\\":\\"Hello test\\",\\"temperature\\":0.1}"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:49] Connection test error: invalid x-api-key',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Request parsing error: TypeError [ERR_INVALID_CHAR]: Invalid character in header content ["x-api-key"]
+    at ClientRequest.setHeader (node:_http_outgoing:645:3)
+    at new ClientRequest (node:_http_client:302:14)
+    at Object.request (node:https:381:10)
+    at IncomingMessage.<anonymous> (/data/data/com.termux/files/home/suno-ai-music-generator/api-server.js:73:41)
+    at IncomingMessage.emit (node:events:507:28)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ERR_INVALID_CHAR'
+}
+Request body was: {"apiKey":"デバッグログ: [15:42:17] API connection failed: {\"error\":\"Invalid request\",\"details\":\"Invalid character in header content [\\\"x-api-key\\\"]\",\"body\":\"{\\\"apiKey\\\":\\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\\"error\\\\\\\":\\\\\\\"Invalid request\\\\\\\"} [15:40:21] Connection test error: Invalid request\\\",\\\"prompt\\\":\\\"Hello test\\\",\\\"temperature\\\":0.1}\"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:49] Connection test error: invalid x-api-key","prompt":"Hello test","temperature":0.1}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 06:46:04 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'cf-ray': '96b4d0927e81dfa1-KIX',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsu7X2yWMxD2Fu9mvhFk',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare'
+}
+Received request data: {
+  apiKey: 'デバッグログ: [15:42:17] API connection failed: {"error":"Invalid request","details":"Invalid character in header content [\\"x-api-key\\"]","body":"{\\"apiKey\\":\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\"error\\\\\\":\\\\\\"Invalid request\\\\\\"} [15:40:21] Connection test error: Invalid request\\",\\"prompt\\":\\"Hello test\\",\\"temperature\\":0.1}"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:49] Connection test error: invalid x-api-key',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Request parsing error: TypeError [ERR_INVALID_CHAR]: Invalid character in header content ["x-api-key"]
+    at ClientRequest.setHeader (node:_http_outgoing:645:3)
+    at new ClientRequest (node:_http_client:302:14)
+    at Object.request (node:https:381:10)
+    at IncomingMessage.<anonymous> (/data/data/com.termux/files/home/suno-ai-music-generator/api-server.js:73:41)
+    at IncomingMessage.emit (node:events:507:28)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ERR_INVALID_CHAR'
+}
+Request body was: {"apiKey":"デバッグログ: [15:42:17] API connection failed: {\"error\":\"Invalid request\",\"details\":\"Invalid character in header content [\\\"x-api-key\\\"]\",\"body\":\"{\\\"apiKey\\\":\\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\\"error\\\\\\\":\\\\\\\"Invalid request\\\\\\\"} [15:40:21] Connection test error: Invalid request\\\",\\\"prompt\\\":\\\"Hello test\\\",\\\"temperature\\\":0.1}\"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:49] Connection test error: invalid x-api-key","prompt":"Hello test","temperature":0.1}
+Received request data: {
+  apiKey: 'デバッグログ: [15:42:17] API connection failed: {"error":"Invalid request","details":"Invalid character in header content [\\"x-api-key\\"]","body":"{\\"apiKey\\":\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\"error\\\\\\":\\\\\\"Invalid request\\\\\\"} [15:40:21] Connection test error: Invalid request\\",\\"prompt\\":\\"Hello test\\",\\"temperature\\":0.1}"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}} [15:42:49] Connection test error: invalid x-api-key',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Request parsing error: TypeError [ERR_INVALID_CHAR]: Invalid character in header content ["x-api-key"]
+    at ClientRequest.setHeader (node:_http_outgoing:645:3)
+    at new ClientRequest (node:_http_client:302:14)
+    at Object.request (node:https:381:10)
+    at IncomingMessage.<anonymous> (/data/data/com.termux/files/home/suno-ai-music-generator/api-server.js:73:41)
+    at IncomingMessage.emit (node:events:507:28)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ERR_INVALID_CHAR'
+}
+Request body was: {"apiKey":"デバッグログ: [15:42:17] API connection failed: {\"error\":\"Invalid request\",\"details\":\"Invalid character in header content [\\\"x-api-key\\\"]\",\"body\":\"{\\\"apiKey\\\":\\\"デバッグログ: [15:40:21] API connection failed: {\\\\\\\"error\\\\\\\":\\\\\\\"Invalid request\\\\\\\"} [15:40:21] Connection test error: Invalid request\\\",\\\"prompt\\\":\\\"Hello test\\\",\\\"temperature\\\":0.1}\"} [15:42:17] Connection test error: Invalid request [15:42:43] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:43] Connection test error: invalid x-api-key [15:42:49] API connection failed: {\"type\":\"error\",\"error\":{\"type\":\"authentication_error\",\"message\":\"invalid x-api-key\"}} [15:42:49] Connection test error: invalid x-api-key","prompt":"Hello test","temperature":0.1}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 06:48:46 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'cf-ray': '96b4d48bab8500f4-KIX',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsuKWr9ktGsMMFDor74v',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 06:48:51 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsuKqXo7XCtjpj5aqRy8',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b4d4a6d80b00f4-KIX'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 07:02:01 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsvL4sbmFUJuZRJZwZgf',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b4e7f02fde4e26-KIX'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 07:02:30 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'cf-ray': '96b4e8a939f71a01-KIX',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsvNFUt4uSJsmcrd92n4',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-RwE...8QAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 07:02:50 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsvPhLQovEXdQSxPqE9T',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b4e923cba79a32-KIX'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-RwE...8QAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 07:02:55 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRsvQ6NzS4HJWQiQhaRDT',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b4e9453ac619cd-KIX'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 08:56:54 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRt56BXbw2YWchuyR8yCM',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare',
+  'cf-ray': '96b59039796819e1-KIX'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-ZaJ...cwAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 08:57:11 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'cf-ray': '96b590a758e58358-KIX',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRt57Udmy5LeRBzmHsKcT',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare'
+}
+Received request data: {
+  apiKey: 'sk-ant-api03-RwE...8QAA',
+  prompt: 'Hello test',
+  temperature: 0.1
+}
+Claude API Response Status: 401
+Claude API Response Headers: {
+  date: 'Thu, 07 Aug 2025 08:57:33 GMT',
+  'content-type': 'application/json',
+  'content-length': '86',
+  connection: 'keep-alive',
+  'cf-ray': '96b5913089c38360-KIX',
+  'x-should-retry': 'false',
+  'request-id': 'req_011CRt596VaGrZfppYXGr8mL',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+  via: '1.1 google',
+  'cf-cache-status': 'DYNAMIC',
+  'x-robots-tag': 'none',
+  server: 'cloudflare'
+}

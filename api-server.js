@@ -34,14 +34,31 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const requestData = JSON.parse(body);
+                console.log('Received request data:', requestData);
+                
                 const apiKey = requestData.apiKey;
                 const prompt = requestData.prompt;
                 const temperature = requestData.temperature || 0.9;
                 
+                console.log('API Key format check:');
+                console.log('  Length:', apiKey ? apiKey.length : 'undefined');
+                console.log('  Starts with sk-ant-api:', apiKey ? apiKey.startsWith('sk-ant-api') : false);
+                console.log('  First 20 chars:', apiKey ? apiKey.substring(0, 20) + '...' : 'undefined');
+                
+                if (!apiKey) {
+                    throw new Error('apiKey is required');
+                }
+                if (!prompt) {
+                    throw new Error('prompt is required');
+                }
+                if (!apiKey.startsWith('sk-ant-api')) {
+                    throw new Error('Invalid API key format. Must start with sk-ant-api');
+                }
+                
                 // Claude APIへのリクエスト
                 const claudeData = JSON.stringify({
                     model: 'claude-3-haiku-20240307',
-                    max_tokens: 1500,
+                    max_tokens: 4000,
                     temperature: temperature,
                     messages: [{ 
                         role: 'user', 
@@ -101,8 +118,13 @@ const server = http.createServer((req, res) => {
                 
             } catch (error) {
                 console.error('Request parsing error:', error);
+                console.error('Request body was:', body);
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid request' }));
+                res.end(JSON.stringify({ 
+                    error: 'Invalid request', 
+                    details: error.message,
+                    body: body 
+                }));
             }
         });
         

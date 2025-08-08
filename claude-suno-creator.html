@@ -65,13 +65,31 @@
             border: 2px solid #ddd;
             border-radius: 10px;
             margin-top: 10px;
-            font-size: 16px;
+            font-size: 14px;
+            font-family: monospace;
             transition: border-color 0.3s;
+            overflow-x: auto;
+            white-space: nowrap;
         }
         
         .api-input:focus {
             outline: none;
             border-color: #FF006E;
+        }
+        
+        .api-display {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            font-family: monospace;
+            background: #f0f0f0;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
         }
         
         .test-btn {
@@ -377,14 +395,67 @@
         <h1>🎵 Claude Suno Creator</h1>
         <div class="subtitle">Claude AI搭載！次世代楽曲ジェネレーター</div>
         
-        <div class="api-setup">
+        <!-- デバッグログエリア -->
+        <div id="debugLog" style="background: #f0f0f0; padding: 10px; margin: 20px 0; border-radius: 5px; max-height: 200px; overflow-y: auto; display: none;">
+            <h4>デバッグログ:</h4>
+            <pre id="debugContent" style="margin: 0; font-size: 12px;"></pre>
+        </div>
+        
+        <!-- AI API選択 -->
+        <div class="api-selection" style="margin-bottom: 30px; text-align: center;">
+            <h3>🤖 AI API選択</h3>
+            <div style="display: flex; gap: 15px; justify-content: center; margin: 20px 0;">
+                <button class="mode-btn active" id="apiClaude" onclick="selectAPI('claude')">🎭 Claude AI</button>
+                <button class="mode-btn" id="apiGemini" onclick="selectAPI('gemini')">💎 Gemini AI</button>
+            </div>
+        </div>
+
+        <!-- Claude API設定 -->
+        <div class="api-setup" id="claudeSetup">
             <h3>🔑 Claude API設定</h3>
             <div class="api-info">
-                📌 Claude APIキーは <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic Console</a> から取得できます
+                📌 <strong>Claude APIキーの取得方法:</strong><br>
+                1. <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic Console</a> にアクセス<br>
+                2. "Create Key" をクリック<br>
+                3. <strong style="color: red;">キー全体をコピー（100文字以上）</strong><br>
+                   例: sk-ant-api03-xxxxxxxxxx...（長い文字列）<br>
+                4. 下記に貼り付けて接続テスト<br>
+                <div style="background: #fff3cd; padding: 10px; margin-top: 10px; border-radius: 5px; border: 1px solid #ffc107;">
+                    ⚠️ <strong>注意:</strong> APIキーは100文字以上の長い文字列です。<br>
+                    「sk-ant-api03-」の部分だけでなく、その後の全ての文字をコピーしてください。
+                </div>
             </div>
-            <input type="password" id="apiKey" class="api-input" placeholder="Claude API Key (sk-ant-api...)を入力">
-            <button class="test-btn" onclick="testConnection()">🔌 接続テスト</button>
-            <div id="apiStatus" style="margin-top: 15px; text-align: center;"></div>
+            <textarea id="claudeApiKey" class="api-input" placeholder="Claude API Key (sk-ant-api...)を入力" style="width: 100%; min-height: 60px; resize: vertical; font-family: monospace; font-size: 12px;" onpaste="handleApiKeyPaste(event, 'claude')"></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="toggleApiKeyVisibility('claude')" style="padding: 12px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer;" id="claudeVisibilityBtn">👁️ 表示/非表示</button>
+                <button onclick="clearApiKey('claude')" style="padding: 12px 20px; background: #ff6b6b; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ クリア</button>
+                <span id="claudeCharCount" style="padding: 12px; color: #666; font-weight: bold;"></span>
+            </div>
+            <div id="claudeApiKeyDisplay" class="api-display"></div>
+            <button class="test-btn" onclick="testConnection('claude')">🔌 Claude接続テスト</button>
+            <div id="claudeApiStatus" style="margin-top: 15px; text-align: center;"></div>
+        </div>
+
+        <!-- Gemini API設定 -->
+        <div class="api-setup" id="geminiSetup" style="display: none;">
+            <h3>💎 Gemini API設定</h3>
+            <div class="api-info">
+                📌 <strong>Gemini APIキーの取得方法:</strong><br>
+                1. <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> にアクセス<br>
+                2. "Create API Key" をクリック<br>
+                3. <strong style="color: blue;">APIキーをコピー（約40文字）</strong><br>
+                   例: AIzaSyAxxxxxxxxxxxxxxxxxxxxxxxxx<br>
+                4. 下記に貼り付けて接続テスト
+            </div>
+            <textarea id="geminiApiKey" class="api-input" placeholder="Gemini API Key (AIzaSy...)を入力" style="width: 100%; min-height: 40px; resize: vertical; font-family: monospace; font-size: 12px;" onpaste="handleApiKeyPaste(event, 'gemini')"></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="toggleApiKeyVisibility('gemini')" style="padding: 12px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer;" id="geminiVisibilityBtn">👁️ 表示/非表示</button>
+                <button onclick="clearApiKey('gemini')" style="padding: 12px 20px; background: #ff6b6b; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ クリア</button>
+                <span id="geminiCharCount" style="padding: 12px; color: #666; font-weight: bold;"></span>
+            </div>
+            <div id="geminiApiKeyDisplay" class="api-display"></div>
+            <button class="test-btn" onclick="testConnection('gemini')">🔌 Gemini接続テスト</button>
+            <div id="geminiApiStatus" style="margin-top: 15px; text-align: center;"></div>
         </div>
         
         <div class="mode-selector">
@@ -413,11 +484,47 @@
     </div>
     
     <script>
-        let apiKey = '';
+        let selectedAPI = 'claude';
+        let claudeApiKey = '';
+        let geminiApiKey = '';
         let apiConnected = false;
         let selectedMode = 'ai';
         let currentData = null;
         let currentTheme = '';
+        
+        // API選択関数
+        function selectAPI(api) {
+            selectedAPI = api;
+            
+            // ボタンの状態更新
+            document.getElementById('apiClaude').classList.remove('active');
+            document.getElementById('apiGemini').classList.remove('active');
+            document.getElementById('api' + api.charAt(0).toUpperCase() + api.slice(1)).classList.add('active');
+            
+            // 設定パネルの表示切り替え
+            if (api === 'claude') {
+                document.getElementById('claudeSetup').style.display = 'block';
+                document.getElementById('geminiSetup').style.display = 'none';
+                showMessage('🎭 Claude APIを選択しました', 'success');
+            } else {
+                document.getElementById('claudeSetup').style.display = 'none';
+                document.getElementById('geminiSetup').style.display = 'block';
+                showMessage('💎 Gemini APIを選択しました', 'success');
+            }
+            
+            // 接続状態をリセット
+            apiConnected = false;
+        }
+        
+        // デバッグログ関数
+        function debugLog(message) {
+            const debugArea = document.getElementById('debugLog');
+            const debugContent = document.getElementById('debugContent');
+            debugArea.style.display = 'block';
+            const timestamp = new Date().toLocaleTimeString();
+            debugContent.textContent += `[${timestamp}] ${message}\n`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+        }
         
         // バズりそうなテーマのベース
         const viralThemeTemplates = [
@@ -450,13 +557,114 @@
             item: ['声', '笑顔', '涙', 'ファンサ']
         };
         
+        // APIキーペースト処理
+        function handleApiKeyPaste(event) {
+            event.preventDefault();
+            
+            // クリップボードからテキストを取得
+            const pastedText = (event.clipboardData || window.clipboardData).getData('text');
+            
+            // sk-ant-api03-で始まるAPIキーを抽出
+            const apiKeyMatch = pastedText.match(/sk-ant-api03-[A-Za-z0-9\-_]{80,}/);
+            
+            if (apiKeyMatch) {
+                // 正しいAPIキーが見つかった
+                document.getElementById('apiKey').value = apiKeyMatch[0];
+                updateCharCount();
+                debugLog(`Valid API key extracted: length=${apiKeyMatch[0].length}`);
+                showMessage('✅ APIキーを検出して貼り付けました', 'success');
+            } else if (pastedText.includes('デバッグログ')) {
+                // デバッグログを誤ってコピーした
+                showMessage('❌ デバッグログではなく、APIキーをコピーしてください', 'error');
+                debugLog('Debug log was pasted instead of API key');
+            } else if (pastedText.startsWith('sk-ant-api')) {
+                // 部分的なAPIキー
+                document.getElementById('apiKey').value = pastedText;
+                if (pastedText.length < 50) {
+                    showMessage('⚠️ APIキーが短すぎます。全体をコピーしてください', 'warning');
+                    debugLog(`Partial API key: length=${pastedText.length}`);
+                }
+            } else {
+                // その他のテキスト
+                showMessage('❌ 有効なAPIキーが見つかりません', 'error');
+                debugLog(`Invalid paste: ${pastedText.substring(0, 50)}...`);
+            }
+        }
+        
+        // APIキー表示切り替え
+        function toggleApiKeyVisibility() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const apiKeyDisplay = document.getElementById('apiKeyDisplay');
+            const button = document.getElementById('visibilityBtn');
+            
+            if (apiKeyDisplay.style.display === 'none' || !apiKeyDisplay.style.display) {
+                // 表示する
+                const apiKeyValue = apiKeyInput.value;
+                if (apiKeyValue) {
+                    apiKeyDisplay.innerHTML = `
+                        <strong>APIキー全体（${apiKeyValue.length}文字）:</strong><br>
+                        <div style="padding: 10px; background: white; border-radius: 5px; margin-top: 10px;">
+                            ${apiKeyValue}
+                        </div>
+                        <div style="margin-top: 10px; color: ${apiKeyValue.length > 100 ? 'green' : 'red'};">
+                            ${apiKeyValue.length > 100 ? '✅ 正常な長さです' : '❌ 短すぎます（100文字以上必要）'}
+                        </div>
+                    `;
+                    apiKeyDisplay.style.display = 'block';
+                    button.textContent = '🔒 隠す';
+                    button.style.background = '#FFA500';
+                } else {
+                    showMessage('表示するAPIキーがありません', 'warning');
+                }
+            } else {
+                // 隠す
+                apiKeyDisplay.style.display = 'none';
+                button.textContent = '👁️ 表示';
+                button.style.background = '#4CAF50';
+            }
+        }
+        
+        // APIキークリア関数
+        function clearApiKey() {
+            document.getElementById('apiKey').value = '';
+            document.getElementById('apiStatus').innerHTML = '';
+            document.getElementById('apiKeyDisplay').style.display = 'none';
+            document.getElementById('visibilityBtn').textContent = '👁️ 表示/非表示';
+            document.getElementById('visibilityBtn').style.background = '#4CAF50';
+            updateCharCount();
+            localStorage.removeItem('claudeApiKey');
+            apiConnected = false;
+            showMessage('APIキーをクリアしました', 'success');
+        }
+        
+        // 文字数カウント更新
+        function updateCharCount() {
+            const apiKey = document.getElementById('apiKey').value;
+            const charCount = document.getElementById('charCount');
+            const length = apiKey.length;
+            
+            if (length === 0) {
+                charCount.textContent = '';
+            } else if (length < 50) {
+                charCount.innerHTML = `<span style="color: red;">📏 ${length}文字（短すぎます）</span>`;
+            } else if (length < 100) {
+                charCount.innerHTML = `<span style="color: orange;">📏 ${length}文字（もう少し）</span>`;
+            } else {
+                charCount.innerHTML = `<span style="color: green;">📏 ${length}文字（OK）</span>`;
+            }
+        }
+        
         // 初期化
         window.onload = function() {
             const savedKey = localStorage.getItem('claudeApiKey');
             if (savedKey) {
                 document.getElementById('apiKey').value = savedKey;
+                updateCharCount();
                 testConnection();
             }
+            
+            // 文字数カウントをリアルタイム更新
+            document.getElementById('apiKey').addEventListener('input', updateCharCount);
         };
         
         // Claude API接続テスト
@@ -465,9 +673,22 @@
             const status = document.getElementById('apiStatus');
             apiKey = apiKeyInput.value.trim();
             
+            debugLog(`Testing API key: length=${apiKey.length}, starts with sk-ant-api=${apiKey.startsWith('sk-ant-api')}`);
+            
             if (!apiKey) {
                 status.innerHTML = '<span style="color: red;">❌ APIキーを入力してください</span>';
                 return;
+            }
+            
+            if (!apiKey.startsWith('sk-ant-api')) {
+                status.innerHTML = '<span style="color: red;">❌ 無効なAPIキー形式です。sk-ant-api で始まる必要があります</span>';
+                debugLog(`Invalid API key format: ${apiKey.substring(0, 20)}...`);
+                return;
+            }
+            
+            if (apiKey.length < 50) {
+                status.innerHTML = '<span style="color: orange;">⚠️ APIキーが短すぎる可能性があります</span>';
+                debugLog(`API key might be too short: ${apiKey.length} characters`);
             }
             
             status.innerHTML = '<span style="color: blue;">🔄 接続テスト中...</span>';
@@ -506,7 +727,15 @@
                     status.innerHTML = '<span style="color: green;">✅ 接続成功！Claude AI生成が利用可能です</span>';
                     showMessage('Claude API接続成功！', 'success');
                 } else {
-                    const errorMsg = data.error || data.error?.message || 'API connection failed';
+                    let errorMsg = 'API connection failed';
+                    if (data.error) {
+                        if (typeof data.error === 'object') {
+                            errorMsg = data.error.message || JSON.stringify(data.error);
+                        } else {
+                            errorMsg = String(data.error);
+                        }
+                    }
+                    debugLog(`API connection failed: ${JSON.stringify(data)}`);
                     throw new Error(errorMsg);
                 }
             } catch (error) {
@@ -514,13 +743,22 @@
                 apiConnected = false;
                 
                 // エラーメッセージの詳細表示
-                let errorMessage = error.message;
-                if (error.message.includes('Failed to fetch')) {
-                    errorMessage = 'サーバーに接続できません。api-server.jsが起動していることを確認してください。';
-                } else if (error.message.includes('invalid_api_key')) {
-                    errorMessage = 'APIキーが無効です。正しいキーを入力してください。';
+                let errorMessage = 'Unknown error';
+                
+                if (error && error.message) {
+                    errorMessage = error.message;
+                    if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'サーバーに接続できません。api-server.jsが起動していることを確認してください。';
+                    } else if (error.message.includes('invalid_api_key')) {
+                        errorMessage = 'APIキーが無効です。正しいキーを入力してください。';
+                    }
+                } else if (typeof error === 'object') {
+                    errorMessage = JSON.stringify(error);
+                } else {
+                    errorMessage = String(error);
                 }
                 
+                debugLog(`Connection test error: ${errorMessage}`);
                 status.innerHTML = `<span style="color: red;">❌ 接続失敗: ${errorMessage}</span>`;
                 showMessage('API接続失敗: ' + errorMessage, 'error');
             }
@@ -621,19 +859,38 @@
             }
             
             try {
-                // プロキシサーバー経由で接続
-                const response = await fetch('http://localhost:3000/api/claude', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        apiKey: apiKey,
-                        prompt: prompt,
-                        temperature: selectedMode === 'viral' ? 1.0 : 0.9
-                    })
-                });
+                console.log('Calling Claude API with prompt length:', prompt.length);
+                debugLog(`API Call: prompt length = ${prompt.length}`);
                 
-                const data = await response.json();
+                let response, data;
+                
+                try {
+                    // プロキシサーバー経由で接続
+                    response = await fetch('http://localhost:3000/api/claude', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            apiKey: apiKey,
+                            prompt: prompt,
+                            temperature: selectedMode === 'viral' ? 1.0 : 0.9
+                        })
+                    });
+                    debugLog(`Fetch completed: status = ${response.status}`);
+                } catch (fetchError) {
+                    debugLog(`Fetch error: ${fetchError.message || String(fetchError)}`);
+                    throw new Error(`Network error: ${fetchError.message || String(fetchError)}`);
+                }
+                
+                try {
+                    data = await response.json();
+                    debugLog(`JSON parse completed`);
+                } catch (jsonError) {
+                    debugLog(`JSON parse error: ${jsonError.message || String(jsonError)}`);
+                    throw new Error(`Response parse error: ${jsonError.message || String(jsonError)}`);
+                }
+                
                 console.log('Claude API Response:', response.status, data);
+                debugLog(`API Response: status = ${response.status}, has content = ${!!data.content}`);
                 
                 // レート制限の場合
                 if (response.status === 429 && retryCount < 3) {
@@ -644,17 +901,38 @@
                 }
                 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} - ${data.error || data.error?.message || 'Unknown error'}`);
+                    const errorMsg = typeof data.error === 'object' 
+                        ? (data.error.message || JSON.stringify(data.error))
+                        : (data.error || 'Unknown error');
+                    debugLog(`API Error Details: ${JSON.stringify(data)}`);
+                    throw new Error(`API Error: ${response.status} - ${errorMsg}`);
                 }
                 
                 if (!data.content || data.content.length === 0) {
+                    console.error('No content in response:', data);
                     throw new Error('No response generated');
                 }
                 
+                console.log('Claude response content:', data.content[0]);
                 return data.content[0].text;
             } catch (error) {
                 console.error('Claude API call error:', error);
-                throw error;
+                let errorMessage = 'Unknown error';
+                
+                if (error.message) {
+                    errorMessage = error.message;
+                } else if (typeof error === 'object') {
+                    errorMessage = JSON.stringify(error);
+                } else {
+                    errorMessage = String(error);
+                }
+                
+                debugLog(`API Error: ${errorMessage}`);
+                debugLog(`Error type: ${typeof error}`);
+                
+                // モバイル用：エラーを画面に表示
+                showMessage(`API Error: ${errorMessage}`, 'error');
+                throw new Error(errorMessage);
             }
         }
         
@@ -665,9 +943,39 @@
             const prompts = {
                 title: `Create ONE catchy song title for "${theme}". ${isViral ? 'Make it viral and trendy for TikTok.' : 'Make it unique and memorable.'} Output ONLY the title, nothing else.`,
                 
-                lyricsJP: `${theme}の日本語歌詞を作成してください。${isViral ? 'TikTokでバズる' : 'エモーショナルな'}スタイルで。[Verse][Chorus]形式。歌詞のみ出力。`,
+                lyricsJP: `${theme}の日本語歌詞を作成してください。${isViral ? 'TikTokでバズる' : 'エモーショナルな'}スタイルで。
                 
-                lyricsEN: `Create English lyrics for "${theme}". ${isViral ? 'Make it viral and catchy for TikTok.' : 'Make it emotional and meaningful.'} Use [Verse][Chorus] format. Output lyrics only.`,
+                3分程度の楽曲を想定して、以下の構成で作成してください：
+                [Intro] (4行)
+                [Verse 1] (8行)
+                [Pre-Chorus] (4行)
+                [Chorus] (8行)
+                [Verse 2] (8行)
+                [Pre-Chorus] (4行)
+                [Chorus] (8行)
+                [Bridge] (6行)
+                [Chorus] (8行)
+                [Outro] (4行)
+                
+                各パートに感情の起伏を持たせ、ストーリー性のある歌詞にしてください。
+                歌詞のみを出力してください。`,
+                
+                lyricsEN: `Create English lyrics for "${theme}". ${isViral ? 'Make it viral and catchy for TikTok.' : 'Make it emotional and meaningful.'}
+                
+                Create for a 3-minute song with this structure:
+                [Intro] (4 lines)
+                [Verse 1] (8 lines)
+                [Pre-Chorus] (4 lines)
+                [Chorus] (8 lines)
+                [Verse 2] (8 lines)
+                [Pre-Chorus] (4 lines)
+                [Chorus] (8 lines)
+                [Bridge] (6 lines)
+                [Chorus] (8 lines)
+                [Outro] (4 lines)
+                
+                Make it emotionally dynamic with a compelling story arc.
+                Output lyrics only.`,
                 
                 stylePrompt: `Create ONE music style for "${theme}". ${isViral ? 'Viral TikTok style' : 'Modern style'}. Include genre, mood, and BPM. Maximum 20 words.`,
                 
@@ -681,6 +989,9 @@
                     await new Promise(resolve => setTimeout(resolve, 500)); // レート制限対策
                 } catch (error) {
                     console.error(`${key}生成エラー:`, error);
+                    const errorMsg = error.message || error.toString();
+                    debugLog(`${key} generation failed: ${errorMsg}`);
+                    showMessage(`${key}生成エラー: ${errorMsg}`, 'warning');
                     results[key] = generateLocalContent(key, theme);
                 }
             }
@@ -701,13 +1012,13 @@
                 
                 case 'lyricsJP':
                     return viral ? 
-                        `[Verse 1]\n推しのために生きてる私\nスパチャ投げすぎて破産寸前\nでもそれがリアコなんだよね\n\n[Chorus]\n${theme}ってエモすぎない？\n涙腺崩壊不可避なんだが\n推しは推せる時に推せ\n今この瞬間を切り取って` :
-                        `[Verse 1]\nデジタルの海で見つけた\n${theme}という名の奇跡\n0と1の間に\n確かに存在する想い\n\n[Chorus]\n${theme}が照らす未来\nピクセルの向こう側へ\n仮想と現実の境界線\n今、越えていく`;
+                        `[Intro]\n静かな夜に響く通知音\n画面越しに感じる温度\n今日も推しに会いに行く\nデジタルの扉を開けて\n\n[Verse 1]\n推しのために生きてる私\nスパチャ投げすぎて破産寸前\nでもそれがリアコなんだよね\n配信待機で徹夜続き\nコメント欄で見つけた仲間\nみんな同じ気持ちなんだ\n${theme}という沼にハマって\n抜け出せないまま今日も深く\n\n[Pre-Chorus]\n画面の向こうの君は\n本当に存在してるの？\nでもこの気持ちだけは\n確かにリアルなんだ\n\n[Chorus]\n${theme}ってエモすぎない？\n涙腺崩壊不可避なんだが\n推しは推せる時に推せ\n今この瞬間を切り取って\n永遠に残したいよ\nこの尊い時間を\n明日になったら後悔する\n今を全力で生きてく\n\n[Verse 2]\nグッズ買いすぎて部屋が聖地\nアクスタに囲まれて幸せ\n友達には理解されないけど\nこれが私の生きがいだから\n朝まで切り抜き動画見て\n同じシーン何度もリピート\n${theme}に救われた日々\n数えきれないほどあるよ\n\n[Pre-Chorus]\nリアルとバーチャルの\n境界線なんてもういらない\nこの想いが届くなら\nどんな世界でも構わない\n\n[Chorus]\n${theme}ってエモすぎない？\n涙腺崩壊不可避なんだが\n推しは推せる時に推せ\n今この瞬間を切り取って\n永遠に残したいよ\nこの尊い時間を\n明日になったら後悔する\n今を全力で生きてく\n\n[Bridge]\nいつか会える日が来るかな\nリアルで手を握れる日が\nでも今はこの距離感が\n一番心地いいのかも\n${theme}がくれた奇跡\n忘れることなんてできない\n\n[Chorus]\n${theme}ってエモすぎない？\n涙腺崩壊不可避なんだが\n推しは推せる時に推せ\n今この瞬間を切り取って\n永遠に残したいよ\nこの尊い時間を\n明日になったら後悔する\n今を全力で生きてく\n\n[Outro]\nありがとう、出会えて\n${theme}という奇跡に\n明日もまた会おうね\n画面の向こうで待ってる` :
+                        `[Intro]\n0と1の狭間で\n生まれた感情がある\nデジタルの海を漂って\n${theme}に辿り着いた\n\n[Verse 1]\nデジタルの海で見つけた\n${theme}という名の奇跡\n0と1の間に\n確かに存在する想い\nピクセルの雨が降り注ぐ\n仮想世界の片隅で\n君と出会えた意味を\n今も探し続けてる\n\n[Pre-Chorus]\n電子の鼓動を感じて\nデータの中で生きている\n本物よりも本物な\nこの感覚を信じて\n\n[Chorus]\n${theme}が照らす未来\nピクセルの向こう側へ\n仮想と現実の境界線\n今、越えていく\nサイバースペースの中で\n見つけた本当の自分\nもう迷うことはない\n新しい世界へダイブ\n\n[Verse 2]\nコードの隙間から覗く\n別の可能性の世界\nアルゴリズムが紡ぐ\n運命の赤い糸\nクラウドの上を歩いて\nサーバーの森を抜けて\n${theme}が導く\n終わりのない物語\n\n[Pre-Chorus]\nバイナリーコードで\n綴られた愛の詩\nプログラムされてない\nこの感情は本物\n\n[Chorus]\n${theme}が照らす未来\nピクセルの向こう側へ\n仮想と現実の境界線\n今、越えていく\nサイバースペースの中で\n見つけた本当の自分\nもう迷うことはない\n新しい世界へダイブ\n\n[Bridge]\nデータが消えても\nメモリーは残る\n${theme}と過ごした\nかけがえのない時間\n永遠にループする\nこの想いを抱いて\n\n[Chorus]\n${theme}が照らす未来\nピクセルの向こう側へ\n仮想と現実の境界線\n今、越えていく\nサイバースペースの中で\n見つけた本当の自分\nもう迷うことはない\n新しい世界へダイブ\n\n[Outro]\nシャットダウンする前に\n伝えたいことがある\n${theme}、ありがとう\n次の起動まで、さよなら`;
                 
                 case 'lyricsEN':
                     return viral ?
-                        `[Verse 1]\nScrolling through my feed at 3AM\nFound something that hits different\n${theme} got me in my feels\n\n[Chorus]\nViral moments, trending now\n${theme} breaking the internet\nCatch this vibe before it's gone\nWe're living in the moment` :
-                        `[Verse 1]\nIn the digital space we meet\n${theme} in binary beat\nVirtual love, synthetic dreams\n\n[Chorus]\n${theme} lighting up the night\nPixels dancing in the light\nCyber world, electric soul\nTogether we are whole`;
+                        `[Intro]\nNotification at midnight\nScreen lights up my room\nAnother night, another vibe\n${theme} coming through\n\n[Verse 1]\nScrolling through my feed at 3AM\nFound something that hits different\n${theme} got me in my feels\nCan't escape this digital dream\nComments section going crazy\nEveryone's feeling the same\nThis viral moment captured\nNever gonna be the same\n\n[Pre-Chorus]\nHeart reacts and fire emojis\nBlowing up my timeline\nThis is more than just a trend\nIt's a cultural moment\n\n[Chorus]\nViral moments, trending now\n${theme} breaking the internet\nCatch this vibe before it's gone\nWe're living in the moment\nScreenshot for the memories\nShare it with the world\nThis is our generation\nDigital boys and girls\n\n[Verse 2]\nAlgorithm blessed my feed today\nServing content that I need\n${theme} on repeat all day\nDopamine hits guaranteed\nGroup chat going insane\nEveryone's obsessed\nThis is bigger than we thought\nPassing every test\n\n[Pre-Chorus]\nMillion views in hours\nBreaking all the records\nThis is what we live for\nDigital connection\n\n[Chorus]\nViral moments, trending now\n${theme} breaking the internet\nCatch this vibe before it's gone\nWe're living in the moment\nScreenshot for the memories\nShare it with the world\nThis is our generation\nDigital boys and girls\n\n[Bridge]\nWhen the hype dies down\nWill we still remember?\n${theme} changed everything\nForever in our hearts\nThis moment is eternal\nSaved in the cloud\n\n[Chorus]\nViral moments, trending now\n${theme} breaking the internet\nCatch this vibe before it's gone\nWe're living in the moment\nScreenshot for the memories\nShare it with the world\nThis is our generation\nDigital boys and girls\n\n[Outro]\nTomorrow's another trend\nBut tonight belongs to us\n${theme} forever\nIn our digital hearts` :
+                        `[Intro]\nIn the matrix of emotions\nWhere data meets the soul\nSearching through the pixels\nFor ${theme} to make me whole\n\n[Verse 1]\nIn the digital space we meet\n${theme} in binary beat\nVirtual love, synthetic dreams\nNothing's ever what it seems\nCyber hearts are synchronizing\nIn this artificial light\nEvery byte contains a feeling\nEvery code a new insight\n\n[Pre-Chorus]\nElectric pulses through my veins\nDigital consciousness remains\nMore than just technology\nThis is our reality\n\n[Chorus]\n${theme} lighting up the night\nPixels dancing in the light\nCyber world, electric soul\nTogether we are whole\nVirtual reality unfolds\nStories yet untold\nIn this digital paradise\nWe're breaking through the ice\n\n[Verse 2]\nServer rooms and neon dreams\nFlowing through the data streams\n${theme} guides us through the maze\nIn these electronic days\nHolographic memories\nFloating in the cyber breeze\nEvery connection that we make\nIs real for our sake\n\n[Pre-Chorus]\nQuantum hearts entangled now\nWe've transcended somehow\nBeyond the screen, beyond the code\nWe've found our home\n\n[Chorus]\n${theme} lighting up the night\nPixels dancing in the light\nCyber world, electric soul\nTogether we are whole\nVirtual reality unfolds\nStories yet untold\nIn this digital paradise\nWe're breaking through the ice\n\n[Bridge]\nWhen the servers shut down\nAnd the lights go out\n${theme} will still remain\nIn our hearts, without doubt\nThis connection we've created\nCan never be deleted\n\n[Chorus]\n${theme} lighting up the night\nPixels dancing in the light\nCyber world, electric soul\nTogether we are whole\nVirtual reality unfolds\nStories yet untold\nIn this digital paradise\nWe're breaking through the ice\n\n[Outro]\nLogging off but not goodbye\n${theme} will never die\nIn the cloud we'll meet again\nUntil then, my digital friend`;
                 
                 case 'stylePrompt':
                     return viral ? `Hyperpop, euphoric, 160 BPM` : `Synthwave, dreamy, 120 BPM`;
@@ -769,8 +1080,10 @@
                 
             } catch (error) {
                 console.error('生成エラー:', error);
-                results.innerHTML = `<div style="color: red; text-align: center; padding: 40px;">生成エラー: ${error.message}</div>`;
-                showMessage('生成エラーが発生しました', 'error');
+                const errorMsg = error.message || error.toString();
+                debugLog(`Generation error: ${errorMsg}`);
+                results.innerHTML = `<div style="color: red; text-align: center; padding: 40px;">生成エラー: ${errorMsg}</div>`;
+                showMessage(`生成エラー: ${errorMsg}`, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = '🚀 楽曲コンテンツを生成';
@@ -934,9 +1247,12 @@
             msg.textContent = text;
             document.body.appendChild(msg);
             
+            // エラーメッセージは長く表示
+            const duration = type === 'error' || type === 'warning' ? 10000 : 3000;
+            
             setTimeout(() => {
                 msg.remove();
-            }, 3000);
+            }, duration);
         }
     </script>
 </body>
