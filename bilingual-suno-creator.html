@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Gemini Suno Creator | AIミュージッククリエイター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .bilingual-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .title-en {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .title-ja {
+            font-size: 1.8em;
+            color: #764ba2;
+            font-weight: 500;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        
+        .copy-btn.copied {
+            background: #2196F3;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .api-setup {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .api-setup h3 {
+            color: #2196f3;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .api-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: blink 1s infinite;
+        }
+        
+        .status-dot.offline {
+            background: #f44336;
+            animation: none;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .generate-btn {
+            display: block;
+            width: 300px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+        
+        .theme-box {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .theme-box:hover {
+            background: #e8e8e8;
+            transform: translateX(5px);
+        }
+        
+        .theme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .theme-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .copy-theme-btn {
+            padding: 5px 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-theme-btn:hover {
+            background: #1976D2;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-section {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-section h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .info-section ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <div class="bilingual-title">
+                <button class="copy-btn" onclick="copyTitle()">📋 Copy Title</button>
+                <div class="title-en">
+                    🎵 Gemini Suno Creator
+                </div>
+                <div class="title-ja">
+                    AIミュージッククリエイター
+                </div>
+                <div class="status-indicator">
+                    ✅ 24時間稼働対応 | 24/7 Operation Ready
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h4>🌐 バイリンガル対応 | Bilingual Support</h4>
+            <ul>
+                <li>日本語と英語のタイトル表示 | Japanese and English titles</li>
+                <li>ワンクリックでコピー可能 | One-click copy function</li>
+                <li>24時間自動稼働システム | 24-hour automatic operation</li>
+            </ul>
+        </div>
+        
+        <div class="api-setup">
+            <h3>
+                🔑 API設定 | API Configuration
+                <span style="font-size: 14px; color: #666;">(Gemini API)</span>
+            </h3>
+            <input type="text" class="api-input" id="apiKey" 
+                   placeholder="Gemini APIキーを入力 / Enter your Gemini API key">
+            <div class="server-status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">サーバー状態: 確認中... | Server Status: Checking...</span>
+            </div>
+        </div>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="jpop">J-POP</button>
+            <button class="mode-btn" data-mode="anime">アニメ</button>
+            <button class="mode-btn" data-mode="lofi">Lo-Fi</button>
+            <button class="mode-btn" data-mode="electronic">Electronic</button>
+            <button class="mode-btn" data-mode="rock">Rock</button>
+            <button class="mode-btn" data-mode="jazz">Jazz</button>
+            <button class="mode-btn" data-mode="classical">Classical</button>
+            <button class="mode-btn" data-mode="hiphop">Hip-Hop</button>
+        </div>
+        
+        <button class="generate-btn" id="generateBtn" onclick="generateMusic()">
+            🎵 音楽を生成 | Generate Music
+        </button>
+        
+        <div id="results"></div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let selectedMode = 'jpop';
+        let apiKey = '';
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            // APIキーの読み込み
+            const savedKey = localStorage.getItem('geminiApiKey');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                apiKey = savedKey;
+            }
+            
+            // サーバー状態チェック
+            checkServerStatus();
+            setInterval(checkServerStatus, 30000); // 30秒ごとにチェック
+            
+            // モードボタンの設定
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedMode = btn.dataset.mode;
+                });
+            });
+            
+            // APIキー入力の監視
+            document.getElementById('apiKey').addEventListener('input', (e) => {
+                apiKey = e.target.value;
+                localStorage.setItem('geminiApiKey', apiKey);
+            });
+        });
+        
+        // タイトルをコピー
+        function copyTitle() {
+            const titleText = '🎵 Gemini Suno Creator | AIミュージッククリエイター';
+            navigator.clipboard.writeText(titleText).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+                showToast('タイトルをコピーしました | Title copied!');
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy Title';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        // サーバー状態チェック
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:3000/api/status', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    updateServerStatus(true);
+                } else {
+                    updateServerStatus(false);
+                }
+            } catch (error) {
+                updateServerStatus(false);
+            }
+        }
+        
+        // サーバー状態更新
+        function updateServerStatus(isOnline) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (isOnline) {
+                dot.classList.remove('offline');
+                text.textContent = 'サーバー状態: オンライン | Server Status: Online';
+            } else {
+                dot.classList.add('offline');
+                text.textContent = 'サーバー状態: オフライン | Server Status: Offline';
+            }
+        }
+        
+        // 音楽生成
+        async function generateMusic() {
+            if (!apiKey) {
+                showToast('APIキーを入力してください | Please enter API key', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('generateBtn');
+            const results = document.getElementById('results');
+            
+            btn.disabled = true;
+            btn.textContent = '生成中... | Generating...';
+            
+            results.innerHTML = '<div class="loading"><div class="spinner"></div>音楽テーマを生成しています... | Generating music themes...</div>';
+            
+            try {
+                // ここで実際のAPI呼び出しを行う
+                const themes = await generateThemes();
+                displayThemes(themes);
+            } catch (error) {
+                results.innerHTML = `<div style="color: red; text-align: center;">エラーが発生しました | Error occurred: ${error.message}</div>`;
+                showToast('生成に失敗しました | Generation failed', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎵 音楽を生成 | Generate Music';
+            }
+        }
+        
+        // テーマ生成（サンプル）
+        async function generateThemes() {
+            // 実際のAPI呼び出しをここに実装
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve([
+                        {
+                            title: `${selectedMode.toUpperCase()} Theme 1`,
+                            titleJa: `${getModeNameJa(selectedMode)} テーマ 1`,
+                            description: 'A beautiful melody inspired by nature',
+                            descriptionJa: '自然からインスピレーションを得た美しいメロディー',
+                            tags: ['relaxing', 'nature', 'peaceful']
+                        },
+                        {
+                            title: `${selectedMode.toUpperCase()} Theme 2`,
+                            titleJa: `${getModeNameJa(selectedMode)} テーマ 2`,
+                            description: 'An energetic and uplifting composition',
+                            descriptionJa: 'エネルギッシュで高揚感のある楽曲',
+                            tags: ['energetic', 'uplifting', 'positive']
+                        }
+                    ]);
+                }, 2000);
+            });
+        }
+        
+        // モード名の日本語変換
+        function getModeNameJa(mode) {
+            const modeMap = {
+                'jpop': 'J-POP',
+                'anime': 'アニメ',
+                'lofi': 'Lo-Fi',
+                'electronic': 'エレクトロニック',
+                'rock': 'ロック',
+                'jazz': 'ジャズ',
+                'classical': 'クラシック',
+                'hiphop': 'ヒップホップ'
+            };
+            return modeMap[mode] || mode;
+        }
+        
+        // テーマ表示
+        function displayThemes(themes) {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">生成されたテーマ | Generated Themes</h3>';
+            
+            themes.forEach((theme, index) => {
+                const themeBox = document.createElement('div');
+                themeBox.className = 'theme-box';
+                themeBox.innerHTML = `
+                    <div class="theme-header">
+                        <div>
+                            <div class="theme-title">${theme.title}</div>
+                            <div style="color: #764ba2; font-size: 14px; margin-top: 5px;">${theme.titleJa}</div>
+                        </div>
+                        <button class="copy-theme-btn" onclick="copyTheme(${index})">
+                            コピー | Copy
+                        </button>
+                    </div>
+                    <p style="margin: 10px 0; color: #666;">${theme.description}</p>
+                    <p style="margin: 10px 0; color: #888; font-size: 14px;">${theme.descriptionJa}</p>
+                    <div style="margin-top: 10px;">
+                        ${theme.tags.map(tag => `<span style="display: inline-block; padding: 3px 10px; background: #e8e8e8; border-radius: 15px; margin-right: 5px; font-size: 12px;">#${tag}</span>`).join('')}
+                    </div>
+                `;
+                results.appendChild(themeBox);
+            });
+            
+            // テーマデータを保存
+            window.generatedThemes = themes;
+        }
+        
+        // テーマをコピー
+        function copyTheme(index) {
+            const theme = window.generatedThemes[index];
+            const text = `${theme.title} | ${theme.titleJa}\n${theme.description}\n${theme.descriptionJa}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('テーマをコピーしました | Theme copied!');
+            });
+        }
+        
+        // トースト表示
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#f44336' : '#4CAF50';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -171,20 +171,24 @@ const server = http.createServer((req, res) => {
                     throw new Error('Invalid Gemini API key format. Must start with AIzaSy');
                 }
                 
+                // モデル選択（デフォルトは2.0-flash-exp）
+                const model = requestData.model || 'gemini-2.0-flash-exp';
+                const temperature = requestData.temperature || 0.9;
+                
                 // Gemini APIへのリクエスト
                 const geminiData = JSON.stringify({
                     contents: [{
                         parts: [{ text: prompt }]
                     }],
                     generationConfig: {
-                        temperature: 0.9,
-                        maxOutputTokens: 2048
+                        temperature: temperature,
+                        maxOutputTokens: 4096
                     }
                 });
                 
                 const options = {
                     hostname: 'generativelanguage.googleapis.com',
-                    path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                    path: `/v1beta/models/${model}:generateContent?key=${apiKey}`,
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

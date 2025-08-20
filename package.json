@@ -7,7 +7,14 @@
   "scripts": {
     "start": "node api-server.js",
     "dev": "node api-server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:auto": "./auto-restart.sh",
+    "pm2:start": "npx pm2 start ecosystem.config.js",
+    "pm2:stop": "npx pm2 stop suno-ai-music-generator",
+    "pm2:restart": "npx pm2 restart suno-ai-music-generator",
+    "pm2:logs": "npx pm2 logs suno-ai-music-generator",
+    "pm2:status": "npx pm2 status",
+    "pm2:delete": "npx pm2 delete suno-ai-music-generator"
   },
   "keywords": [
     "music",
@@ -24,7 +31,8 @@
     "node": ">=14.0.0"
   },
   "devDependencies": {
-    "cordova-android": "^14.0.1"
+    "cordova-android": "^14.0.1",
+    "pm2": "^6.0.8"
   },
   "cordova": {
     "platforms": [

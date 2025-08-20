@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎵 Android Working Creator | Androidワーキングクリエイター</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            font-size: 1.2em;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+        }
+        
+        /* コンテンツ編集可能エリア */
+        .api-key-area {
+            width: 100%;
+            min-height: 60px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            background: white;
+            color: #333;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            outline: none;
+        }
+        
+        .api-key-area:focus {
+            border-color: #667eea;
+            background: #fafafa;
+        }
+        
+        .api-key-area[contenteditable="true"]:empty:before {
+            content: "ここをタップしてAPIキーを入力";
+            color: #999;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .help-text {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .theme-display {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .result-header {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .api-method-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .method-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .method-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .method-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            align-items: center;
+        }
+        
+        .controls label {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .controls select {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .controls select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Android Working Creator<br><span style="font-size: 0.6em; color: #764ba2;">Androidワーキングクリエイター</span></h1>
+        <div style="text-align: center; color: #666; margin-bottom: 20px;">
+            Claude & Gemini AI 楽曲ジェネレーター（Android最適化）
+        </div>
+        
+        <!-- API選択 -->
+        <div class="section" style="background: linear-gradient(135deg, #FFE5EC, #E5E5FF);">
+            <h3>🤖 AI API選択</h3>
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+                <button class="method-btn active" id="apiClaude" onclick="selectAPI('claude')" style="flex: 1; max-width: 200px;">
+                    🎭 Claude API
+                </button>
+                <button class="method-btn" id="apiGemini" onclick="selectAPI('gemini')" style="flex: 1; max-width: 200px;">
+                    💎 Gemini API
+                </button>
+            </div>
+        </div>
+        
+        <!-- API設定セクション -->
+        <div class="section" id="apiSection">
+            <h3 id="apiTitle">🎭 Claude API設定</h3>
+            
+            <div class="help-text">
+                <strong>📱 APIキー入力方法を選択：</strong>
+            </div>
+            
+            <div class="api-method-buttons">
+                <button class="method-btn active" id="method1" onclick="selectMethod(1)">
+                    方法1<br>プロンプト
+                </button>
+                <button class="method-btn" id="method2" onclick="selectMethod(2)">
+                    方法2<br>直接入力
+                </button>
+                <button class="method-btn" id="method3" onclick="selectMethod(3)">
+                    方法3<br>手動入力
+                </button>
+            </div>
+            
+            <!-- 方法1: プロンプトダイアログ -->
+            <div id="method1Content" style="display: block;">
+                <button class="btn btn-warning" onclick="promptForApiKey()">
+                    📝 APIキーを入力（ダイアログ）
+                </button>
+                <div id="promptResult" style="margin-top: 10px; font-family: monospace; font-size: 12px; color: #666;"></div>
+            </div>
+            
+            <!-- 方法2: コンテンツ編集可能div -->
+            <div id="method2Content" style="display: none;">
+                <div class="help-text" style="background: #fff3cd; border-color: #ffc107;">
+                    下の枠内をタップして、APIキーを直接入力または貼り付けてください
+                </div>
+                <div 
+                    id="apiKeyDiv" 
+                    class="api-key-area"
+                    contenteditable="true"
+                    spellcheck="false"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    oninput="onApiKeyDivChange()"
+                ></div>
+                <div id="divCharCount" style="text-align: right; font-size: 12px; color: #666; margin-top: 5px;">0文字</div>
+            </div>
+            
+            <!-- 方法3: ボタンごとに文字入力 -->
+            <div id="method3Content" style="display: none;">
+                <div class="help-text" style="background: #f0f8ff; border-color: #2196F3;">
+                    各ボタンをタップしてAPIキーを1文字ずつ入力
+                </div>
+                <div id="manualInput" style="font-family: monospace; padding: 10px; background: #f8f9fa; border-radius: 5px; margin: 10px 0; min-height: 40px; word-break: break-all;"></div>
+                <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin: 10px 0;">
+                    <button onclick="addChar('A')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">A</button>
+                    <button onclick="addChar('I')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">I</button>
+                    <button onclick="addChar('z')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">z</button>
+                    <button onclick="addChar('a')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">a</button>
+                    <button onclick="addChar('S')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">S</button>
+                    <button onclick="addChar('y')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">y</button>
+                    <button onclick="addChar('0')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">0</button>
+                    <button onclick="addChar('1')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">1</button>
+                    <button onclick="addChar('2')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">2</button>
+                    <button onclick="addChar('3')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">3</button>
+                    <button onclick="addChar('4')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">4</button>
+                    <button onclick="addChar('5')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">5</button>
+                    <button onclick="addChar('6')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">6</button>
+                    <button onclick="addChar('7')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">7</button>
+                    <button onclick="addChar('8')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">8</button>
+                    <button onclick="addChar('9')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">9</button>
+                    <button onclick="addChar('-')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">-</button>
+                    <button onclick="addChar('_')" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">_</button>
+                    <button onclick="deleteChar()" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; grid-column: span 2;">⌫</button>
+                </div>
+                <button class="btn btn-danger" onclick="clearManualInput()" style="padding: 10px;">クリア</button>
+            </div>
+            
+            <!-- 共通ボタン -->
+            <button class="btn" onclick="testConnection()" id="testBtn">
+                🔌 接続テスト
+            </button>
+            
+            <button class="btn btn-danger" onclick="clearApiKey()">
+                🗑️ APIキークリア
+            </button>
+            
+            <div id="apiStatus"></div>
+        </div>
+        
+        <!-- テーマ生成 -->
+        <div class="section">
+            <h3>🎯 楽曲テーマ</h3>
+            
+            <!-- 言語切り替え -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;">
+                <button class="method-btn active" id="langJa" onclick="switchLanguage('ja')" style="width: 100px;">
+                    🇯🇵 日本語
+                </button>
+                <button class="method-btn" id="langEn" onclick="switchLanguage('en')" style="width: 100px;">
+                    🇺🇸 English
+                </button>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn btn-secondary" onclick="generateAITheme()" id="aiThemeBtn" style="flex: 2;">
+                    🤖 AIバズテーマ生成
+                </button>
+                <button class="btn" onclick="generateRandomTheme()" id="randomThemeBtn" style="flex: 1; background: linear-gradient(135deg, #28a745, #20c997);">
+                    🎲 ランダム
+                </button>
+            </div>
+            
+            <!-- テーマ表示エリア（編集可能） -->
+            <div class="theme-display" id="themeDisplay" contenteditable="true" style="cursor: text; position: relative;">
+                テーマを生成してください
+            </div>
+            <div style="text-align: center; margin-top: 5px; color: #666; font-size: 12px;">
+                ✏️ クリックして編集可能
+            </div>
+            
+            <!-- テーマカテゴリー選択 -->
+            <div style="margin-top: 15px;">
+                <label style="color: #667eea; font-weight: bold;">テーマカテゴリー:</label>
+                <select id="themeCategory" onchange="filterThemesByCategory()" style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                    <option value="all">すべて</option>
+                    <option value="romance">恋愛・ロマンス</option>
+                    <option value="friendship">友情・絆</option>
+                    <option value="dream">夢・挑戦</option>
+                    <option value="daily">日常・生活</option>
+                    <option value="modern">現代・デジタル</option>
+                    <option value="fantasy">ファンタジー・SF</option>
+                    <option value="dark">ダーク・シリアス</option>
+                    <option value="nostalgia">ノスタルジー・レトロ</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 楽曲生成 -->
+        <div class="section">
+            <button class="btn" onclick="generateSong()" id="generateBtn" disabled>
+                🚀 3分楽曲を生成（要API接続）
+            </button>
+        </div>
+        
+        <!-- 結果表示 -->
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        let apiKey = '';
+        let apiConnected = false;
+        let currentTheme = '';
+        let isGenerating = false;
+        let selectedMethod = 1;
+        let manualApiKey = '';
+        let currentArtwork = '';
+        let currentData = {};
+        let selectedAPI = 'claude';  // デフォルトはClaude
+        let generatedThemes = [];  // 生成済みテーマの履歴
+        let currentLanguage = 'ja';  // 言語設定（ja: 日本語, en: 英語）
+        
+        // 拡張された多様なテーマリスト
+        const fallbackThemes = {
+            ja: [
+                // 恋愛系（多様化）
+                '推しに背中を押された夏', 'バイト先の奇跡の恋', 'スマホ越しの初恋',
+                'AI彼女との約束', 'メタバース初デート', '終電で始まる青春',
+                '異世界転生した初恋', 'VRの中の恋心', '配信中に芽生えた感情',
+                'コメント欄から始まる物語', 'プレイリストに隠した想い', '深夜2時の告白',
+                
+                // 友情・絆系（多様化）
+                'ゲーム仲間との絆', '深夜ラジオの約束', 'オンライン授業の友情',
+                '文化祭前夜の奇跡', '卒業式の空っぽな教室', '同級生への感謝の歌',
+                'ディスコードの仲間たち', '廃校になる前の約束', '部活最後の夏',
+                '修学旅行の夜更かし', 'クラスLINEの思い出', 'ゲーセンでの友情',
+                
+                // 夢・成長系（多様化）
+                '夢を追いかける勇気', '諦めない心の歌', 'YouTuberへの憧憬',
+                '18歳の決意表明', '親への感謝の手紙', '失敗から学んだ強さ',
+                'フリーランスへの第一歩', '起業家になる決意', 'アーティストの葛藤',
+                '留学前夜の不安と希望', '資格試験への挑戦', 'バンドメンバー募集中',
+                
+                // 日常の奇跡系（多様化）
+                '深夜コンビニの奇跡', '雨の日の小さな発見', '通学路の季節',
+                'カフェで見つけた希望', '図書館での出会い', '電車の中の風景',
+                '朝日を見ながらの決意', '猫カフェでの癒し', 'ラーメン屋での人生相談',
+                '屋上での秘密基地', '商店街の優しさ', '公園ブランコの哲学',
+                
+                // 現代的テーマ（多様化）
+                'TikTokで有名になった日', 'インスタライブの向こう側', 'ゲーム実況者への道',
+                'Vtuberとしての第一歩', 'ボカロPになる夢', 'プログラマーの恋',
+                'NFTアーティストの挑戦', 'メタバース起業家', 'AI開発者の日常',
+                'サブスク時代の音楽', 'ポッドキャスターの声', 'eSports選手の青春',
+                
+                // ファンタジー・SF系（新規追加）
+                '異世界でもスマホ使いたい', '魔法学校の日常', 'ロボットと人間の友情',
+                'タイムリープした月曜日', '平行世界の自分へ', '宇宙船での恋愛',
+                '龍と契約した高校生', '魔王になった俺', '勇者をやめた理由',
+                
+                // ダーク・シリアス系（新規追加）
+                '最後の文化祭', '廃墟になった母校', '消えたクラスメイト',
+                '深夜の独り言', '眠れない夜の考察', '存在価値を探して',
+                '偽りの笑顔の裏側', '仮面を外す勇気', '本当の自分を見つけるまで',
+                
+                // ノスタルジー系（新規追加）
+                '昭和レトロな恋', '平成最後の青春', 'ガラケーの思い出',
+                '懐かしのゲームセンター', 'カセットテープの告白', 'MDに録音した気持ち',
+                '2000年代のネット文化', 'フィーチャーフォンの着メロ', 'ポケベルで伝えた想い'
+            ],
+            en: [
+                // Romance themes
+                'Summer Digital Love', 'Virtual First Kiss', 'Late Night Confessions',
+                'Coffee Shop Romance', 'Online Dating Story', 'Subway Encounters',
+                
+                // Friendship themes
+                'Gaming Squad Goals', 'Discord Family', 'School Memories',
+                'Best Friend Forever', 'Team Victory Song', 'Graduation Day',
+                
+                // Dreams & Ambitions
+                'Chase Your Dreams', 'Never Give Up', 'Rising Star',
+                'Future Entrepreneur', 'Creative Journey', 'Breaking Limits',
+                
+                // Daily Life
+                'City Night Vibes', 'Morning Coffee Ritual', 'Weekend Adventures',
+                'Rainy Day Thoughts', 'Sunset Moments', 'Urban Explorer',
+                
+                // Modern themes
+                'Social Media Star', 'Content Creator Life', 'Digital Nomad',
+                'Tech Startup Dream', 'Streaming Journey', 'Viral Moment'
+            ]
+        };
+        
+        // 初期化
+        window.onload = function() {
+            // 保存されたAPIキーを復元
+            const savedClaude = localStorage.getItem('claudeApiKey');
+            const savedGemini = localStorage.getItem('geminiApiKey');
+            
+            if (savedClaude) {
+                selectedAPI = 'claude';
+                apiKey = savedClaude;
+                displayApiKey();
+                setTimeout(() => testConnection(), 1000);
+            } else if (savedGemini) {
+                selectedAPI = 'gemini';
+                selectAPI('gemini');
+                apiKey = savedGemini;
+                displayApiKey();
+                setTimeout(() => testConnection(), 1000);
+            }
+        };
+        
+        // API選択
+        function selectAPI(api) {
+            selectedAPI = api;
+            document.getElementById('apiClaude').classList.remove('active');
+            document.getElementById('apiGemini').classList.remove('active');
+            document.getElementById('api' + api.charAt(0).toUpperCase() + api.slice(1)).classList.add('active');
+            
+            const apiTitle = document.getElementById('apiTitle');
+            const promptResult = document.getElementById('promptResult');
+            
+            if (api === 'claude') {
+                apiTitle.innerHTML = '🎭 Claude API設定';
+                apiKey = localStorage.getItem('claudeApiKey') || '';
+            } else {
+                apiTitle.innerHTML = '💎 Gemini API設定';
+                apiKey = localStorage.getItem('geminiApiKey') || '';
+            }
+            
+            // 表示をリセット
+            displayApiKey();
+            apiConnected = false;
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('apiStatus').innerHTML = '';
+        }
+        
+        // 入力方法選択
+        function selectMethod(method) {
+            selectedMethod = method;
+            
+            // ボタンの状態更新
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('method' + method).classList.add('active');
+            
+            // コンテンツ表示切り替え
+            document.getElementById('method1Content').style.display = method === 1 ? 'block' : 'none';
+            document.getElementById('method2Content').style.display = method === 2 ? 'block' : 'none';
+            document.getElementById('method3Content').style.display = method === 3 ? 'block' : 'none';
+        }
+        
+        // 方法1: プロンプトダイアログ
+        function promptForApiKey() {
+            const apiName = selectedAPI === 'claude' ? 'Claude' : 'Gemini';
+            const format = selectedAPI === 'claude' ? 'sk-ant-api...で始まる100文字程度' : 'AIzaSy...で始まる40文字程度';
+            
+            const input = prompt(`${apiName} APIキーを入力してください（${format}）:`);
+            if (input && input.trim()) {
+                apiKey = input.trim();
+                localStorage.setItem(selectedAPI + 'ApiKey', apiKey);
+                displayApiKey();
+                document.getElementById('apiStatus').innerHTML = '<div class="status warning">APIキーを保存しました。接続テストを実行してください。</div>';
+            }
+        }
+        
+        // 方法2: div入力変更時
+        function onApiKeyDivChange() {
+            const div = document.getElementById('apiKeyDiv');
+            const text = div.textContent || div.innerText || '';
+            const count = document.getElementById('divCharCount');
+            
+            count.textContent = text.length + '文字';
+            
+            const isValid = (selectedAPI === 'claude' && text.startsWith('sk-ant-api') && text.length >= 100) ||
+                           (selectedAPI === 'gemini' && text.startsWith('AIzaSy') && text.length >= 39);
+            
+            if (isValid) {
+                apiKey = text.trim();
+                localStorage.setItem(selectedAPI + 'ApiKey', apiKey);
+                count.innerHTML = text.length + '文字 <span style="color: green;">✅</span>';
+            } else if (text.length > 0) {
+                count.innerHTML = text.length + '文字 <span style="color: orange;">⚠️</span>';
+            }
+        }
+        
+        // 方法3: 手動文字入力
+        function addChar(char) {
+            manualApiKey += char;
+            document.getElementById('manualInput').textContent = manualApiKey;
+            
+            const isValid = (selectedAPI === 'claude' && manualApiKey.startsWith('sk-ant-api') && manualApiKey.length >= 100) ||
+                           (selectedAPI === 'gemini' && manualApiKey.startsWith('AIzaSy') && manualApiKey.length >= 39);
+            
+            if (isValid) {
+                apiKey = manualApiKey;
+                localStorage.setItem(selectedAPI + 'ApiKey', apiKey);
+                document.getElementById('apiStatus').innerHTML = '<div class="status success">✅ 有効なAPIキー形式です</div>';
+            }
+        }
+        
+        function deleteChar() {
+            if (manualApiKey.length > 0) {
+                manualApiKey = manualApiKey.slice(0, -1);
+                document.getElementById('manualInput').textContent = manualApiKey;
+            }
+        }
+        
+        function clearManualInput() {
+            manualApiKey = '';
+            document.getElementById('manualInput').textContent = '';
+        }
+        
+        // APIキー表示
+        function displayApiKey() {
+            if (apiKey) {
+                const masked = apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 5);
+                document.getElementById('promptResult').textContent = 'APIキー: ' + masked;
+                document.getElementById('apiKeyDiv').textContent = apiKey;
+                document.getElementById('manualInput').textContent = apiKey;
+                manualApiKey = apiKey;
+                onApiKeyDivChange();
+            }
+        }
+        
+        // APIキークリア
+        function clearApiKey() {
+            if (confirm('APIキーをクリアしますか？')) {
+                apiKey = '';
+                manualApiKey = '';
+                localStorage.removeItem(selectedAPI + 'ApiKey');
+                apiConnected = false;
+                document.getElementById('generateBtn').disabled = true;
+                document.getElementById('apiStatus').innerHTML = '';
+                document.getElementById('promptResult').textContent = '';
+                document.getElementById('apiKeyDiv').textContent = '';
+                document.getElementById('manualInput').textContent = '';
+                document.getElementById('divCharCount').textContent = '0文字';
+                alert('APIキーをクリアしました');
+            }
+        }
+        
+        // API接続テスト
+        async function testConnection() {
+            const status = document.getElementById('apiStatus');
+            const testBtn = document.getElementById('testBtn');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            // 現在の入力方法から取得
+            if (selectedMethod === 2) {
+                const div = document.getElementById('apiKeyDiv');
+                const text = (div.textContent || div.innerText || '').trim();
+                const isValid = (selectedAPI === 'claude' && text.startsWith('sk-ant-api')) ||
+                               (selectedAPI === 'gemini' && text.startsWith('AIzaSy'));
+                if (isValid) {
+                    apiKey = text;
+                }
+            } else if (selectedMethod === 3) {
+                const isValid = (selectedAPI === 'claude' && manualApiKey.startsWith('sk-ant-api')) ||
+                               (selectedAPI === 'gemini' && manualApiKey.startsWith('AIzaSy'));
+                if (isValid) {
+                    apiKey = manualApiKey;
+                }
+            }
+            
+            if (!apiKey) {
+                status.innerHTML = '<div class="status error">❌ APIキーを入力してください</div>';
+                return;
+            }
+            
+            const validFormat = (selectedAPI === 'claude' && apiKey.startsWith('sk-ant-api')) ||
+                              (selectedAPI === 'gemini' && apiKey.startsWith('AIzaSy'));
+            
+            if (!validFormat) {
+                status.innerHTML = '<div class="status error">❌ 無効なAPIキー形式です</div>';
+                return;
+            }
+            
+            testBtn.disabled = true;
+            testBtn.textContent = '🔄 テスト中...';
+            status.innerHTML = '<div class="status warning">⏳ 接続テスト中...</div>';
+            
+            try {
+                let response;
+                try {
+                    const endpoint = selectedAPI === 'claude' ? '/api/claude' : '/api/gemini';
+                    response = await fetch('http://localhost:3000' + endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            apiKey: apiKey,
+                            prompt: 'Hello test',
+                            temperature: 0.1
+                        })
+                    });
+                } catch (fetchError) {
+                    throw new Error('サーバーに接続できません。api-server.jsが起動しているか確認してください');
+                }
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    throw new Error('サーバーからの応答が不正です');
+                }
+                
+                if (response.ok && (data.content || data.candidates)) {
+                    apiConnected = true;
+                    generateBtn.disabled = false;
+                    status.innerHTML = '<div class="status success">✅ 接続成功！AI生成が利用可能です</div>';
+                    localStorage.setItem(selectedAPI + 'ApiKey', apiKey);
+                } else {
+                    // エラーオブジェクトの処理を改善
+                    let errorMessage = 'Connection failed';
+                    if (data.error) {
+                        if (typeof data.error === 'string') {
+                            errorMessage = data.error;
+                        } else if (data.error.message) {
+                            errorMessage = data.error.message;
+                        } else if (data.error.error) {
+                            errorMessage = data.error.error;
+                        } else {
+                            errorMessage = JSON.stringify(data.error);
+                        }
+                    }
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                apiConnected = false;
+                generateBtn.disabled = true;
+                const errorMsg = error.message || 'Unknown error';
+                console.error('Connection error:', error);
+                
+                // エラーメッセージの詳細判定
+                let helpMessage = 'api-server.jsが起動していることを確認してください';
+                if (errorMsg.includes('API key not valid')) {
+                    helpMessage = 'APIキーが無効です。正しいAPIキーを入力してください';
+                } else if (errorMsg.includes('quota') || errorMsg.includes('rate limit')) {
+                    helpMessage = 'APIの利用制限に達しました。無料枠は1日1,500リクエストです';
+                } else if (errorMsg.includes('サーバーに接続できません')) {
+                    helpMessage = 'api-server.jsが起動していない可能性があります';
+                }
+                
+                status.innerHTML = `<div class="status error">❌ 接続失敗: ${errorMsg}<br>${helpMessage}</div>`;
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = '🔌 接続テスト';
+            }
+        }
+        
+        // AIテーマ生成（バズりやすいテーマ）
+        async function generateAITheme() {
+            const btn = document.getElementById('aiThemeBtn');
+            const display = document.getElementById('themeDisplay');
+            
+            if (!apiConnected) {
+                alert('先にAPI接続テストを成功させてください');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = '🤖 生成中...';
+            display.textContent = 'AIがバズるテーマを考案中...';
+            
+            try {
+                // ランダム要素を追加して多様性を確保
+                const timeStamp = new Date().getTime();
+                const randomSeed = Math.floor(Math.random() * 1000);
+                
+                // より多様なカテゴリー
+                const categories = currentLanguage === 'ja' ? [
+                    '恋愛・青春', '友情・絆', '夢・挑戦', '日常の奇跡', 
+                    'SNS・デジタル', '成長・自己肯定', '家族・感謝', '別れ・出会い',
+                    'ファンタジー・冒険', 'SF・未来', 'ミステリー・サスペンス', 'ホラー・ダーク',
+                    'コメディ・ユーモア', 'スポーツ・競技', '音楽・アート', '学園・スクール',
+                    'お仕事・ビジネス', '旅行・冒険', '食べ物・グルメ', 'ペット・動物'
+                ] : [
+                    'Romance', 'Friendship', 'Dreams', 'Daily Life',
+                    'Digital Age', 'Self Growth', 'Family', 'Encounters',
+                    'Fantasy', 'Sci-Fi', 'Mystery', 'Dark',
+                    'Comedy', 'Sports', 'Music & Art', 'School',
+                    'Work Life', 'Travel', 'Food', 'Pets'
+                ];
+                const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
+                
+                // より多様なトレンドワード
+                const trendWords = currentLanguage === 'ja' ? [
+                    '推し', 'エモい', 'ガチ恋', 'ワンチャン', 'リアコ',
+                    'バズる', 'インスタ映え', 'TikTok', 'オンライン',
+                    '課金', 'ソロ活', 'ヲタ活', 'チル', 'フォトジェニック',
+                    'メンヘラ', 'ぴえん', '草', 'しんどい', 'ととのう',
+                    'ワロタ', 'マジ卍', 'ヤバい', 'えぐい', 'きゅんです',
+                    '沼る', '尊い', '映え', 'バイブス', 'アゲ'
+                ] : [
+                    'Viral', 'Trending', 'GOAT', 'Slay', 'Vibe',
+                    'Stan', 'Ship', 'Binge', 'Flex', 'Mood',
+                    'Lit', 'Fire', 'Epic', 'Savage', 'Queen',
+                    'King', 'Icon', 'Legend', 'Boss', 'Goals'
+                ];
+                const trendWord = trendWords[Math.floor(Math.random() * trendWords.length)];
+                
+                const prompt = currentLanguage === 'ja' ? 
+                `【シード値: ${randomSeed}】
+2024年にSNSでバズりそうな楽曲テーマを1つ生成してください。
+
+【カテゴリー】${selectedCategory}
+【トレンドワード】${trendWord}を参考にしても良い
+【感情の種類】${['切ない', '熱い', '優しい', '力強い', '儚い', '爽やか'][Math.floor(Math.random() * 6)]}
+【シチュエーション】${['日常', '非日常', '特別な日', '転機', '出会い', '別れ'][Math.floor(Math.random() * 6)]}
+
+【必須条件】
+- 独創的で斬新な発想
+- 感情に訴える内容
+- 幅広い世代が共感できる
+- 15文字以内の短いフレーズ
+- 今まで生成したものと全く違う新しいテーマ
+
+【NG例（これらと似たものは絶対に避ける）】
+${generatedThemes.length > 0 ? '- ' + generatedThemes.slice(-10).join('\n- ') : ''}
+
+独創的で新しいテーマを1つだけ出力してください。説明は不要です。` :
+                `【Seed: ${randomSeed}】
+Generate one viral music theme for 2024.
+
+【Category】${selectedCategory}
+【Trend Word】${trendWord} (optional reference)
+【Emotion】${['Melancholic', 'Passionate', 'Gentle', 'Powerful', 'Ephemeral', 'Fresh'][Math.floor(Math.random() * 6)]}
+【Situation】${['Daily', 'Special', 'Turning Point', 'Meeting', 'Parting', 'Adventure'][Math.floor(Math.random() * 6)]}
+
+【Requirements】
+- Creative and innovative
+- Emotionally engaging
+- Universal appeal
+- Short phrase (max 5 words)
+- Completely different from previous themes
+
+【Avoid these】
+${generatedThemes.length > 0 ? '- ' + generatedThemes.slice(-10).join('\n- ') : ''}
+
+Output only one creative theme. No explanation.`;
+
+                let theme = await callAI(prompt);
+                // 改行や余分な文字を削除
+                theme = theme.trim().replace(/[\n\r]/g, '').replace(/^[「『"']|[」』"']$/g, '');
+                
+                // 15文字を超えたら短縮
+                if (theme.length > 15) {
+                    theme = theme.substring(0, 15);
+                }
+                
+                currentTheme = theme;
+                display.textContent = '🔥 ' + currentTheme;
+                
+                // 生成履歴に追加（最大10個保持）
+                generatedThemes.push(theme);
+                if (generatedThemes.length > 10) {
+                    generatedThemes.shift();
+                }
+                
+            } catch (error) {
+                console.error('AI theme generation failed:', error);
+                // フォールバック：ランダムテーマ
+                generateRandomTheme();
+                alert('AIテーマ生成に失敗しました。ランダムテーマを使用します。');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🤖 AIバズテーマ生成';
+            }
+        }
+        
+        // 言語切り替え
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            document.getElementById('langJa').classList.toggle('active', lang === 'ja');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            
+            // カテゴリー選択の更新
+            const categorySelect = document.getElementById('themeCategory');
+            if (lang === 'en') {
+                categorySelect.innerHTML = `
+                    <option value="all">All</option>
+                    <option value="romance">Romance</option>
+                    <option value="friendship">Friendship</option>
+                    <option value="dream">Dreams & Ambitions</option>
+                    <option value="daily">Daily Life</option>
+                    <option value="modern">Modern & Digital</option>
+                `;
+            } else {
+                categorySelect.innerHTML = `
+                    <option value="all">すべて</option>
+                    <option value="romance">恋愛・ロマンス</option>
+                    <option value="friendship">友情・絆</option>
+                    <option value="dream">夢・挑戦</option>
+                    <option value="daily">日常・生活</option>
+                    <option value="modern">現代・デジタル</option>
+                    <option value="fantasy">ファンタジー・SF</option>
+                    <option value="dark">ダーク・シリアス</option>
+                    <option value="nostalgia">ノスタルジー・レトロ</option>
+                `;
+            }
+        }
+        
+        // カテゴリーでフィルタリング
+        function filterThemesByCategory() {
+            const category = document.getElementById('themeCategory').value;
+            // カテゴリー選択時の処理（必要に応じて実装）
+        }
+        
+        // ランダムテーマ生成（改良版）
+        function generateRandomTheme() {
+            const category = document.getElementById('themeCategory').value;
+            let themePool = currentLanguage === 'en' ? fallbackThemes.en : fallbackThemes.ja;
+            
+            // カテゴリーでフィルタリング
+            if (category !== 'all' && currentLanguage === 'ja') {
+                const categoryMap = {
+                    'romance': [0, 12],
+                    'friendship': [12, 24],
+                    'dream': [24, 36],
+                    'daily': [36, 48],
+                    'modern': [48, 60],
+                    'fantasy': [60, 69],
+                    'dark': [69, 78],
+                    'nostalgia': [78, 87]
+                };
+                
+                if (categoryMap[category]) {
+                    const [start, end] = categoryMap[category];
+                    themePool = fallbackThemes.ja.slice(start, end);
+                }
+            }
+            
+            // 重複を避けるための処理
+            let availableThemes = themePool.filter(theme => !generatedThemes.includes(theme));
+            if (availableThemes.length === 0) {
+                availableThemes = themePool;
+                generatedThemes = [];
+            }
+            
+            currentTheme = availableThemes[Math.floor(Math.random() * availableThemes.length)];
+            document.getElementById('themeDisplay').textContent = '🎲 ' + currentTheme;
+            
+            // 生成履歴に追加
+            generatedThemes.push(currentTheme);
+            if (generatedThemes.length > 20) {
+                generatedThemes.shift();
+            }
+        }
+        
+        // テーマ編集機能
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeDisplay = document.getElementById('themeDisplay');
+            if (themeDisplay) {
+                themeDisplay.addEventListener('input', function() {
+                    currentTheme = this.textContent.replace(/^[🔥🎲]\s*/, '');
+                });
+                
+                themeDisplay.addEventListener('focus', function() {
+                    if (this.textContent === 'テーマを生成してください') {
+                        this.textContent = '';
+                    }
+                });
+                
+                themeDisplay.addEventListener('blur', function() {
+                    if (this.textContent === '') {
+                        this.textContent = 'テーマを生成してください';
+                    }
+                });
+            }
+        });
+        
+        // 楽曲生成
+        async function generateSong() {
+            if (!currentTheme) {
+                alert('先にテーマを生成してください');
+                return;
+            }
+            
+            if (!apiConnected) {
+                alert('先にAPI接続テストを成功させてください');
+                return;
+            }
+            
+            if (isGenerating) return;
+            
+            const btn = document.getElementById('generateBtn');
+            const results = document.getElementById('results');
+            
+            isGenerating = true;
+            btn.disabled = true;
+            btn.textContent = '🔄 生成中...';
+            
+            results.innerHTML = '<div class="status warning">🎵 楽曲を生成中...</div>';
+            
+            try {
+                // タイトル生成（日英両方）
+                const titleJa = await callAI(`"${currentTheme}"の日本語楽曲タイトルを1つ生成してください。印象的で覚えやすいタイトル。タイトルのみ出力。`);
+                const titleEn = await callAI(`"${currentTheme}"の英語楽曲タイトルを1つ生成してください。キャッチーで覚えやすいタイトル。タイトルのみ出力。`);
+                
+                // 日本語歌詞生成（3分楽曲用）
+                const lyricsJP = await callAI(`${currentTheme}の日本語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で作成してください：
+[Intro] (2行)
+[Verse 1] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Verse 2] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Bridge] (4行)
+[Chorus] (4行)
+[Outro] (2行)
+
+合計32行程度。各パートは簡潔に、感情を込めて。歌詞のみを出力してください。`);
+                
+                // 英語歌詞生成（3分楽曲用）
+                const lyricsEN = await callAI(`${currentTheme}の英語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で作成してください：
+[Intro] (2行)
+[Verse 1] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Verse 2] (4行)
+[Pre-Chorus] (2行)
+[Chorus] (4行)
+[Bridge] (4行)
+[Chorus] (4行)
+[Outro] (2行)
+
+合計32行程度。簡潔でキャッチーな英語歌詞。歌詞のみを出力してください。`);
+                
+                // スタイル生成
+                const style = await callAI(`"${currentTheme}"の音楽スタイルを生成してください。ジャンル、ムード、BPMを含めて20語以内で。`);
+                
+                // Midjourneyプロンプト生成（30字以内）
+                const artwork = await callAI(`"${currentTheme}"のMidjourneyプロンプトを英語30字以内で生成。簡漁に。`);
+                
+                // アートワークを保存
+                currentArtwork = artwork;
+                
+                // データを保存
+                currentData = {
+                    titleJa: titleJa,
+                    titleEn: titleEn,
+                    lyricsJP: lyricsJP,
+                    lyricsEN: lyricsEN,
+                    style: style,
+                    artwork: artwork
+                };
+                
+                // 結果表示
+                displayResults(currentData);
+                
+            } catch (error) {
+                results.innerHTML = `<div class="status error">❌ 生成エラー: ${error.message}</div>`;
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.textContent = '🚀 3分楽曲を生成（要API接続）';
+            }
+        }
+        
+        // AI API呼び出し（Claude/Gemini両対応）
+        async function callAI(prompt) {
+            const endpoint = selectedAPI === 'claude' ? '/api/claude' : '/api/gemini';
+            
+            const response = await fetch('http://localhost:3000' + endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    apiKey: apiKey,
+                    prompt: prompt,
+                    temperature: 0.9
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'API Error');
+            }
+            
+            // Claude APIのレスポンス形式
+            if (selectedAPI === 'claude' && data.content && data.content[0]) {
+                return data.content[0].text;
+            }
+            // Gemini APIのレスポンス形式
+            else if (selectedAPI === 'gemini' && data.candidates && data.candidates[0]) {
+                return data.candidates[0].content.parts[0].text;
+            }
+            else {
+                throw new Error('No response from API');
+            }
+        }
+        
+        // 結果表示
+        function displayResults(content) {
+            const results = document.getElementById('results');
+            
+            results.innerHTML = `
+                <div class="result-box">
+                    <div class="result-header">
+                        🎵 楽曲タイトル（日本語）
+                        <button class="copy-btn" onclick="copyTitleJa()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="titleJaContent">${content.titleJa || content.title}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎵 Song Title (English)
+                        <button class="copy-btn" onclick="copyTitleEn()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="titleEnContent">${content.titleEn || content.title}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎌 日本語歌詞（3分楽曲用）
+                        <button class="copy-btn" onclick="copyLyricsJP()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="lyricsJPContent">${content.lyricsJP}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🇺🇸 英語歌詞（3分楽曲用）
+                        <button class="copy-btn" onclick="copyLyricsEN()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="lyricsENContent">${content.lyricsEN}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎨 音楽スタイル
+                        <button class="copy-btn" onclick="copyStyle()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="styleContent">${content.style}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🖼️ Midjourneyアートワーク
+                        <button class="copy-btn" onclick="copyArtwork()">📋 コピー</button>
+                    </div>
+                    <div class="controls">
+                        <label>比率:</label>
+                        <select id="aspectRatio" onchange="updateMjPrompt()">
+                            <option value="1:1">1:1</option>
+                            <option value="9:16">9:16</option>
+                            <option value="16:9">16:9</option>
+                        </select>
+                        <label>モデル:</label>
+                        <select id="model" onchange="updateMjPrompt()">
+                            <option value="v 7">v 7</option>
+                            <option value="niji 6">niji 6</option>
+                        </select>
+                    </div>
+                    <div class="result-content" id="artworkContent">${content.artwork} --ar 1:1 --v 7</div>
+                </div>
+            `;
+        }
+        
+        // コピー機能
+        function copyText(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('📋 コピーしました！');
+            } catch (err) {
+                alert('コピーに失敗しました。手動でコピーしてください。');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        // 日本語歌詞コピー専用
+        function copyLyricsJP() {
+            const lyrics = document.getElementById('lyricsJPContent').textContent;
+            copyText(lyrics);
+        }
+        
+        // 英語歌詞コピー専用
+        function copyLyricsEN() {
+            const lyrics = document.getElementById('lyricsENContent').textContent;
+            copyText(lyrics);
+        }
+        
+        // Midjourneyプロンプト更新
+        function updateMjPrompt() {
+            if (!currentArtwork) return;
+            
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            const model = document.getElementById('model').value;
+            const prompt = `${currentArtwork} --ar ${aspectRatio} --${model}`;
+            
+            document.getElementById('artworkContent').textContent = prompt;
+        }
+        
+        // 日本語タイトルコピー専用
+        function copyTitleJa() {
+            const title = document.getElementById('titleJaContent').textContent;
+            copyText(title);
+        }
+        
+        // 英語タイトルコピー専用
+        function copyTitleEn() {
+            const title = document.getElementById('titleEnContent').textContent;
+            copyText(title);
+        }
+        
+        // スタイルコピー専用
+        function copyStyle() {
+            const style = document.getElementById('styleContent').textContent;
+            copyText(style);
+        }
+        
+        // アートワークコピー専用
+        function copyArtwork() {
+            const artwork = document.getElementById('artworkContent').textContent;
+            copyText(artwork);
+        }
+    </script>
+</body>
+</html>
