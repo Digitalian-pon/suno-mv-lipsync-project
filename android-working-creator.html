@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎵 Android Working Creator</title>
+    <title>🎵 Android Working Creator | Androidワーキングクリエイター</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -30,6 +30,14 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 20px;
             font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            font-size: 1.2em;
+            margin-top: -15px;
+            margin-bottom: 20px;
         }
         
         .section {
@@ -244,7 +252,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎵 Android Working Creator</h1>
+        <h1>🎵 Android Working Creator<br><span style="font-size: 0.6em; color: #764ba2;">Androidワーキングクリエイター</span></h1>
         <div style="text-align: center; color: #666; margin-bottom: 20px;">
             Claude & Gemini AI 楽曲ジェネレーター（Android最適化）
         </div>
@@ -353,6 +361,17 @@
         <!-- テーマ生成 -->
         <div class="section">
             <h3>🎯 楽曲テーマ</h3>
+            
+            <!-- 言語切り替え -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;">
+                <button class="method-btn active" id="langJa" onclick="switchLanguage('ja')" style="width: 100px;">
+                    🇯🇵 日本語
+                </button>
+                <button class="method-btn" id="langEn" onclick="switchLanguage('en')" style="width: 100px;">
+                    🇺🇸 English
+                </button>
+            </div>
+            
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button class="btn btn-secondary" onclick="generateAITheme()" id="aiThemeBtn" style="flex: 2;">
                     🤖 AIバズテーマ生成
@@ -361,8 +380,29 @@
                     🎲 ランダム
                 </button>
             </div>
-            <div class="theme-display" id="themeDisplay">
+            
+            <!-- テーマ表示エリア（編集可能） -->
+            <div class="theme-display" id="themeDisplay" contenteditable="true" style="cursor: text; position: relative;">
                 テーマを生成してください
+            </div>
+            <div style="text-align: center; margin-top: 5px; color: #666; font-size: 12px;">
+                ✏️ クリックして編集可能
+            </div>
+            
+            <!-- テーマカテゴリー選択 -->
+            <div style="margin-top: 15px;">
+                <label style="color: #667eea; font-weight: bold;">テーマカテゴリー:</label>
+                <select id="themeCategory" onchange="filterThemesByCategory()" style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                    <option value="all">すべて</option>
+                    <option value="romance">恋愛・ロマンス</option>
+                    <option value="friendship">友情・絆</option>
+                    <option value="dream">夢・挑戦</option>
+                    <option value="daily">日常・生活</option>
+                    <option value="modern">現代・デジタル</option>
+                    <option value="fantasy">ファンタジー・SF</option>
+                    <option value="dark">ダーク・シリアス</option>
+                    <option value="nostalgia">ノスタルジー・レトロ</option>
+                </select>
             </div>
         </div>
         
@@ -388,29 +428,78 @@
         let currentData = {};
         let selectedAPI = 'claude';  // デフォルトはClaude
         let generatedThemes = [];  // 生成済みテーマの履歴
+        let currentLanguage = 'ja';  // 言語設定（ja: 日本語, en: 英語）
         
-        // バズりやすいテーマリスト（予備用）
-        const fallbackThemes = [
-            // 恋愛系
-            '推しに背中を押された夏', 'バイト先の奇跡の恋', 'スマホ越しの初恋',
-            'AI彼女との約束', 'メタバース初デート', '終電で始まる青春',
-            
-            // 友情・絆系  
-            'ゲーム仲間との絆', '深夜ラジオの約束', 'オンライン授業の友情',
-            '文化祭前夜の奇跡', '卒業式の空っぽな教室', '同級生への感謝の歌',
-            
-            // 夢・成長系
-            '夢を追いかける勇気', '諦めない心の歌', 'YouTuberへの憧憬',
-            '18歳の決意表明', '親への感謝の手紙', '失敗から学んだ強さ',
-            
-            // 日常の奇跡系
-            '深夜コンビニの奇跡', '雨の日の小さな発見', '通学路の季節',
-            'カフェで見つけた希望', '図書館での出会い', '電車の中の風景',
-            
-            // 現代的テーマ
-            'TikTokで有名になった日', 'インスタライブの向こう側', 'ゲーム実況者への道',
-            'Vtuberとしての第一歩', 'ボカロPになる夢', 'プログラマーの恋'
-        ];
+        // 拡張された多様なテーマリスト
+        const fallbackThemes = {
+            ja: [
+                // 恋愛系（多様化）
+                '推しに背中を押された夏', 'バイト先の奇跡の恋', 'スマホ越しの初恋',
+                'AI彼女との約束', 'メタバース初デート', '終電で始まる青春',
+                '異世界転生した初恋', 'VRの中の恋心', '配信中に芽生えた感情',
+                'コメント欄から始まる物語', 'プレイリストに隠した想い', '深夜2時の告白',
+                
+                // 友情・絆系（多様化）
+                'ゲーム仲間との絆', '深夜ラジオの約束', 'オンライン授業の友情',
+                '文化祭前夜の奇跡', '卒業式の空っぽな教室', '同級生への感謝の歌',
+                'ディスコードの仲間たち', '廃校になる前の約束', '部活最後の夏',
+                '修学旅行の夜更かし', 'クラスLINEの思い出', 'ゲーセンでの友情',
+                
+                // 夢・成長系（多様化）
+                '夢を追いかける勇気', '諦めない心の歌', 'YouTuberへの憧憬',
+                '18歳の決意表明', '親への感謝の手紙', '失敗から学んだ強さ',
+                'フリーランスへの第一歩', '起業家になる決意', 'アーティストの葛藤',
+                '留学前夜の不安と希望', '資格試験への挑戦', 'バンドメンバー募集中',
+                
+                // 日常の奇跡系（多様化）
+                '深夜コンビニの奇跡', '雨の日の小さな発見', '通学路の季節',
+                'カフェで見つけた希望', '図書館での出会い', '電車の中の風景',
+                '朝日を見ながらの決意', '猫カフェでの癒し', 'ラーメン屋での人生相談',
+                '屋上での秘密基地', '商店街の優しさ', '公園ブランコの哲学',
+                
+                // 現代的テーマ（多様化）
+                'TikTokで有名になった日', 'インスタライブの向こう側', 'ゲーム実況者への道',
+                'Vtuberとしての第一歩', 'ボカロPになる夢', 'プログラマーの恋',
+                'NFTアーティストの挑戦', 'メタバース起業家', 'AI開発者の日常',
+                'サブスク時代の音楽', 'ポッドキャスターの声', 'eSports選手の青春',
+                
+                // ファンタジー・SF系（新規追加）
+                '異世界でもスマホ使いたい', '魔法学校の日常', 'ロボットと人間の友情',
+                'タイムリープした月曜日', '平行世界の自分へ', '宇宙船での恋愛',
+                '龍と契約した高校生', '魔王になった俺', '勇者をやめた理由',
+                
+                // ダーク・シリアス系（新規追加）
+                '最後の文化祭', '廃墟になった母校', '消えたクラスメイト',
+                '深夜の独り言', '眠れない夜の考察', '存在価値を探して',
+                '偽りの笑顔の裏側', '仮面を外す勇気', '本当の自分を見つけるまで',
+                
+                // ノスタルジー系（新規追加）
+                '昭和レトロな恋', '平成最後の青春', 'ガラケーの思い出',
+                '懐かしのゲームセンター', 'カセットテープの告白', 'MDに録音した気持ち',
+                '2000年代のネット文化', 'フィーチャーフォンの着メロ', 'ポケベルで伝えた想い'
+            ],
+            en: [
+                // Romance themes
+                'Summer Digital Love', 'Virtual First Kiss', 'Late Night Confessions',
+                'Coffee Shop Romance', 'Online Dating Story', 'Subway Encounters',
+                
+                // Friendship themes
+                'Gaming Squad Goals', 'Discord Family', 'School Memories',
+                'Best Friend Forever', 'Team Victory Song', 'Graduation Day',
+                
+                // Dreams & Ambitions
+                'Chase Your Dreams', 'Never Give Up', 'Rising Star',
+                'Future Entrepreneur', 'Creative Journey', 'Breaking Limits',
+                
+                // Daily Life
+                'City Night Vibes', 'Morning Coffee Ritual', 'Weekend Adventures',
+                'Rainy Day Thoughts', 'Sunset Moments', 'Urban Explorer',
+                
+                // Modern themes
+                'Social Media Star', 'Content Creator Life', 'Digital Nomad',
+                'Tech Startup Dream', 'Streaming Journey', 'Viral Moment'
+            ]
+        };
         
         // 初期化
         window.onload = function() {
@@ -690,41 +779,77 @@
                 const timeStamp = new Date().getTime();
                 const randomSeed = Math.floor(Math.random() * 1000);
                 
-                // テーマのカテゴリーをランダムに選択
-                const categories = [
+                // より多様なカテゴリー
+                const categories = currentLanguage === 'ja' ? [
                     '恋愛・青春', '友情・絆', '夢・挑戦', '日常の奇跡', 
-                    'SNS・デジタル', '成長・自己肯定', '家族・感謝', '別れ・出会い'
+                    'SNS・デジタル', '成長・自己肯定', '家族・感謝', '別れ・出会い',
+                    'ファンタジー・冒険', 'SF・未来', 'ミステリー・サスペンス', 'ホラー・ダーク',
+                    'コメディ・ユーモア', 'スポーツ・競技', '音楽・アート', '学園・スクール',
+                    'お仕事・ビジネス', '旅行・冒険', '食べ物・グルメ', 'ペット・動物'
+                ] : [
+                    'Romance', 'Friendship', 'Dreams', 'Daily Life',
+                    'Digital Age', 'Self Growth', 'Family', 'Encounters',
+                    'Fantasy', 'Sci-Fi', 'Mystery', 'Dark',
+                    'Comedy', 'Sports', 'Music & Art', 'School',
+                    'Work Life', 'Travel', 'Food', 'Pets'
                 ];
                 const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
                 
-                // トレンドワードをランダムに選択
-                const trendWords = [
+                // より多様なトレンドワード
+                const trendWords = currentLanguage === 'ja' ? [
                     '推し', 'エモい', 'ガチ恋', 'ワンチャン', 'リアコ',
                     'バズる', 'インスタ映え', 'TikTok', 'オンライン',
-                    '課金', 'ソロ活', 'ヲタ活', 'チル', 'フォトジェニック'
+                    '課金', 'ソロ活', 'ヲタ活', 'チル', 'フォトジェニック',
+                    'メンヘラ', 'ぴえん', '草', 'しんどい', 'ととのう',
+                    'ワロタ', 'マジ卍', 'ヤバい', 'えぐい', 'きゅんです',
+                    '沼る', '尊い', '映え', 'バイブス', 'アゲ'
+                ] : [
+                    'Viral', 'Trending', 'GOAT', 'Slay', 'Vibe',
+                    'Stan', 'Ship', 'Binge', 'Flex', 'Mood',
+                    'Lit', 'Fire', 'Epic', 'Savage', 'Queen',
+                    'King', 'Icon', 'Legend', 'Boss', 'Goals'
                 ];
                 const trendWord = trendWords[Math.floor(Math.random() * trendWords.length)];
                 
-                const prompt = `【シード値: ${randomSeed}】
+                const prompt = currentLanguage === 'ja' ? 
+                `【シード値: ${randomSeed}】
 2024年にSNSでバズりそうな楽曲テーマを1つ生成してください。
 
 【カテゴリー】${selectedCategory}
 【トレンドワード】${trendWord}を参考にしても良い
+【感情の種類】${['切ない', '熱い', '優しい', '力強い', '儚い', '爽やか'][Math.floor(Math.random() * 6)]}
+【シチュエーション】${['日常', '非日常', '特別な日', '転機', '出会い', '別れ'][Math.floor(Math.random() * 6)]}
 
 【必須条件】
-- 前向きで共感を呼ぶ内容
-- 感動や勇気を与える
-- Z世代（10代-20代）が共感できる
+- 独創的で斬新な発想
+- 感情に訴える内容
+- 幅広い世代が共感できる
 - 15文字以内の短いフレーズ
-- 今まで生成したものと違う新しいテーマ
+- 今まで生成したものと全く違う新しいテーマ
 
-【NG例（これらと似たものは避ける）】
-- 推しに背中を押された夏
-- バイト先の奇跡の恋
-- 深夜ラジオの約束
-${generatedThemes.length > 0 ? '- ' + generatedThemes.join('\n- ') : ''}
+【NG例（これらと似たものは絶対に避ける）】
+${generatedThemes.length > 0 ? '- ' + generatedThemes.slice(-10).join('\n- ') : ''}
 
-独創的で新しいテーマを1つだけ出力してください。説明は不要です。`;
+独創的で新しいテーマを1つだけ出力してください。説明は不要です。` :
+                `【Seed: ${randomSeed}】
+Generate one viral music theme for 2024.
+
+【Category】${selectedCategory}
+【Trend Word】${trendWord} (optional reference)
+【Emotion】${['Melancholic', 'Passionate', 'Gentle', 'Powerful', 'Ephemeral', 'Fresh'][Math.floor(Math.random() * 6)]}
+【Situation】${['Daily', 'Special', 'Turning Point', 'Meeting', 'Parting', 'Adventure'][Math.floor(Math.random() * 6)]}
+
+【Requirements】
+- Creative and innovative
+- Emotionally engaging
+- Universal appeal
+- Short phrase (max 5 words)
+- Completely different from previous themes
+
+【Avoid these】
+${generatedThemes.length > 0 ? '- ' + generatedThemes.slice(-10).join('\n- ') : ''}
+
+Output only one creative theme. No explanation.`;
 
                 let theme = await callAI(prompt);
                 // 改行や余分な文字を削除
@@ -755,11 +880,106 @@ ${generatedThemes.length > 0 ? '- ' + generatedThemes.join('\n- ') : ''}
             }
         }
         
-        // ランダムテーマ生成（予備）
-        function generateRandomTheme() {
-            currentTheme = fallbackThemes[Math.floor(Math.random() * fallbackThemes.length)];
-            document.getElementById('themeDisplay').textContent = '🎲 ' + currentTheme;
+        // 言語切り替え
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            document.getElementById('langJa').classList.toggle('active', lang === 'ja');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            
+            // カテゴリー選択の更新
+            const categorySelect = document.getElementById('themeCategory');
+            if (lang === 'en') {
+                categorySelect.innerHTML = `
+                    <option value="all">All</option>
+                    <option value="romance">Romance</option>
+                    <option value="friendship">Friendship</option>
+                    <option value="dream">Dreams & Ambitions</option>
+                    <option value="daily">Daily Life</option>
+                    <option value="modern">Modern & Digital</option>
+                `;
+            } else {
+                categorySelect.innerHTML = `
+                    <option value="all">すべて</option>
+                    <option value="romance">恋愛・ロマンス</option>
+                    <option value="friendship">友情・絆</option>
+                    <option value="dream">夢・挑戦</option>
+                    <option value="daily">日常・生活</option>
+                    <option value="modern">現代・デジタル</option>
+                    <option value="fantasy">ファンタジー・SF</option>
+                    <option value="dark">ダーク・シリアス</option>
+                    <option value="nostalgia">ノスタルジー・レトロ</option>
+                `;
+            }
         }
+        
+        // カテゴリーでフィルタリング
+        function filterThemesByCategory() {
+            const category = document.getElementById('themeCategory').value;
+            // カテゴリー選択時の処理（必要に応じて実装）
+        }
+        
+        // ランダムテーマ生成（改良版）
+        function generateRandomTheme() {
+            const category = document.getElementById('themeCategory').value;
+            let themePool = currentLanguage === 'en' ? fallbackThemes.en : fallbackThemes.ja;
+            
+            // カテゴリーでフィルタリング
+            if (category !== 'all' && currentLanguage === 'ja') {
+                const categoryMap = {
+                    'romance': [0, 12],
+                    'friendship': [12, 24],
+                    'dream': [24, 36],
+                    'daily': [36, 48],
+                    'modern': [48, 60],
+                    'fantasy': [60, 69],
+                    'dark': [69, 78],
+                    'nostalgia': [78, 87]
+                };
+                
+                if (categoryMap[category]) {
+                    const [start, end] = categoryMap[category];
+                    themePool = fallbackThemes.ja.slice(start, end);
+                }
+            }
+            
+            // 重複を避けるための処理
+            let availableThemes = themePool.filter(theme => !generatedThemes.includes(theme));
+            if (availableThemes.length === 0) {
+                availableThemes = themePool;
+                generatedThemes = [];
+            }
+            
+            currentTheme = availableThemes[Math.floor(Math.random() * availableThemes.length)];
+            document.getElementById('themeDisplay').textContent = '🎲 ' + currentTheme;
+            
+            // 生成履歴に追加
+            generatedThemes.push(currentTheme);
+            if (generatedThemes.length > 20) {
+                generatedThemes.shift();
+            }
+        }
+        
+        // テーマ編集機能
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeDisplay = document.getElementById('themeDisplay');
+            if (themeDisplay) {
+                themeDisplay.addEventListener('input', function() {
+                    currentTheme = this.textContent.replace(/^[🔥🎲]\s*/, '');
+                });
+                
+                themeDisplay.addEventListener('focus', function() {
+                    if (this.textContent === 'テーマを生成してください') {
+                        this.textContent = '';
+                    }
+                });
+                
+                themeDisplay.addEventListener('blur', function() {
+                    if (this.textContent === '') {
+                        this.textContent = 'テーマを生成してください';
+                    }
+                });
+            }
+        });
         
         // 楽曲生成
         async function generateSong() {
@@ -785,8 +1005,9 @@ ${generatedThemes.length > 0 ? '- ' + generatedThemes.join('\n- ') : ''}
             results.innerHTML = '<div class="status warning">🎵 楽曲を生成中...</div>';
             
             try {
-                // タイトル生成
-                const title = await callAI(`"${currentTheme}"の楽曲タイトルを1つ生成してください。印象的で覚えやすいタイトル。タイトルのみ出力。`);
+                // タイトル生成（日英両方）
+                const titleJa = await callAI(`"${currentTheme}"の日本語楽曲タイトルを1つ生成してください。印象的で覚えやすいタイトル。タイトルのみ出力。`);
+                const titleEn = await callAI(`"${currentTheme}"の英語楽曲タイトルを1つ生成してください。キャッチーで覚えやすいタイトル。タイトルのみ出力。`);
                 
                 // 日本語歌詞生成（3分楽曲用）
                 const lyricsJP = await callAI(`${currentTheme}の日本語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で作成してください：
@@ -829,7 +1050,8 @@ ${generatedThemes.length > 0 ? '- ' + generatedThemes.join('\n- ') : ''}
                 
                 // データを保存
                 currentData = {
-                    title: title,
+                    titleJa: titleJa,
+                    titleEn: titleEn,
                     lyricsJP: lyricsJP,
                     lyricsEN: lyricsEN,
                     style: style,
@@ -888,10 +1110,18 @@ ${generatedThemes.length > 0 ? '- ' + generatedThemes.join('\n- ') : ''}
             results.innerHTML = `
                 <div class="result-box">
                     <div class="result-header">
-                        🎵 楽曲タイトル
-                        <button class="copy-btn" onclick="copyTitle()">📋 コピー</button>
+                        🎵 楽曲タイトル（日本語）
+                        <button class="copy-btn" onclick="copyTitleJa()">📋 コピー</button>
                     </div>
-                    <div class="result-content" id="titleContent">${content.title}</div>
+                    <div class="result-content" id="titleJaContent">${content.titleJa || content.title}</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-header">
+                        🎵 Song Title (English)
+                        <button class="copy-btn" onclick="copyTitleEn()">📋 コピー</button>
+                    </div>
+                    <div class="result-content" id="titleEnContent">${content.titleEn || content.title}</div>
                 </div>
                 
                 <div class="result-box">
@@ -983,9 +1213,15 @@ ${generatedThemes.length > 0 ? '- ' + generatedThemes.join('\n- ') : ''}
             document.getElementById('artworkContent').textContent = prompt;
         }
         
-        // タイトルコピー専用
-        function copyTitle() {
-            const title = document.getElementById('titleContent').textContent;
+        // 日本語タイトルコピー専用
+        function copyTitleJa() {
+            const title = document.getElementById('titleJaContent').textContent;
+            copyText(title);
+        }
+        
+        // 英語タイトルコピー専用
+        function copyTitleEn() {
+            const title = document.getElementById('titleEnContent').textContent;
             copyText(title);
         }
         
