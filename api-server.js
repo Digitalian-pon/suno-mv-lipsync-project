@@ -51,6 +51,12 @@ const server = http.createServer((req, res) => {
                 if (!prompt) {
                     throw new Error('prompt is required');
                 }
+                
+                // APIキーの基本チェック（デバッグログ拒否機能を緩和）
+                if (apiKey.includes('デバッグログ:') || apiKey.includes('API connection failed')) {
+                    throw new Error('Invalid API key format. Debug messages detected in API key');
+                }
+                
                 if (!apiKey.startsWith('sk-ant-api')) {
                     throw new Error('Invalid API key format. Must start with sk-ant-api');
                 }
@@ -139,8 +145,31 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const requestData = JSON.parse(body);
+                console.log('Received Gemini request data:', requestData);
+                
                 const apiKey = requestData.apiKey;
                 const prompt = requestData.prompt;
+                
+                console.log('Gemini API Key format check:');
+                console.log('  Length:', apiKey ? apiKey.length : 'undefined');
+                console.log('  Starts with AIzaSy:', apiKey ? apiKey.startsWith('AIzaSy') : false);
+                console.log('  First 20 chars:', apiKey ? apiKey.substring(0, 20) + '...' : 'undefined');
+                
+                if (!apiKey) {
+                    throw new Error('apiKey is required');
+                }
+                if (!prompt) {
+                    throw new Error('prompt is required');
+                }
+                
+                // APIキーの基本チェック（デバッグログ拒否機能を緩和）
+                if (apiKey.includes('デバッグログ:') || apiKey.includes('API connection failed')) {
+                    throw new Error('Invalid API key format. Debug messages detected in API key');
+                }
+                
+                if (!apiKey.startsWith('AIzaSy')) {
+                    throw new Error('Invalid Gemini API key format. Must start with AIzaSy');
+                }
                 
                 // Gemini APIへのリクエスト
                 const geminiData = JSON.stringify({
@@ -171,24 +200,45 @@ const server = http.createServer((req, res) => {
                     });
                     
                     geminiRes.on('end', () => {
-                        res.writeHead(geminiRes.statusCode, { 'Content-Type': 'application/json' });
-                        res.end(responseData);
+                        console.log('Gemini API Response Status:', geminiRes.statusCode);
+                        console.log('Gemini API Response Headers:', geminiRes.headers);
+                        
+                        if (geminiRes.statusCode === 429) {
+                            console.error('Rate limit exceeded');
+                            const retryAfter = geminiRes.headers['retry-after'] || '5';
+                            res.writeHead(429, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ 
+                                error: 'Rate limit exceeded. Please wait and try again.',
+                                retryAfter: retryAfter 
+                            }));
+                        } else {
+                            res.writeHead(geminiRes.statusCode, { 'Content-Type': 'application/json' });
+                            res.end(responseData);
+                        }
                     });
                 });
                 
                 geminiReq.on('error', (error) => {
                     console.error('Gemini API error:', error);
                     res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'API request failed' }));
+                    res.end(JSON.stringify({ 
+                        error: 'Gemini API request failed',
+                        details: error.message 
+                    }));
                 });
                 
                 geminiReq.write(geminiData);
                 geminiReq.end();
                 
             } catch (error) {
-                console.error('Request parsing error:', error);
+                console.error('Gemini request parsing error:', error);
+                console.error('Request body was:', body);
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid request' }));
+                res.end(JSON.stringify({ 
+                    error: 'Invalid request', 
+                    details: error.message,
+                    body: body 
+                }));
             }
         });
         
