@@ -247,8 +247,8 @@ const server = http.createServer((req, res) => {
         });
         
     } else if (pathname === '/') {
-        // HTMLファイルの提供
-        fs.readFile(path.join(__dirname, 'gemini-suno-creator.html'), (err, data) => {
+        // HTMLファイルの提供 - 最新版のai-complete-creator.htmlを表示
+        fs.readFile(path.join(__dirname, 'ai-complete-creator.html'), (err, data) => {
             if (err) {
                 res.writeHead(404);
                 res.end('File not found');
