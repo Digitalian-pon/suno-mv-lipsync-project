@@ -22,9 +22,21 @@
 - **手動起動（非推奨）**: `npm start`
 
 ### アプリ起動
+#### Android端末から
 - **AI完全生成版**: `termux-open http://localhost:3000/ai-complete-creator.html` ⭐推奨
 - **改良版アプリ**: `termux-open http://localhost:3000/android-working-creator.html`
 - **メインアプリ**: `termux-open http://localhost:3000/gemini-suno-creator.html`
+
+#### PCから（同一ネットワーク）
+- **AI完全生成版**: `http://192.168.10.3:3000/ai-complete-creator.html` ⭐推奨
+- **改良版アプリ**: `http://192.168.10.3:3000/android-working-creator.html`
+- **メインアプリ**: `http://192.168.10.3:3000/gemini-suno-creator.html`
+
+**📍 PCアクセス要件**:
+- AndroidデバイスとPCが同じWi-Fiネットワークに接続
+- AndroidデバイスIP: `192.168.10.3`
+- サーバーポート: `3000`
+- CORS設定済み（外部アクセス許可）
 
 ### Git管理
 - **Git更新**: `git add -A && git commit -m "message" && git push`
