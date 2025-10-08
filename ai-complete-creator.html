@@ -418,7 +418,56 @@
                 🚀 3分楽曲を生成（要API接続）
             </button>
         </div>
-        
+
+        <!-- MV用 Text to Video プロンプト生成 -->
+        <div class="section" style="background: linear-gradient(135deg, #FFE5E5, #E5F5FF);">
+            <h3>🎬 MV用 Text to Video プロンプト生成</h3>
+            <div class="help-text" style="background: #E5F5FF; border-color: #667eea;">
+                楽曲テーマからミュージックビデオ用の動画生成プロンプトをAIが作成します
+            </div>
+
+            <!-- 動画スタイル選択 -->
+            <div style="margin: 15px 0;">
+                <label style="color: #667eea; font-weight: bold;">動画スタイル:</label>
+                <select id="videoStyle" style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                    <option value="cinematic">🎥 映画的・シネマティック</option>
+                    <option value="anime">🎨 アニメーション風</option>
+                    <option value="abstract">🌈 抽象的・アート</option>
+                    <option value="realistic">📸 リアル・実写風</option>
+                    <option value="retro">📼 レトロ・ビンテージ</option>
+                    <option value="futuristic">🚀 未来的・SF</option>
+                    <option value="minimalist">⚪ ミニマル・シンプル</option>
+                    <option value="vibrant">🌟 カラフル・鮮やか</option>
+                </select>
+            </div>
+
+            <!-- プロンプト生成ボタン -->
+            <button class="btn btn-secondary" onclick="generateVideoPrompt()" id="videoPromptBtn" disabled>
+                🎬 MV用プロンプト生成（要テーマ＆API接続）
+            </button>
+
+            <!-- プロンプト表示エリア（編集可能） -->
+            <div id="videoPromptDisplay" contenteditable="true" style="
+                min-height: 100px;
+                padding: 15px;
+                margin: 15px 0;
+                border: 2px solid #ddd;
+                border-radius: 10px;
+                background: white;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 14px;
+                color: #333;
+                cursor: text;
+                display: none;
+            ">
+            </div>
+
+            <!-- コピーボタン -->
+            <button class="btn btn-warning" onclick="copyVideoPrompt()" id="copyVideoBtn" style="display: none;">
+                📋 プロンプトをコピー
+            </button>
+        </div>
+
         <!-- 結果表示 -->
         <div id="results"></div>
     </div>
@@ -453,12 +502,19 @@
                 displayApiKey();
                 setTimeout(() => testConnection(), 1000);
             }
-            
+
+            // 保存されたGeminiモデルを復元
+            const savedGeminiModel = localStorage.getItem('selectedGeminiModel');
+            if (savedGeminiModel) {
+                geminiModel = savedGeminiModel;
+                document.getElementById('geminiModel').value = savedGeminiModel;
+            }
+
             // テーマ編集機能の初期化
             const themeDisplay = document.getElementById('themeDisplay');
             if (themeDisplay) {
                 themeDisplay.addEventListener('input', function() {
-                    currentTheme = this.textContent.replace(/^[🔥🎲]\\s*/, '');
+                    currentTheme = this.textContent.replace(/^[🔥🎲]\s*/, '');
                 });
                 
                 themeDisplay.addEventListener('focus', function() {
@@ -504,6 +560,7 @@
         // Geminiモデル更新
         function updateGeminiModel() {
             geminiModel = document.getElementById('geminiModel').value;
+            localStorage.setItem('selectedGeminiModel', geminiModel);
             console.log('Gemini model updated to:', geminiModel);
         }
         
@@ -622,6 +679,20 @@
             }
         }
         
+        // 文字化けエラーを修正する処理
+        function fixTextEncoding(text) {
+            if (!text) return '';
+
+            // ダイヤモンド型文字化け記号を修正
+            return text
+                .replace(/\uFFFD/g, '') // Unicode replacement character
+                .replace(/\u00EF\u00BF\u00BD/g, '') // UTF-8 byte sequence
+                .replace(/�/g, '') // Question mark in diamond
+                .replace(/\uffff/g, '') // Invalid character
+                .trim();
+        }
+
+
         // APIキークリア
         function clearApiKey() {
             if (confirm('APIキーをクリアしますか？')) {
@@ -672,7 +743,9 @@
                     requestBody.model = geminiModel;
                 }
                 
-                const response = await fetch('http://localhost:3000' + endpoint, {
+                // 動的にベースURLを取得（localhost または 外部IP）
+                const baseUrl = window.location.origin;
+                const response = await fetch(baseUrl + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
@@ -743,48 +816,86 @@
                     categoryText = categoryMap[category] || '';
                 }
                 
-                // AIプロンプト生成
-                const prompt = currentLanguage === 'ja' ? 
-                    `【タスク】2025年にSNSでバズりそうな楽曲テーマを1つ生成してください。
+                // 完全AI創造プロンプト（革命的創造性）
 
-【条件】
-${categoryText ? `- カテゴリー: ${categoryText}` : '- カテゴリー: 自由に選択'}
-- ランダムシード: ${randomSeed}
-- 時代: 2025年のトレンド
+                // 人の心に響く感情的要素を生成
+                // randomSeed already declared above, reusing same value
 
-【要件】
-1. 完全にオリジナルで革新的なテーマ
-2. 感情を強く揺さぶる内容
-3. SNSで拡散されやすい
-4. 10文字以内の短いフレーズ
-5. 記憶に残りやすい
+                // 感動的な人間体験の要素
+                const humanExperiences = [
+                    '初恋の思い出', '家族の温かさ', '友達との絆', '故郷への想い', '夢への挑戦',
+                    '別れの切なさ', '再会の喜び', '成長の実感', '感謝の気持ち', '希望の光',
+                    '青春の1ページ', '大切な約束', '心の支え', '新しい出発', '変わらぬ愛',
+                    '懐かしい風景', '笑顔の記憶', '涙の意味', '勇気の源', '優しい言葉'
+                ];
+                const randomExperience = humanExperiences[Math.floor(Math.random() * humanExperiences.length)];
 
-【避けるべきこと】
-- ありきたりな表現
-- 既存の有名曲のタイトル
-${generatedThemes.length > 0 ? `- 次のテーマと似たもの: ${generatedThemes.slice(-3).join(', ')}` : ''}
+                // 感情の深さを表現する修飾語
+                const emotionalDepth = [
+                    '心の奥底の', '魂を揺さぶる', '涙があふれる', '胸が熱くなる', '心が躍る',
+                    '懐かしくて切ない', '温かくて優しい', '力強く前向きな', '静かで深い', '純粋で美しい'
+                ];
+                const randomEmotion = emotionalDepth[Math.floor(Math.random() * emotionalDepth.length)];
 
-テーマを1つだけ出力。説明不要。` :
-                    `[TASK] Generate one viral music theme for 2025.
+                const prompt = currentLanguage === 'ja' ?
+                    `あなたは人の心に深く響く歌詞のテーマを創造する天才作詞家です。${categoryText ? categoryText + 'の分野で' : ''}聴く人が感動し、共感できる楽曲テーマを考えてください。
 
-[CONDITIONS]
-${categoryText ? `- Category: ${categoryText}` : '- Category: Your choice'}
-- Random seed: ${randomSeed}
-- Era: 2025 trends
+💝 心に響くテーマ創造:
+- インスピレーション源：「${randomExperience}」の${randomEmotion}想い
+- 4-6文字で人の心を動かす日本語テーマ
+- ひらがな・カタカナ・漢字を美しく組み合わせ
+- 読んだ瞬間に心が温かくなる言葉
+- 聞いた人が「わかる！」と共感できる内容
+- 年齢や性別を超えて多くの人に愛されるテーマ
+- 人生の大切な瞬間を思い出させる普遍性
 
-[REQUIREMENTS]
-1. Completely original and innovative
-2. Emotionally impactful
-3. Shareable on social media
-4. Maximum 5 words
-5. Memorable
+🎵 感動的なテーマの条件:
+- 愛、友情、家族、夢、希望、成長などの人間的感情
+- 青春、恋愛、別れ、再会、感謝などの人生体験
+- 故郷、季節、思い出、約束などの心の風景
+- 勇気、優しさ、絆、信頼などの美しい心
 
-[AVOID]
-- Clichés
-- Existing song titles
-${generatedThemes.length > 0 ? `- Similar to: ${generatedThemes.slice(-3).join(', ')}` : ''}
+🌟 テーマ例の方向性:
+- 「君への想い」「青春の日々」「感謝の心」「夢への道」
+- 「故郷の空」「友達の笑顔」「母の愛」「新しい明日」
+- 「桜舞う頃」「心の絆」「希望の光」「涙の意味」
 
-Output only the theme. No explanation.`;
+❌ 避けるべき表現:
+- 理解困難な抽象的概念
+- 一般的でない専門用語
+- 前衛的すぎる表現
+${generatedThemes.length > 0 ? `- 過去作: ${generatedThemes.slice(-5).join('、')}` : ''}
+
+💫 指示: 人の心に響く感動的なテーマ1つ。説明不要。` :
+                    `You are a gifted songwriter who creates themes that touch people's hearts deeply. Create a ${categoryText ? categoryText.toLowerCase() + ' music' : 'emotionally resonant music'} theme that moves listeners and helps them feel understood.
+
+💝 Heart-Touching Theme Creation:
+- Inspiration source: "${randomExperience}" with ${randomEmotion} feelings
+- 2-5 words that speak to the human soul
+- Beautiful, simple language that everyone can understand
+- Words that warm the heart instantly when heard
+- Content that makes listeners think "I feel that too!"
+- Universal themes that resonate across all ages and backgrounds
+- Something that reminds us of life's precious moments
+
+🎵 Moving Theme Qualities:
+- Love, friendship, family, dreams, hope, growth and human emotions
+- Youth, romance, separation, reunion, gratitude and life experiences
+- Home, seasons, memories, promises and landscapes of the heart
+- Courage, kindness, bonds, trust and beautiful hearts
+
+🌟 Theme Direction Examples:
+- "Feelings for You" "Days of Youth" "Grateful Heart" "Road to Dreams"
+- "Hometown Sky" "Friends' Smiles" "Mother's Love" "New Tomorrow"
+- "When Cherry Blossoms Dance" "Heart's Bond" "Light of Hope" "Meaning of Tears"
+
+❌ Expressions to Avoid:
+- Difficult abstract concepts
+- Uncommon technical terms
+- Overly avant-garde expressions
+${generatedThemes.length > 0 ? `- Previous works: ${generatedThemes.slice(-5).join(', ')}` : ''}
+
+💫 Instruction: One heart-touching, moving theme. No explanation needed.`;
                 
                 let theme = await callAI(prompt);
                 theme = theme.trim().replace(/[\n\r]/g, '').replace(/^[「『"']|[」』"']$/g, '');
@@ -796,12 +907,17 @@ Output only the theme. No explanation.`;
                 
                 currentTheme = theme;
                 display.textContent = '🔥 ' + currentTheme;
-                
+
                 generatedThemes.push(theme);
                 if (generatedThemes.length > 10) {
                     generatedThemes.shift();
                 }
-                
+
+                // ビデオプロンプトボタンを有効化
+                if (apiConnected && currentTheme) {
+                    document.getElementById('videoPromptBtn').disabled = false;
+                }
+
             } catch (error) {
                 console.error('AI theme generation failed:', error);
                 alert('AIテーマ生成に失敗しました。API接続を確認してください。');
@@ -836,51 +952,250 @@ Output only the theme. No explanation.`;
             results.innerHTML = '<div class="status warning">🎵 楽曲を生成中...</div>';
             
             try {
-                // タイトル生成（日英両方）
-                const titleJa = await callAI(`"${currentTheme}"の日本語楽曲タイトルを1つ生成してください。印象的で覚えやすいタイトル。タイトルのみ出力。`);
-                const titleEn = await callAI(`"${currentTheme}"の英語楽曲タイトルを1つ生成してください。キャッチーで覚えやすいタイトル。タイトルのみ出力。`);
+                // ランダム性を高めるための要素
+                const uniqueSeed = Date.now() + Math.random();
+                const styleVariations = [
+                    'ポエティックで抽象的な', '都会的でモダンな', '自然と調和した',
+                    'エモーショナルで切ない', 'ミステリアスで幻想的な', '力強く前向きな',
+                    'ノスタルジックで温かい', '実験的で斬新な', 'メロウで静かな',
+                    'エネルギッシュで躍動的な', '孤独で内省的な', '希望に満ちた明るい'
+                ];
+                const randomStyle = styleVariations[Math.floor(Math.random() * styleVariations.length)];
+
+                const wordCombos = [
+                    'ひらがな2文字+カタカナ2文字', 'カタカナ2文字+ひらがな2文字',
+                    'ひらがな3文字+カタカナ1文字', 'カタカナ1文字+漢字2文字+ひらがな1文字',
+                    'ひらがな1文字+カタカナ3文字', '漢字1文字+ひらがな2文字+カタカナ1文字',
+                    'カタカナ3文字+ひらがな1文字', 'ひらがな2文字+漢字1文字+カタカナ1文字'
+                ];
+                const randomCombo = wordCombos[Math.floor(Math.random() * wordCombos.length)];
+
+                // タイトル生成（完全AI創造版）
+                const titleJa = await callAI(`"${currentTheme}"から、${randomStyle}楽曲タイトルを創造してください。
+
+🎵 日本語タイトルの美学:
+あなたは日本語の美しさを知り尽くした天才的な作詞家です。
+テーマ「${currentTheme}」から独自の解釈で、前例のない革新的なタイトルを生み出してください。
+
+💫 今回のスタイル指定:
+- ${randomStyle}雰囲気
+- ${randomCombo}の文字構成
+- 3-6文字の美しい日本語
+- 口に出して美しい響き（音韻の美しさ）
+- 一瞬で心を掴む詩的なインパクト
+- 深い意味を秘めた哲学的な奥行き
+
+❌ 絶対に避けて:
+- 漢字ばかりのタイトル（中国語のような印象）
+- 「〜の」「〜へ」などの助詞を含むもの
+- 「愛・恋・夢・希望・涙・心・君・僕」などの安易な語
+- 既存のJ-POPアーティストが使いそうなもの
+- よくある組み合わせ（「さくら」「ひかり」「そら」「ゆめ」など）
+
+🌟 創造性の方向性:
+- 意外性のある言葉の組み合わせ
+- 抽象的だが美しい造語
+- 感覚的で新鮮な表現
+- 聞いたことのない独創的な響き
+
+🎯 出力: 革新的で唯一無二のタイトル1つのみ。説明不要。シード値: ${uniqueSeed}`);
+
+                const enStyleVariations = [
+                    'poetic and abstract', 'urban and modern', 'nature-inspired',
+                    'emotional and melancholic', 'mysterious and ethereal', 'bold and uplifting',
+                    'nostalgic and warm', 'experimental and avant-garde', 'mellow and contemplative',
+                    'energetic and dynamic', 'introspective and solitary', 'hopeful and luminous'
+                ];
+                const randomEnStyle = enStyleVariations[Math.floor(Math.random() * enStyleVariations.length)];
+
+                const wordStructures = [
+                    'adjective + noun', 'verb + noun', 'noun + preposition + noun',
+                    'adjective + adjective + noun', 'gerund + abstract noun',
+                    'single compound word', 'two contrasting words', 'verb + adverb'
+                ];
+                const randomStructure = wordStructures[Math.floor(Math.random() * wordStructures.length)];
+
+                const titleEn = await callAI(`Create an English song title for "${currentTheme}" with a ${randomEnStyle} vibe.
+
+🎤 Master Songwriter Mindset:
+You are a legendary English-speaking songwriter who understands the power of words.
+From the theme "${currentTheme}", create an unprecedented, revolutionary title that has never been heard before.
+
+✨ Today's Style Specification:
+- ${randomEnStyle} atmosphere
+- ${randomStructure} word structure
+- 2-4 words maximum
+- Beautiful rhythm when spoken aloud
+- Instant emotional impact
+- Poetic depth that reveals new meanings over time
+- Completely unique - nothing like it exists
+
+❌ Absolutely Forbidden:
+- "Love, Heart, Dream, Forever, Tonight, Life, Soul, Hope, Time, Day, Night"
+- Any word used in Billboard Top 40 hits
+- Clichéd phrases or predictable combinations
+- Anything Taylor Swift, Drake, Ariana Grande, Ed Sheeran would use
+- Common combinations ("Lost", "Broken", "Falling", "Fading", etc.)
+
+🌟 Innovation Direction:
+- Unexpected word combinations
+- Abstract yet beautiful neologisms
+- Sensory and fresh expressions
+- Never-heard-before unique sound
+
+🎯 Output: Revolutionary, one-of-a-kind title only. No explanation. Seed: ${uniqueSeed}`);
                 
-                // 日本語歌詞生成
-                const lyricsJP = await callAI(`${currentTheme}の日本語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で：
-[Intro] (2行)
-[Verse 1] (4行)
-[Pre-Chorus] (2行)
-[Chorus] (4行)
-[Verse 2] (4行)
-[Pre-Chorus] (2行)
-[Chorus] (4行)
-[Bridge] (4行)
-[Chorus] (4行)
-[Outro] (2行)
-感情を込めて。歌詞のみを出力。`);
+                // 日本語歌詞生成 - 完全AI創造版
+                const lyricsJP = await callAI(`"${currentTheme}"をテーマに、革命的な日本語歌詞を創造してください。
+
+🎤 天才作詞家になってください:
+あなたは言葉の魔術師です。現代の若者の心を掴み、同時に深い感動を与える歌詞を創造してください。
+どんな音楽ジャンルにするか、どんな感情を込めるか、すべてあなたが自由に決めてください。
+
+🎵 自由な創造プロセス:
+1. まず、このテーマから感じる独特な世界観を想像してください
+2. どんな音楽ジャンルが最適か、直感で決めてください
+3. どんな感情を表現したいか、心の奥から感じてください
+4. 普通の歌詞では絶対に使わない、革新的な表現を探してください
+
+🌟 革命的歌詞の条件:
+- 3分程度の楽曲構成（自由に構成を決めてください）
+- 一度聞いたら中毒になる言葉選び
+- 深い意味と美しい響きの両立
+- TikTokで爆発的に拡散される衝撃
+- 既存の日本の楽曲とは完全に違う独創性
+
+❌ 避けるべき表現:
+- 「君・僕・愛してる・がんばって」などの陳腐語
+- 説教じみた内容や道徳的すぎる歌詞
+- アニメソング・ボカロ・J-POPの典型的表現
+- 無理に韻を踏んだ不自然な歌詞
+
+⚠️ 重要な出力指示:
+- 歌詞のみを出力してください
+- 説明文、解説、前置き、後書きは一切不要
+- 「この歌詞は...」「テーマについて...」などの説明は絶対に書かない
+- [Intro] [Verse 1] などの構成タグと歌詞だけを出力
+
+💫 出力: 純粋な歌詞のみ（構成タグ付き）`);
+
+                // 英語歌詞生成 - 完全AI創造版
+                const lyricsEN = await callAI(`Create revolutionary English lyrics for "${currentTheme}".
+
+🎤 Become a Visionary Lyricist:
+You are a master of the English language and understand what makes lyrics transcendent.
+Feel free to choose any genre, any emotion, any style that feels right for this theme.
+Create something that has never existed before.
+
+🌟 Creative Freedom Process:
+1. Feel the unique atmosphere and world this theme evokes
+2. Choose the musical genre that serves the theme best
+3. Decide what emotions you want to convey from your soul
+4. Find revolutionary expressions that no songwriter has ever used
+
+✨ Revolutionary Lyrics Criteria:
+- 3-minute song structure (design it freely)
+- Words that become addictive after one listen
+- Perfect balance of deep meaning and beautiful sound
+- Instant viral potential that stops people scrolling
+- Complete originality unlike any existing English song
+
+❌ Strictly Avoid:
+- "Love, heart, forever, tonight, dream, soul, life"
+- Preachy, cheesy, or overly moral content
+- Anything that sounds like Top 40, Taylor Swift, or Drake
+- Forced rhymes that sacrifice natural flow
+
+⚠️ Critical Output Instructions:
+- Output ONLY lyrics with structure tags
+- NO explanations, descriptions, or commentary
+- NO "This song is about..." or "The lyrics explore..."
+- NO introductory or concluding text
+- ONLY [Intro] [Verse 1] etc. tags with pure lyrics
+- Add line breaks after each structure tag
+- Add line breaks after each line of lyrics
+
+📝 Format Example:
+[Verse 1]
+First line of lyrics
+Second line of lyrics
+
+[Chorus]
+First chorus line
+Second chorus line
+
+🚀 Output: Pure lyrics only (with structure tags and line breaks)`);
+
+                // スタイル生成 - シンプル版
+                const style = await callAI(`"${currentTheme}"のSuno AI用音楽スタイルを生成してください。
+
+🎵 音楽スタイル指定:
+- ${currentTheme}に適したジャンル名
+- シンプルで分かりやすいスタイル表現
+- 10語以内の簡潔な表現
+
+出力例: "J-Pop バラード"、"Rock アンセム"、"Electronic チルアウト"
+
+出力: 音楽スタイル（10語以内）`);
+
+                // アートワーク生成 - シンプル版（v7デフォルト）
+                const artwork = await callAI(`"${currentTheme}"のMidjourneyプロンプト（1つだけ）を生成してください。
+
+🎨 Midjourneyプロンプト要件:
+- ${currentTheme}を表現する簡潔な英語プロンプト
+- 10語以内
+- アルバムアートに適した内容
+
+出力: [プロンプト] --v 7`);
                 
-                // 英語歌詞生成
-                const lyricsEN = await callAI(`${currentTheme}の英語歌詞を作成してください。3分程度の楽曲を想定して、以下の構成で：
-[Intro] (2行)
-[Verse 1] (4行)
-[Pre-Chorus] (2行)
-[Chorus] (4行)
-[Verse 2] (4行)
-[Pre-Chorus] (2行)
-[Chorus] (4行)
-[Bridge] (4行)
-[Chorus] (4行)
-[Outro] (2行)
-キャッチーな英語歌詞。歌詞のみを出力。`);
-                
-                // スタイル生成
-                const style = await callAI(`"${currentTheme}"の音楽スタイルを生成してください。ジャンル、ムード、BPMを含めて20語以内で。`);
-                
-                // Midjourneyプロンプト生成
-                const artwork = await callAI(`"${currentTheme}"のMidjourneyプロンプトを英語30字以内で生成。簡潔に。`);
-                
+                // 歌詞から説明文のみを除去する処理（歌詞は保持）
+                function cleanLyrics(lyrics) {
+                    let cleaned = lyrics.trim();
+
+                    // 明確な説明文のみを除去（歌詞は保持）
+                    const explanationPatterns = [
+                        /^.*?この歌詞は.*?を表現しています.*?\n/gm,
+                        /^.*?テーマについて.*?です.*?\n/gm,
+                        /^.*?以下の歌詞.*?になります.*?\n/gm,
+                        /^.*?This song is about.*?\n/gm,
+                        /^.*?The lyrics explore.*?\n/gm,
+                        /^.*?represents the theme.*?\n/gm,
+                        /^.*?以下が.*?の歌詞です.*?\n/gm,
+                        /^.*?Here are the lyrics.*?\n/gm,
+                    ];
+
+                    explanationPatterns.forEach(pattern => {
+                        cleaned = cleaned.replace(pattern, '');
+                    });
+
+                    // 最初の構造タグの前にある説明文のみを除去（とても保守的に）
+                    const firstTagIndex = cleaned.search(/\[/);
+                    if (firstTagIndex > 0) {
+                        const beforeTag = cleaned.substring(0, firstTagIndex);
+                        // 短い説明的なテキストのみを除去（歌詞の内容は保持）
+                        if (beforeTag.includes('歌詞') || beforeTag.includes('テーマ') || beforeTag.includes('about') || beforeTag.includes('lyrics')) {
+                            cleaned = cleaned.substring(firstTagIndex);
+                        }
+                    }
+
+                    // 先頭と末尾の余分な改行を除去（1つの改行は残す）
+                    cleaned = cleaned.replace(/^\n+/, '').replace(/\n+$/, '').trim();
+
+                    // 歌詞が短すぎる場合は元の歌詞を返す（安全策）
+                    if (cleaned.length < 30) {
+                        return lyrics.trim();
+                    }
+
+                    return cleaned;
+                }
+
                 currentData = {
-                    titleJa: titleJa,
-                    titleEn: titleEn,
-                    lyricsJP: lyricsJP,
-                    lyricsEN: lyricsEN,
-                    style: style,
-                    artwork: artwork
+                    titleJa: fixTextEncoding(titleJa.trim()),
+                    titleEn: fixTextEncoding(titleEn.trim()),
+                    lyricsJP: fixTextEncoding(cleanLyrics(lyricsJP)),
+                    lyricsEN: fixTextEncoding(cleanLyrics(lyricsEN)),
+                    style: fixTextEncoding(style.trim()),
+                    artwork: fixTextEncoding(artwork.trim())
                 };
                 
                 displayResults(currentData);
@@ -908,7 +1223,9 @@ Output only the theme. No explanation.`;
                 requestBody.model = geminiModel;
             }
             
-            const response = await fetch('http://localhost:3000' + endpoint, {
+            // 動的にベースURLを取得（localhost または 外部IP）
+            const baseUrl = window.location.origin;
+            const response = await fetch(baseUrl + endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
@@ -921,9 +1238,9 @@ Output only the theme. No explanation.`;
             }
             
             if (selectedAPI === 'claude' && data.content && data.content[0]) {
-                return data.content[0].text;
+                return fixTextEncoding(data.content[0].text);
             } else if (selectedAPI === 'gemini' && data.candidates && data.candidates[0]) {
-                return data.candidates[0].content.parts[0].text;
+                return fixTextEncoding(data.candidates[0].content.parts[0].text);
             } else {
                 throw new Error('No response from API');
             }
@@ -932,7 +1249,7 @@ Output only the theme. No explanation.`;
         // 結果表示
         function displayResults(content) {
             const results = document.getElementById('results');
-            
+
             results.innerHTML = `
                 <div class="result-box">
                     <div class="result-header">
@@ -941,7 +1258,7 @@ Output only the theme. No explanation.`;
                     </div>
                     <div class="result-content" id="titleJaContent">${content.titleJa}</div>
                 </div>
-                
+
                 <div class="result-box">
                     <div class="result-header">
                         🎵 Song Title (English)
@@ -949,7 +1266,7 @@ Output only the theme. No explanation.`;
                     </div>
                     <div class="result-content" id="titleEnContent">${content.titleEn}</div>
                 </div>
-                
+
                 <div class="result-box">
                     <div class="result-header">
                         🎌 日本語歌詞（3分楽曲用）
@@ -957,7 +1274,7 @@ Output only the theme. No explanation.`;
                     </div>
                     <div class="result-content" id="lyricsJPContent">${content.lyricsJP}</div>
                 </div>
-                
+
                 <div class="result-box">
                     <div class="result-header">
                         🇺🇸 英語歌詞（3分楽曲用）
@@ -965,7 +1282,7 @@ Output only the theme. No explanation.`;
                     </div>
                     <div class="result-content" id="lyricsENContent">${content.lyricsEN}</div>
                 </div>
-                
+
                 <div class="result-box">
                     <div class="result-header">
                         🎨 音楽スタイル
@@ -973,26 +1290,13 @@ Output only the theme. No explanation.`;
                     </div>
                     <div class="result-content" id="styleContent">${content.style}</div>
                 </div>
-                
+
                 <div class="result-box">
                     <div class="result-header">
-                        🖼️ Midjourneyアートワーク
+                        🖼️ アートワーク
                         <button class="copy-btn" onclick="copyArtwork()">📋 コピー</button>
                     </div>
-                    <div class="controls">
-                        <label>比率:</label>
-                        <select id="aspectRatio" onchange="updateMjPrompt()">
-                            <option value="1:1">1:1</option>
-                            <option value="9:16">9:16</option>
-                            <option value="16:9">16:9</option>
-                        </select>
-                        <label>モデル:</label>
-                        <select id="model" onchange="updateMjPrompt()">
-                            <option value="v 7">v 7</option>
-                            <option value="niji 6">niji 6</option>
-                        </select>
-                    </div>
-                    <div class="result-content" id="artworkContent">${content.artwork} --ar 1:1 --v 7</div>
+                    <div class="result-content" id="artworkContent">${content.artwork}</div>
                 </div>
             `;
         }
@@ -1027,7 +1331,7 @@ Output only the theme. No explanation.`;
         function copyLyricsJP() {
             copyText(document.getElementById('lyricsJPContent').textContent);
         }
-        
+
         function copyLyricsEN() {
             copyText(document.getElementById('lyricsENContent').textContent);
         }
@@ -1043,13 +1347,170 @@ Output only the theme. No explanation.`;
         // Midjourneyプロンプト更新
         function updateMjPrompt() {
             if (!currentData.artwork) return;
-            
+
             const aspectRatio = document.getElementById('aspectRatio').value;
             const model = document.getElementById('model').value;
             const prompt = `${currentData.artwork} --ar ${aspectRatio} --${model}`;
-            
+
             document.getElementById('artworkContent').textContent = prompt;
         }
+
+        // MV用 Text to Video プロンプト生成
+        async function generateVideoPrompt() {
+            // currentTheme変数を使用（表示テキストではなく）
+            const theme = currentTheme || document.getElementById('themeDisplay').textContent.trim().replace(/^🔥\s*/, '');
+
+            console.log('Video Prompt - Theme:', theme);
+            console.log('Video Prompt - currentTheme:', currentTheme);
+
+            if (!theme || theme === 'テーマを生成してください') {
+                alert('先に楽曲テーマを生成してください');
+                return;
+            }
+
+            if (!apiConnected) {
+                alert('APIに接続してください');
+                return;
+            }
+
+            const btn = document.getElementById('videoPromptBtn');
+            btn.disabled = true;
+            btn.textContent = '🎬 プロンプト生成中...';
+
+            const videoStyle = document.getElementById('videoStyle').value;
+            const styleDescriptions = {
+                'cinematic': '映画的で感動的なシネマティック映像。ドラマチックな照明、美しい構図、深みのある色彩',
+                'anime': 'アニメーション風の鮮やかで表現力豊かな映像。キャラクター重視、ダイナミックな動き',
+                'abstract': '抽象的でアーティスティックな映像。形、色、動きの芸術的表現',
+                'realistic': 'リアルで実写的な映像。自然な照明、現実的なシーン、ドキュメンタリー風',
+                'retro': 'レトロでビンテージな映像。懐かしい雰囲気、フィルムグレイン、ノスタルジック',
+                'futuristic': '未来的でSF風の映像。先進的なビジュアル、テクノロジー感、ネオン',
+                'minimalist': 'ミニマルでシンプルな映像。クリーンなデザイン、余白の美、洗練された構成',
+                'vibrant': 'カラフルで鮮やかな映像。明るい色彩、エネルギッシュ、ポップ'
+            };
+
+            try {
+                const promptText = `You are a professional music video director and AI video prompt specialist.
+
+Create a detailed text-to-video prompt for a music video based on this song theme:
+"${theme}"
+
+Video Style: ${styleDescriptions[videoStyle]}
+Language: ${currentLanguage === 'ja' ? 'Japanese' : 'English'}
+
+Please create a detailed video prompt that includes:
+1. Visual concept and overall atmosphere
+2. Key scenes and transitions (at least 3-4 scenes)
+3. Color palette and lighting
+4. Camera movements and angles
+5. Visual effects and mood
+
+Format the output as a single, cohesive text-to-video prompt (200-300 words) that can be directly used with AI video generation tools like Runway, Pika Labs, or similar platforms.
+
+Make it vivid, specific, and cinematically compelling. Focus on visual storytelling that matches the song's emotional tone.`;
+
+                console.log('Sending API request...');
+                let videoPrompt;
+
+                if (selectedAPI === 'claude') {
+                    const response = await fetch('http://localhost:3000/api/claude', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: promptText, apiKey })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('API Error:', errorText);
+                        throw new Error('API request failed: ' + response.status);
+                    }
+                    const data = await response.json();
+                    videoPrompt = data.response;
+
+                } else {
+                    const response = await fetch('http://localhost:3000/api/gemini', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            prompt: promptText,
+                            apiKey,
+                            model: geminiModel
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('API Error:', errorText);
+                        throw new Error('API request failed: ' + response.status);
+                    }
+                    const data = await response.json();
+                    videoPrompt = data.response;
+                }
+
+                console.log('Received video prompt:', videoPrompt ? videoPrompt.substring(0, 100) + '...' : 'EMPTY');
+
+                // 表示
+                const displayDiv = document.getElementById('videoPromptDisplay');
+                displayDiv.textContent = videoPrompt;
+                displayDiv.style.display = 'block';
+
+                document.getElementById('copyVideoBtn').style.display = 'block';
+
+                btn.textContent = '✅ プロンプト生成完了！';
+                setTimeout(() => {
+                    btn.textContent = '🎬 MV用プロンプト生成（要テーマ＆API接続）';
+                    btn.disabled = false;
+                }, 2000);
+
+            } catch (error) {
+                console.error('Video prompt generation error:', error);
+                alert('プロンプト生成に失敗しました: ' + error.message);
+                btn.textContent = '🎬 MV用プロンプト生成（要テーマ＆API接続）';
+                btn.disabled = false;
+            }
+        }
+
+        // プロンプトをクリップボードにコピー
+        function copyVideoPrompt() {
+            const promptText = document.getElementById('videoPromptDisplay').textContent;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(promptText).then(() => {
+                    const btn = document.getElementById('copyVideoBtn');
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ コピー完了！';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    fallbackCopy(promptText);
+                });
+            } else {
+                fallbackCopy(promptText);
+            }
+        }
+
+        // フォールバック用コピー関数
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                alert('プロンプトをコピーしました！');
+            } catch (err) {
+                alert('コピーに失敗しました。手動でコピーしてください。');
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        // 既存のgenerateAITheme関数にビデオプロンプトボタン有効化を追加
+        // 元の関数の最後でvideoPromptBtnを有効化するように修正済み
     </script>
 </body>
 </html>

@@ -291,8 +291,26 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(PORT, () => {
+// ローカルIPアドレス取得
+function getLocalIP() {
+    const { networkInterfaces } = require('os');
+    const nets = networkInterfaces();
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            if (net.family === 'IPv4' && !net.internal) {
+                return net.address;
+            }
+        }
+    }
+    return '192.168.1.1'; // fallback
+}
+
+server.listen(PORT, '0.0.0.0', () => {
+    const localIP = getLocalIP();
     console.log(`APIサーバーが起動しました: http://localhost:${PORT}`);
+    console.log(`外部アクセス: http://${localIP}:${PORT}`);
     console.log(`Gemini APIプロキシ: http://localhost:${PORT}/api/gemini`);
+    console.log(`Claude APIプロキシ: http://localhost:${PORT}/api/claude`);
     console.log(`\nブラウザで開く: http://localhost:${PORT}/`);
+    console.log(`PC からアクセス: http://${localIP}:${PORT}/`);
 });
