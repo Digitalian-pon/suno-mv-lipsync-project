@@ -171,11 +171,14 @@ scipy>=1.10.0
 - **🌏 グローバルメッセージ**: 世界中の人々に感動と勇気を届ける
 
 ## 今後の拡張予定
-- リアルタイムプレビュー機能
-- より高度な顔認識・表情制御
-- 音声品質自動最適化
-- バッチ処理機能
-- クラウドデプロイメント対応
+- 🎥 リアルタイムプレビュー機能
+- 😊 より高度な顔認識・表情制御
+- 🎚️ 音声品質自動最適化
+- 📦 バッチ処理機能
+- ☁️ クラウドデプロイメント対応
+- 🌐 グローバルコミュニティプラットフォーム
+- 🎓 教育機関との連携プログラム
+- 💝 チャリティー音楽プロジェクト
 
 ## 関連リンク
 - **Suno AI**: https://suno.ai （AI音楽生成）
@@ -192,6 +195,38 @@ MIT License
 - プロジェクト管理: Digitalian-pon
 - 協力: Gemini Studio連携システム
 
+## 🚀 クイックスタート
+
+### グローバル版（推奨）
+```bash
+# 世界に感動と勇気を届ける
+streamlit run global_mv_creator.py
+```
+
+### Suno API統合版
+```bash
+# 楽曲生成から動画まで一括処理
+streamlit run integrated_suno_app.py
+# または
+python run_suno_integrated.py
+```
+
+### 従来版
+```bash
+# 従来のシステム
+streamlit run enhanced_app.py
+python desktop_app.py
+```
+
+## 📊 プロジェクト統計
+- **対応ジャンル**: 18種類（J-POP, K-POP, Bollywood, Latin, Afrobeat等）
+- **テーマ**: 10種類（Hope, Courage, Unity, Peace, Love等）
+- **プリセット**: 15種類
+- **言語**: 13言語対応
+- **作成モード**: 3種類
+- **合計ファイル数**: 25+ファイル
+
 ---
-最終更新: 2025年1月
-リポジトリ: https://github.com/Digitalian-pon/suno-mv-lipsync-project.git
+**最終更新**: 2025年1月
+**リポジトリ**: https://github.com/Digitalian-pon/suno-mv-lipsync-project.git
+**ビジョン**: 🌍 音楽で世界をつなぎ、感動と勇気を届ける
