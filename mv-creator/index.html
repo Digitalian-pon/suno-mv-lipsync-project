@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6C5CE7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MV Creator">
+<meta name="description" content="Sunoで作った楽曲のWAVと歌詞から、無料でミュージックビデオを自動生成">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>MV Creator - 歌詞シーン自動生成ミュージックビデオメーカー</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <header class="app-header">
+    <h1>🎬 MV Creator</h1>
+    <p class="subtitle">Suno WAV × 歌詞 → 無料でミュージックビデオ自動生成</p>
+    <button id="driveStatusBtn" class="drive-badge" type="button">
+      <span id="driveStatusDot" class="dot dot-off"></span>
+      <span id="driveStatusText">Google Drive 未接続</span>
+    </button>
+  </header>
+
+  <nav class="steps-nav" id="stepsNav">
+    <button class="step-tab active" data-step="1">① 音楽</button>
+    <button class="step-tab" data-step="2">② 歌詞</button>
+    <button class="step-tab" data-step="3">③ シーン</button>
+    <button class="step-tab" data-step="4">④ 書き出し</button>
+  </nav>
+
+  <main>
+    <!-- STEP 1: 音楽の読み込み -->
+    <section class="step-panel active" id="step-1">
+      <h2>① 音楽を読み込む</h2>
+      <p class="hint">Sunoで生成してダウンロードしたWAVファイルを読み込みます。端末から直接選ぶか、Google Driveから選べます。</p>
+
+      <div class="source-choice">
+        <label class="file-drop" id="fileDropZone">
+          <input type="file" id="wavFileInput" accept="audio/wav,audio/x-wav,.wav" hidden>
+          <span class="file-drop-icon">📁</span>
+          <span>WAVファイルを選択 / ドラッグ&ドロップ</span>
+        </label>
+        <button class="btn btn-outline" id="pickFromDriveBtn" type="button">
+          🗂️ Google Driveから選択
+        </button>
+      </div>
+
+      <div class="audio-info" id="audioInfo" hidden>
+        <canvas id="waveformCanvas" height="90"></canvas>
+        <div class="audio-meta">
+          <span id="audioFileName">-</span>
+          <span id="audioDuration">-</span>
+        </div>
+        <audio id="audioPlayer" controls hidden></audio>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-primary" id="toStep2Btn" disabled>歌詞の入力へ →</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: 歌詞 -->
+    <section class="step-panel" id="step-2">
+      <h2>② 歌詞を用意する</h2>
+      <p class="hint">自動音声認識(無料・ブラウザ内で実行)で抽出するか、歌詞を貼り付けてタップ同期で時間を合わせます。</p>
+
+      <div class="lyrics-tabs">
+        <button class="lyrics-tab active" data-mode="auto">🤖 AI自動抽出</button>
+        <button class="lyrics-tab" data-mode="manual">✍️ 歌詞を貼り付けて同期</button>
+      </div>
+
+      <div class="lyrics-mode-panel active" id="mode-auto">
+        <button class="btn btn-primary" id="startTranscribeBtn" type="button">音声認識を開始(初回はモデル取得のため数十秒〜数分)</button>
+        <div class="progress-wrap" id="transcribeProgressWrap" hidden>
+          <div class="progress-bar"><div class="progress-bar-fill" id="transcribeProgressFill"></div></div>
+          <span id="transcribeProgressText">-</span>
+        </div>
+        <p class="note">※ 歌唱音声の認識は完璧ではありません。抽出後に下のリストで文言・時間を修正できます。</p>
+      </div>
+
+      <div class="lyrics-mode-panel" id="mode-manual">
+        <textarea id="manualLyricsInput" rows="8" placeholder="歌詞を1行ずつ貼り付けてください&#10;例）&#10;君と見た夏の空&#10;忘れないよ あの日を"></textarea>
+        <div class="sync-controls">
+          <button class="btn btn-outline" id="startTapSyncBtn" type="button">▶ タップ同期を開始</button>
+          <span class="note" id="tapSyncHint">再生しながら、その行が始まる瞬間に「マーク」またはスペースキーを押してください。</span>
+        </div>
+      </div>
+
+      <div class="lyrics-list-wrap">
+        <h3>歌詞タイムライン</h3>
+        <div id="lyricsList" class="lyrics-list"></div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-ghost" id="toStep1BackBtn">← 戻る</button>
+        <button class="btn btn-primary" id="toStep3Btn" disabled>シーン設定へ →</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: シーン設定 -->
+    <section class="step-panel" id="step-3">
+      <h2>③ シーンを設定する</h2>
+      <p class="hint">歌詞は自動でシーンに分割されます。各シーンの背景スタイルと画像を調整できます（すべて無料・追加課金なし）。</p>
+
+      <div class="scene-global-settings">
+        <label>1シーンあたりの最大行数
+          <input type="number" id="maxLinesPerScene" min="1" max="10" value="4">
+        </label>
+        <label>カラーテーマ
+          <select id="colorTheme">
+            <option value="sunset">サンセット（紫×オレンジ）</option>
+            <option value="ocean">オーシャン（青×シアン）</option>
+            <option value="neon">ネオン（マゼンタ×グリーン）</option>
+            <option value="mono">モノクローム</option>
+          </select>
+        </label>
+        <button class="btn btn-outline" id="resegmentBtn" type="button">再分割する</button>
+      </div>
+
+      <div id="sceneList" class="scene-list"></div>
+
+      <div class="step-actions">
+        <button class="btn btn-ghost" id="toStep2BackBtn">← 戻る</button>
+        <button class="btn btn-primary" id="toStep4Btn">プレビュー・書き出しへ →</button>
+      </div>
+    </section>
+
+    <!-- STEP 4: 生成・書き出し -->
+    <section class="step-panel" id="step-4">
+      <h2>④ プレビュー & 書き出し</h2>
+
+      <div class="preview-wrap">
+        <canvas id="previewCanvas" width="960" height="540"></canvas>
+        <div class="preview-controls">
+          <button class="btn btn-outline" id="previewPlayBtn" type="button">▶ プレビュー再生</button>
+          <span id="previewTime">00:00 / 00:00</span>
+        </div>
+      </div>
+
+      <div class="export-panel">
+        <button class="btn btn-primary btn-lg" id="recordBtn" type="button">🎥 動画として書き出す（曲の長さと同じ時間がかかります）</button>
+        <div class="progress-wrap" id="recordProgressWrap" hidden>
+          <div class="progress-bar"><div class="progress-bar-fill" id="recordProgressFill"></div></div>
+          <span id="recordProgressText">-</span>
+        </div>
+
+        <div id="exportResult" class="export-result" hidden>
+          <video id="resultVideo" controls></video>
+          <div class="export-actions">
+            <a class="btn btn-primary" id="downloadResultBtn" download="music-video.webm">💾 端末に保存</a>
+            <button class="btn btn-outline" id="uploadDriveBtn" type="button">☁️ Google Driveに保存</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-ghost" id="toStep3BackBtn">← 戻る</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <button class="link-btn" id="openSettingsBtn" type="button">⚙️ Google Drive 連携設定</button>
+  </footer>
+
+  <!-- Google Drive settings modal -->
+  <dialog id="settingsModal">
+    <form method="dialog" class="settings-form">
+      <h3>Google Drive 連携設定</h3>
+      <p class="note">Google DriveでのアップロードとダウンロードにはGoogle CloudのOAuthクライアントIDとAPIキーが必要です。README.mdの手順で取得し、下に貼り付けてください（端末内にのみ保存されます）。</p>
+      <label>OAuth クライアントID
+        <input type="text" id="driveClientId" placeholder="xxxxxxxx.apps.googleusercontent.com">
+      </label>
+      <label>APIキー（Picker用）
+        <input type="text" id="driveApiKey" placeholder="AIza...">
+      </label>
+      <div class="settings-actions">
+        <button class="btn btn-primary" id="saveSettingsBtn" type="button">保存</button>
+        <button class="btn btn-ghost" value="cancel">閉じる</button>
+      </div>
+    </form>
+  </dialog>
+
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

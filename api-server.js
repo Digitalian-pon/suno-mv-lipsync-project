@@ -260,20 +260,36 @@ const server = http.createServer((req, res) => {
         
     } else {
         // 静的ファイルの提供
-        let filePath = path.join(__dirname, pathname);
+        let requestPath = pathname.endsWith('/') ? pathname + 'index.html' : pathname;
+        const filePath = path.normalize(path.join(__dirname, decodeURIComponent(requestPath)));
+
+        // ディレクトリトラバーサル対策：__dirname 配下以外へのアクセスを拒否
+        if (!filePath.startsWith(__dirname)) {
+            res.writeHead(403);
+            res.end('Forbidden');
+            return;
+        }
+
         const extname = path.extname(filePath).toLowerCase();
         const mimeTypes = {
             '.html': 'text/html',
             '.js': 'text/javascript',
+            '.mjs': 'text/javascript',
             '.css': 'text/css',
             '.json': 'application/json',
+            '.webmanifest': 'application/manifest+json',
             '.png': 'image/png',
             '.jpg': 'image/jpg',
-            '.gif': 'image/gif'
+            '.gif': 'image/gif',
+            '.svg': 'image/svg+xml',
+            '.wav': 'audio/wav',
+            '.mp4': 'video/mp4',
+            '.webm': 'video/webm',
+            '.wasm': 'application/wasm'
         };
-        
+
         const contentType = mimeTypes[extname] || 'application/octet-stream';
-        
+
         fs.readFile(filePath, (err, data) => {
             if (err) {
                 if (err.code === 'ENOENT') {

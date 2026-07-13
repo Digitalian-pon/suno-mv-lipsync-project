@@ -116,6 +116,14 @@ User Interface (Results Display + Edit)
 ```
 
 ## 最終更新履歴
+- **2026-07-13: 🎬 MV Creator（ミュージックビデオ自動生成アプリ）追加**
+  - `mv-creator/` を新規追加：SunoのWAV+歌詞からMVを自動生成するPWA
+  - 歌詞はブラウザ内Whisper（transformers.js、無料・APIキー不要）で自動抽出 or 手動貼り付け＋タップ同期
+  - 歌詞をシーン自動分割し、Canvas合成（グラデーション/パーティクル/波形/画像Ken Burns）で動画化（動画生成APIの追加課金なし）
+  - Google Drive連携（OAuth + Picker、`drive.file`スコープ）でWAVの読み込み・MVの保存に対応
+  - Windows/Android/iOS共通のWebアプリとして提供（ホーム画面追加でアプリ的に利用可）
+  - `api-server.js` の静的配信をディレクトリindex対応・パストラバーサル対策・MIME拡張
+
 - **2025-09-04: 🔧 サーバー永続化とプロセス管理の実装**
   - PM2によるプロセス管理システム導入
   - Termux起動時の自動実行設定（.bashrc）
