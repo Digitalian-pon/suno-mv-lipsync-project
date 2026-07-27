@@ -172,11 +172,10 @@ User Interface (Results Display + Edit)
 # Termuxを開くたびに自動的にサーバーをチェック・起動
 ```
 
-## ⚠️ 未解決事項 (2026-07-13)
-- MV Creator (`mv-creator/`) の変更はブランチ `claude/suno-music-video-generator-p8fuab` にコミット済みだが、**GitHubへのpushが権限エラーで失敗中**
-  - エラー: `Permission to Digitalian-pon/suno-mv-lipsync-project.git denied to Digitalian-pon.`
-  - 読み取り(fetch)は成功するが書き込み(push)のみ拒否される → GitHub連携の書き込みスコープ不足が原因の可能性
-  - 対応: GitHub側のアクセス権/App権限を確認後、`git push -u origin claude/suno-music-video-generator-p8fuab` を再実行する
+## ✅ 解決済み事項 (2026-07-27)
+- MV Creator のGitHub push権限エラーは解決し、ブランチ `claude/suno-music-video-generator-p8fuab` をpush済み
+  - 原因: 読み取り専用の「Claude for GitHub」Appのみで書き込み権限がなかった
+  - 対応: GitHub側でアプリ権限を更新後、認証トークンの更新を待って自動リトライで成功
 
 ## 次世代計画
 - AI生成精度のさらなる向上
