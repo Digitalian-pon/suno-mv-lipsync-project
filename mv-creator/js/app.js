@@ -16,6 +16,7 @@ const state = {
   audio: null, // { file, audioBuffer, duration }
   lines: [],   // [{text, start, end}]
   scenes: [],
+  scenesDirty: true,
   tapSync: null,
   previewPlayback: null,
   previewRafId: null,
@@ -31,7 +32,7 @@ function goToStep(n) {
   document.querySelectorAll('.step-tab').forEach((el) => el.classList.remove('active'));
   $(`step-${n}`).classList.add('active');
   document.querySelector(`.step-tab[data-step="${n}"]`).classList.add('active');
-  if (n === 3) renderSceneList();
+  if (n === 3) { ensureScenes(); renderSceneList(); }
   if (n === 4) setupPreview();
 }
 
@@ -116,6 +117,7 @@ $('startTranscribeBtn').addEventListener('click', async () => {
       }
     });
     state.lines = chunks;
+    state.scenesDirty = true;
     renderLyricsList();
     $('toStep3Btn').disabled = state.lines.length === 0;
     text.textContent = `完了: ${chunks.length}行を抽出しました`;
@@ -152,6 +154,7 @@ function endTapSync({ completed }) {
 
   if (completed && state.tapSync) {
     state.lines = state.tapSync.finalize(state.audio.duration);
+    state.scenesDirty = true;
     renderLyricsList();
     $('toStep3Btn').disabled = state.lines.length === 0;
     $('tapSyncHint').textContent = '同期が完了しました。下のリストで時間を微調整できます。';
@@ -213,15 +216,19 @@ function renderLyricsList() {
     `;
     row.querySelector('.start-input').addEventListener('change', (e) => {
       line.start = parseClock(e.target.value);
+      state.scenesDirty = true;
     });
     row.querySelector('.end-input').addEventListener('change', (e) => {
       line.end = parseClock(e.target.value);
+      state.scenesDirty = true;
     });
     row.querySelector('.text-input').addEventListener('change', (e) => {
       line.text = e.target.value;
+      state.scenesDirty = true;
     });
     row.querySelector('.del-btn').addEventListener('click', () => {
       state.lines.splice(i, 1);
+      state.scenesDirty = true;
       renderLyricsList();
     });
     list.appendChild(row);
@@ -229,12 +236,25 @@ function renderLyricsList() {
 }
 
 // ================================================================ STEP 3 ==
-$('resegmentBtn').addEventListener('click', renderSceneList);
-
-function renderSceneList() {
+// シーンの再分割はユーザーが設定した背景（画像・テーマ）を破棄するため、
+// 歌詞が変わったとき(scenesDirty)と明示的な「再分割する」操作のときだけ行う。
+// 画面遷移のたびに再分割すると設定が毎回消えてしまう。
+function segmentScenes() {
   const maxLines = Number($('maxLinesPerScene').value) || 4;
   state.scenes = segmentIntoScenes(state.lines, { maxLinesPerScene: maxLines, minGapForNewScene: 2.5 });
+  state.scenesDirty = false;
+}
 
+function ensureScenes() {
+  if (state.scenesDirty || !state.scenes.length) segmentScenes();
+}
+
+$('resegmentBtn').addEventListener('click', () => {
+  segmentScenes();
+  renderSceneList();
+});
+
+function renderSceneList() {
   const list = $('sceneList');
   list.innerHTML = '';
   state.scenes.forEach((scene) => {
@@ -265,12 +285,20 @@ function renderSceneList() {
     `;
 
     const typeSelect = card.querySelector('.bg-type-select');
+    const themeSelect = card.querySelector('.bg-theme-select');
     const imageBtn = card.querySelector('.bg-image-btn');
     const imageInput = card.querySelector('.bg-image-input');
     const thumb = card.querySelector('.scene-image-thumb');
 
+    // 再描画してもユーザーの設定内容（背景種別・テーマ・選択済み画像）が
+    // UI上に反映され続けるよう、scene.backgroundから毎回復元する
     typeSelect.value = scene.background.type;
+    themeSelect.value = scene.background.theme || '';
     imageBtn.hidden = scene.background.type !== 'image';
+    if (scene.background.image) {
+      thumb.src = scene.background.image.src;
+      thumb.hidden = false;
+    }
 
     typeSelect.addEventListener('change', () => {
       scene.background.type = typeSelect.value;
@@ -289,7 +317,7 @@ function renderSceneList() {
       thumb.src = url;
       thumb.hidden = false;
     });
-    card.querySelector('.bg-theme-select').addEventListener('change', (e) => {
+    themeSelect.addEventListener('change', (e) => {
       scene.background.theme = e.target.value || undefined;
     });
 
@@ -301,7 +329,7 @@ function renderSceneList() {
 let renderer = null;
 
 function setupPreview() {
-  renderSceneList();
+  ensureScenes();
   const canvas = $('previewCanvas');
   renderer = new SceneRenderer(canvas);
   renderer.setScenes(state.scenes);
