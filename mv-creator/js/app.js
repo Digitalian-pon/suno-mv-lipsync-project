@@ -126,34 +126,78 @@ $('startTranscribeBtn').addEventListener('click', async () => {
   }
 });
 
+// --- タップ同期 ---------------------------------------------------------
+// スマートフォンにはスペースキーが無いため、画面上の大きな「マーク」ボタンを
+// 主操作にし、PC向けにスペースキーも併用できるようにしている。
 let tapSyncPlayback = null;
+let tapSyncTotal = 0;
+let tapSyncKeyHandler = null;
+
+function updateTapSyncUI() {
+  const sync = state.tapSync;
+  if (!sync || sync.isDone) return;
+  $('tapMarkLine').textContent = sync.currentLine.text;
+  $('tapMarkCount').textContent = `${sync.cursor + 1} / ${tapSyncTotal}`;
+}
+
+function endTapSync({ completed }) {
+  if (tapSyncKeyHandler) {
+    document.removeEventListener('keydown', tapSyncKeyHandler);
+    tapSyncKeyHandler = null;
+  }
+  if (tapSyncPlayback) tapSyncPlayback.pause();
+  $('tapMarkBtn').hidden = true;
+  $('stopTapSyncBtn').hidden = true;
+  $('startTapSyncBtn').hidden = false;
+
+  if (completed && state.tapSync) {
+    state.lines = state.tapSync.finalize(state.audio.duration);
+    renderLyricsList();
+    $('toStep3Btn').disabled = state.lines.length === 0;
+    $('tapSyncHint').textContent = '同期が完了しました。下のリストで時間を微調整できます。';
+  } else {
+    $('tapSyncHint').textContent = '同期を中止しました。もう一度「タップ同期を開始」を押してください。';
+  }
+}
+
+function markCurrentLine() {
+  if (!state.tapSync || state.tapSync.isDone) return;
+  state.tapSync.mark();
+  if (state.tapSync.isDone) {
+    endTapSync({ completed: true });
+  } else {
+    updateTapSyncUI();
+  }
+}
+
 $('startTapSyncBtn').addEventListener('click', () => {
   if (!state.audio) { alert('先に①で音楽を読み込んでください'); return; }
   const raw = $('manualLyricsInput').value.split('\n').map((s) => s.trim()).filter(Boolean);
   if (!raw.length) { alert('歌詞を貼り付けてください'); return; }
 
   tapSyncPlayback = new PlaybackController(state.audio.audioBuffer);
+  tapSyncTotal = raw.length;
   state.tapSync = new TapSync(raw, tapSyncPlayback);
+  // 曲が終わっても未マークの行が残っている場合は、そこまでの結果を確定する。
+  tapSyncPlayback.onEnded = () => endTapSync({ completed: true });
   tapSyncPlayback.play(0);
-  $('tapSyncHint').textContent = `再生中... 「${state.tapSync.currentLine.text}」が始まったらスペースキーを押してください (1/${raw.length})`;
 
-  const onKey = (e) => {
+  $('startTapSyncBtn').hidden = true;
+  $('stopTapSyncBtn').hidden = false;
+  $('tapMarkBtn').hidden = false;
+  $('tapSyncHint').textContent = '再生中... その行が始まる瞬間に下のボタン（またはスペースキー）を押してください。';
+  updateTapSyncUI();
+
+  tapSyncKeyHandler = (e) => {
     if (e.code !== 'Space') return;
     e.preventDefault();
-    state.tapSync.mark();
-    if (state.tapSync.isDone) {
-      document.removeEventListener('keydown', onKey);
-      tapSyncPlayback.pause();
-      state.lines = state.tapSync.finalize(state.audio.duration);
-      renderLyricsList();
-      $('toStep3Btn').disabled = state.lines.length === 0;
-      $('tapSyncHint').textContent = '同期が完了しました。下のリストで時間を微調整できます。';
-    } else {
-      $('tapSyncHint').textContent = `「${state.tapSync.currentLine.text}」が始まったらスペースキー (${state.tapSync.cursor + 1}/${raw.length})`;
-    }
+    markCurrentLine();
   };
-  document.addEventListener('keydown', onKey);
+  document.addEventListener('keydown', tapSyncKeyHandler);
 });
+
+$('tapMarkBtn').addEventListener('click', markCurrentLine);
+$('stopTapSyncBtn').addEventListener('click', () => endTapSync({ completed: false }));
 
 function renderLyricsList() {
   const list = $('lyricsList');

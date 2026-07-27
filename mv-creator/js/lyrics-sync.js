@@ -33,15 +33,27 @@ export class TapSync {
   }
 
   // Finalize end times once marking is complete (or audio ends).
+  // Marking is sequential, so only a trailing run of lines can be unmarked
+  // (the user stopped early or the song ended). Those share the remaining
+  // time evenly so they still appear in the video instead of collapsing to
+  // zero-length lines.
   finalize(totalDuration) {
-    for (let i = 0; i < this.lines.length; i++) {
-      if (this.lines[i].start == null) {
-        // Any trailing unmarked lines share the remaining time evenly.
-        const prevEnd = i > 0 ? this.lines[i - 1].end ?? this.lines[i - 1].start : 0;
-        this.lines[i].start = prevEnd;
+    const firstUnmarked = this.lines.findIndex((l) => l.start == null);
+
+    if (firstUnmarked !== -1) {
+      const remainingStart = firstUnmarked === 0
+        ? 0
+        : this.lines[firstUnmarked - 1].start;
+      const count = this.lines.length - firstUnmarked;
+      const slice = Math.max(0, totalDuration - remainingStart) / (count + 1);
+      for (let i = firstUnmarked; i < this.lines.length; i++) {
+        this.lines[i].start = remainingStart + slice * (i - firstUnmarked + 1);
       }
+    }
+
+    for (let i = 0; i < this.lines.length; i++) {
       const next = this.lines[i + 1];
-      this.lines[i].end = next ? (next.start ?? totalDuration) : totalDuration;
+      this.lines[i].end = next ? next.start : totalDuration;
     }
     return this.lines;
   }

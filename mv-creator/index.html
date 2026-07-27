@@ -88,8 +88,14 @@
         <textarea id="manualLyricsInput" rows="8" placeholder="歌詞を1行ずつ貼り付けてください&#10;例）&#10;君と見た夏の空&#10;忘れないよ あの日を"></textarea>
         <div class="sync-controls">
           <button class="btn btn-outline" id="startTapSyncBtn" type="button">▶ タップ同期を開始</button>
-          <span class="note" id="tapSyncHint">再生しながら、その行が始まる瞬間に「マーク」またはスペースキーを押してください。</span>
+          <button class="btn btn-ghost" id="stopTapSyncBtn" type="button" hidden>■ 中止</button>
+          <span class="note" id="tapSyncHint">再生しながら、その行が始まる瞬間に「マーク」ボタン（PCではスペースキーも可）を押してください。</span>
         </div>
+        <button class="btn btn-primary tap-mark-btn" id="tapMarkBtn" type="button" hidden>
+          <span class="tap-mark-label">タップしてマーク</span>
+          <span class="tap-mark-line" id="tapMarkLine"></span>
+          <span class="tap-mark-count" id="tapMarkCount"></span>
+        </button>
       </div>
 
       <div class="lyrics-list-wrap">
