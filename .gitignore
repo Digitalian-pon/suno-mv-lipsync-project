@@ -25,3 +25,12 @@ node_modules/
 /plugins/
 /platforms/
 logs/
+
+# 個人の楽曲データ（スタイル一覧・音源・書き出し結果）はリポジトリに含めない
+*.xlsx
+*.xls
+*.wav
+*.mp3
+style-library-*.csv
+style-ai-songs-*.json
+style-ai-songs-*.csv

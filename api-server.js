@@ -34,11 +34,19 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const requestData = JSON.parse(body);
-                console.log('Received request data:', requestData);
+                // APIキーをログに残さないよう、概要だけを記録
+                console.log('Received Claude request:', {
+                    model: requestData.model,
+                    maxTokens: requestData.maxTokens,
+                    promptLength: requestData.prompt ? requestData.prompt.length : 0
+                });
                 
                 const apiKey = requestData.apiKey;
                 const prompt = requestData.prompt;
                 const temperature = requestData.temperature || 0.9;
+                // モデル選択（デフォルトは claude-haiku-4-5）
+                const model = requestData.model || 'claude-haiku-4-5';
+                const maxTokens = Math.min(Math.max(parseInt(requestData.maxTokens, 10) || 4000, 1), 32000);
                 
                 console.log('API Key format check:');
                 console.log('  Length:', apiKey ? apiKey.length : 'undefined');
@@ -63,8 +71,8 @@ const server = http.createServer((req, res) => {
                 
                 // Claude APIへのリクエスト
                 const claudeData = JSON.stringify({
-                    model: 'claude-3-haiku-20240307',
-                    max_tokens: 4000,
+                    model: model,
+                    max_tokens: maxTokens,
                     temperature: temperature,
                     messages: [{ 
                         role: 'user', 
@@ -124,12 +132,10 @@ const server = http.createServer((req, res) => {
                 
             } catch (error) {
                 console.error('Request parsing error:', error);
-                console.error('Request body was:', body);
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ 
                     error: 'Invalid request', 
-                    details: error.message,
-                    body: body 
+                    details: error.message
                 }));
             }
         });
@@ -145,7 +151,12 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const requestData = JSON.parse(body);
-                console.log('Received Gemini request data:', requestData);
+                // APIキーをログに残さないよう、概要だけを記録
+                console.log('Received Gemini request:', {
+                    model: requestData.model,
+                    maxTokens: requestData.maxTokens,
+                    promptLength: requestData.prompt ? requestData.prompt.length : 0
+                });
                 
                 const apiKey = requestData.apiKey;
                 const prompt = requestData.prompt;
@@ -174,6 +185,7 @@ const server = http.createServer((req, res) => {
                 // モデル選択（デフォルトは2.0-flash-exp）
                 const model = requestData.model || 'gemini-2.0-flash-exp';
                 const temperature = requestData.temperature || 0.9;
+                const maxTokens = Math.min(Math.max(parseInt(requestData.maxTokens, 10) || 4096, 1), 65536);
                 
                 // Gemini APIへのリクエスト
                 const geminiData = JSON.stringify({
@@ -182,7 +194,7 @@ const server = http.createServer((req, res) => {
                     }],
                     generationConfig: {
                         temperature: temperature,
-                        maxOutputTokens: 4096
+                        maxOutputTokens: maxTokens
                     }
                 });
                 
@@ -236,12 +248,10 @@ const server = http.createServer((req, res) => {
                 
             } catch (error) {
                 console.error('Gemini request parsing error:', error);
-                console.error('Request body was:', body);
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ 
                     error: 'Invalid request', 
-                    details: error.message,
-                    body: body 
+                    details: error.message
                 }));
             }
         });
@@ -311,6 +321,7 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`外部アクセス: http://${localIP}:${PORT}`);
     console.log(`Gemini APIプロキシ: http://localhost:${PORT}/api/gemini`);
     console.log(`Claude APIプロキシ: http://localhost:${PORT}/api/claude`);
+    console.log(`スタイルAI（第1段階）: http://localhost:${PORT}/style-ai-creator.html`);
     console.log(`\nブラウザで開く: http://localhost:${PORT}/`);
     console.log(`PC からアクセス: http://${localIP}:${PORT}/`);
 });

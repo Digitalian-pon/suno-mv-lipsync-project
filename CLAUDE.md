@@ -116,6 +116,13 @@ User Interface (Results Display + Edit)
 ```
 
 ## 最終更新履歴
+- **2026-10-08: 🎼 Style AI Creator（第1段階）を追加**
+  - `style-ai-creator.html`: suno_styles.xlsx（本人が書いたスタイル）を読み込み、傾向を学んだ新曲のスタイル＋歌詞を生成
+  - `style-ai/style-normalizer.js`: 日本語・表記揺れ・BPM・Suno構成指示を整理し、英語タグ（ACE-Step用）に変換
+  - `api-server.js`: Claude/Gemini の `model`・`maxTokens` を指定可能に。Claudeの既定を `claude-haiku-4-5` に変更。APIキーをログに出さないよう修正
+  - 方針: Suno規約により Suno の音源・出力はAI学習に使わない。第2段階は ACE-Step で生成、第3段階は気に入った生成曲で LoRA 学習
+  - 詳細: `style-ai/README.md`
+
 - **2025-09-04: 🔧 サーバー永続化とプロセス管理の実装**
   - PM2によるプロセス管理システム導入
   - Termux起動時の自動実行設定（.bashrc）
