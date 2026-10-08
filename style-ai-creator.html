@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎼 Style AI Creator | あなたのスタイルAI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="style-ai/style-normalizer.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            font-size: 0.95em;
+            margin-bottom: 18px;
+        }
+
+        .nav-link {
+            display: block;
+            text-align: center;
+            font-size: 0.85em;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .section h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .section p.help {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #555;
+            margin: 10px 0 4px;
+        }
+
+        input[type="text"], input[type="password"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: white;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .row > div {
+            flex: 1 1 200px;
+            min-width: 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            margin: 10px 0 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary { background: linear-gradient(135deg, #28a745, #20c997); }
+        .btn-light { background: #e9ecef; color: #555; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); }
+
+        .btn-small {
+            width: auto;
+            padding: 8px 14px;
+            font-size: 13px;
+            margin: 6px 6px 0 0;
+        }
+
+        .toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .toggle button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .toggle button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #e7f1ff; color: #1d4f91; }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin: 10px 0 14px;
+        }
+
+        .stat {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .stat .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #764ba2;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat .label {
+            font-size: 0.78em;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        details {
+            background: white;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-top: 10px;
+        }
+
+        details summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.92em;
+        }
+
+        .bars { margin-top: 8px; }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: minmax(90px, 40%) 1fr 44px;
+            gap: 8px;
+            align-items: center;
+            font-size: 0.82em;
+            margin: 3px 0;
+        }
+
+        .bar-row .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .bar-row .track {
+            background: #eef0fb;
+            border-radius: 4px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .bar-row .fill {
+            background: #667eea;
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .bar-row .count {
+            text-align: right;
+            color: #666;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .chip {
+            background: #eef0fb;
+            color: #4a4f9c;
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 0.8em;
+        }
+
+        .chip.warn {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .preview-item {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            font-size: 0.82em;
+            line-height: 1.5;
+        }
+
+        .preview-item:last-child { border-bottom: none; }
+
+        .preview-item .raw {
+            color: #777;
+            word-break: break-word;
+        }
+
+        .preview-item .norm {
+            color: #333;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .preview-item .meta-line {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .song-card {
+            background: white;
+            border: 2px solid #e6e8f8;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 14px;
+        }
+
+        .song-card.favorite { border-color: #f5b301; }
+
+        .song-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .song-title {
+            font-size: 1.15em;
+            font-weight: bold;
+            color: #4a3f8c;
+            word-break: break-word;
+        }
+
+        .song-sub {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .fav-btn {
+            border: none;
+            background: none;
+            font-size: 1.6em;
+            cursor: pointer;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .field {
+            margin-top: 12px;
+        }
+
+        .field-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .copy-btn {
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            padding: 3px 10px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+
+        .field-body {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .lyrics-body {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .spinner {
+            width: 34px;
+            height: 34px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .checkbox-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .checkbox-line input { width: auto; }
+
+        .empty-note {
+            color: #999;
+            font-size: 0.9em;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎼 Style AI Creator</h1>
+    <div class="subtitle">あなたのスタイルを学んだプロンプト＆歌詞生成AI（第1段階）</div>
+    <a class="nav-link" href="ai-complete-creator.html">← AI完全生成版に戻る</a>
+
+    <!-- 1. API設定 -->
+    <div class="section">
+        <h3>🔑 1. API設定</h3>
+        <div class="toggle">
+            <button id="apiClaude" class="active" onclick="selectAPI('claude')">🎭 Claude</button>
+            <button id="apiGemini" onclick="selectAPI('gemini')">💎 Gemini</button>
+        </div>
+        <label for="apiKeyInput">APIキー（この端末のブラウザにだけ保存されます）</label>
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-api... または AIzaSy..." autocomplete="off">
+        <label for="modelSelect">モデル</label>
+        <select id="modelSelect"></select>
+        <label for="customModel">モデル名を直接入力（任意・上の選択より優先）</label>
+        <input type="text" id="customModel" placeholder="例: gemini-2.5-flash" autocomplete="off">
+        <button class="btn btn-small" onclick="saveApiSettings()">💾 保存</button>
+        <button class="btn btn-small btn-light" onclick="clearApiKey()">🗑️ キーを削除</button>
+        <div id="apiStatus"></div>
+    </div>
+
+    <!-- 2. スタイルライブラリ -->
+    <div class="section">
+        <h3>📚 2. スタイルライブラリ（suno_styles.xlsx）</h3>
+        <p class="help">
+            Googleドライブの <b>suno_styles.xlsx</b> を選んでください。「スタイル」「言語」「曲名」「状態」の列を自動で見つけ、
+            スタイルを英語タグに整理します。データはこの端末のブラウザにだけ保存され、サーバーやGitHubには送られません。
+            「歌詞」列を追加すれば、その歌詞も見本として使います。
+        </p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+        <button class="btn btn-small btn-light" onclick="exportNormalizedCsv()">📥 整理結果をCSVで保存</button>
+        <button class="btn btn-small btn-light" onclick="clearLibrary()">🗑️ ライブラリを削除</button>
+        <div id="libraryStatus"></div>
+        <div id="libraryStats"></div>
+    </div>
+
+    <!-- 3. 生成設定 -->
+    <div class="section">
+        <h3>🎛️ 3. 生成設定</h3>
+        <div class="row">
+            <div>
+                <label for="languageSelect">言語</label>
+                <select id="languageSelect">
+                    <option value="auto">ライブラリの比率に合わせる</option>
+                    <option value="Japanese">日本語の歌</option>
+                    <option value="English">英語の歌</option>
+                    <option value="Instrumental">インスト（歌なし）</option>
+                </select>
+            </div>
+            <div>
+                <label for="songCount">作る曲数</label>
+                <select id="songCount">
+                    <option value="1">1曲</option>
+                    <option value="3" selected>3曲</option>
+                    <option value="5">5曲</option>
+                    <option value="10">10曲</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <label for="exampleSource">見本にする曲</label>
+                <select id="exampleSource">
+                    <option value="all">すべて</option>
+                    <option value="released">配信済みのみ</option>
+                    <option value="released_planned">配信済み＋配信予定</option>
+                </select>
+            </div>
+            <div>
+                <label for="exampleCount">見本の数</label>
+                <select id="exampleCount">
+                    <option value="15">15件</option>
+                    <option value="30" selected>30件</option>
+                    <option value="50">50件</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <label for="tagFilter">見本を絞り込むタグ（任意・カンマ区切り）</label>
+                <input type="text" id="tagFilter" placeholder="例: lo-fi, piano">
+            </div>
+            <div>
+                <label for="creativity">冒険度</label>
+                <select id="creativity">
+                    <option value="close">いつもの自分らしく</option>
+                    <option value="balanced" selected>バランス</option>
+                    <option value="explore">新しい組み合わせに挑戦</option>
+                </select>
+            </div>
+        </div>
+        <label for="themeInput">テーマ・リクエスト（任意）</label>
+        <textarea id="themeInput" placeholder="例: 夏の終わりの切ない恋 / 朝の通勤で元気が出る曲"></textarea>
+        <label class="checkbox-line"><input type="checkbox" id="includeLyrics" checked> 歌詞も作る（インストの場合は作りません）</label>
+        <button class="btn" id="generateBtn" onclick="generateSongs()">🚀 スタイルと歌詞を生成</button>
+        <div id="generateStatus"></div>
+    </div>
+
+    <!-- 4. 結果 -->
+    <div class="section">
+        <h3>🎵 4. 生成結果</h3>
+        <p class="help">⭐ を付けた曲は、第2段階（ACE-Stepでの曲生成）用にまとめて書き出せます。</p>
+        <button class="btn btn-small btn-secondary" onclick="exportSongs('favorites', 'json')">📦 ⭐をACE-Step用JSONで保存</button>
+        <button class="btn btn-small btn-light" onclick="exportSongs('all', 'json')">📦 全部をJSONで保存</button>
+        <button class="btn btn-small btn-light" onclick="exportSongs('all', 'csv')">📄 全部をCSVで保存</button>
+        <button class="btn btn-small btn-danger" onclick="clearSongs()">🗑️ 履歴を削除</button>
+        <div id="results"></div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEYS = {
+        library: 'styleAiLibrary',
+        songs: 'styleAiSongs',
+        api: 'styleAiSelectedApi',
+        claudeModel: 'styleAiClaudeModel',
+        geminiModel: 'styleAiGeminiModel',
+        customModel: 'styleAiCustomModel'
+    };
+
+    // ai-complete-creator.html と同じキー名でAPIキーを共有する
+    const API_KEY_STORAGE = {
+        claude: 'claudeApiKey',
+        gemini: 'geminiApiKey'
+    };
+
+    const MODELS = {
+        claude: [
+            { value: 'claude-haiku-4-5', label: 'Claude Haiku 4.5 - 高速・低コスト' },
+            { value: 'claude-sonnet-5-5', label: 'Claude Sonnet 5.5 - 高品質' },
+            { value: 'claude-opus-5-5', label: 'Claude Opus 5.5 - 最高品質' }
+        ],
+        gemini: [
+            { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash - 高速' },
+            { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro - 高性能' },
+            { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' }
+        ]
+    };
+
+    const MAX_SAVED_SONGS = 300;
+
+    let selectedAPI = 'claude';
+    let library = null;
+    let songs = [];
+    let isGenerating = false;
+
+    // ---------- 保存まわり（ブラウザの保存領域が使えない場合も動くようにする） ----------
+
+    function storageGet(key) {
+        try {
+            return window.localStorage.getItem(key);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function storageSet(key, value) {
+        try {
+            window.localStorage.setItem(key, value);
+            return true;
+        } catch (error) {
+            console.warn('保存できませんでした:', key, error);
+            return false;
+        }
+    }
+
+    function storageRemove(key) {
+        try {
+            window.localStorage.removeItem(key);
+        } catch (error) {
+            console.warn('削除できませんでした:', key, error);
+        }
+    }
+
+    // ---------- 共通 ----------
+
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function showStatus(elementId, type, message) {
+        document.getElementById(elementId).innerHTML = '<div class="status ' + type + '">' + message + '</div>';
+    }
+
+    function shuffle(list) {
+        const copy = list.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = copy[i];
+            copy[i] = copy[j];
+            copy[j] = temp;
+        }
+        return copy;
+    }
+
+    function truncate(text, length) {
+        const value = String(text || '').replace(/\s+/g, ' ').trim();
+        return value.length > length ? value.slice(0, length) + '…' : value;
+    }
+
+    function downloadFile(filename, content, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
+    }
+
+    function csvCell(value) {
+        const text = String(value == null ? '' : value);
+        return '"' + text.replace(/"/g, '""') + '"';
+    }
+
+    function timestamp() {
+        const now = new Date();
+        const pad = function (n) { return String(n).padStart(2, '0'); };
+        return now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes());
+    }
+
+    async function copyText(text, button) {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (error) {
+            const area = document.createElement('textarea');
+            area.value = text;
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand('copy');
+            document.body.removeChild(area);
+        }
+        if (button) {
+            const original = button.textContent;
+            button.textContent = '✅ コピー済み';
+            setTimeout(function () { button.textContent = original; }, 1500);
+        }
+    }
+
+    // ---------- API設定 ----------
+
+    function fillModelOptions() {
+        const select = document.getElementById('modelSelect');
+        const saved = storageGet(selectedAPI === 'claude' ? STORAGE_KEYS.claudeModel : STORAGE_KEYS.geminiModel);
+        select.innerHTML = MODELS[selectedAPI].map(function (model) {
+            return '<option value="' + model.value + '">' + escapeHtml(model.label) + '</option>';
+        }).join('');
+        if (saved && MODELS[selectedAPI].some(function (model) { return model.value === saved; })) {
+            select.value = saved;
+        }
+    }
+
+    function selectAPI(api) {
+        selectedAPI = api;
+        document.getElementById('apiClaude').classList.toggle('active', api === 'claude');
+        document.getElementById('apiGemini').classList.toggle('active', api === 'gemini');
+        document.getElementById('apiKeyInput').value = storageGet(API_KEY_STORAGE[api]) || '';
+        document.getElementById('customModel').value = storageGet(STORAGE_KEYS.customModel + '_' + api) || '';
+        fillModelOptions();
+        storageSet(STORAGE_KEYS.api, api);
+        document.getElementById('apiStatus').innerHTML = '';
+    }
+
+    function saveApiSettings() {
+        const key = document.getElementById('apiKeyInput').value.trim();
+        if (!key) {
+            showStatus('apiStatus', 'error', '❌ APIキーを入力してください');
+            return;
+        }
+        if (selectedAPI === 'claude' && !key.startsWith('sk-ant-api')) {
+            showStatus('apiStatus', 'error', '❌ ClaudeのAPIキーは sk-ant-api で始まります');
+            return;
+        }
+        if (selectedAPI === 'gemini' && !key.startsWith('AIzaSy')) {
+            showStatus('apiStatus', 'error', '❌ GeminiのAPIキーは AIzaSy で始まります');
+            return;
+        }
+        storageSet(API_KEY_STORAGE[selectedAPI], key);
+        storageSet(selectedAPI === 'claude' ? STORAGE_KEYS.claudeModel : STORAGE_KEYS.geminiModel, document.getElementById('modelSelect').value);
+        storageSet(STORAGE_KEYS.customModel + '_' + selectedAPI, document.getElementById('customModel').value.trim());
+        showStatus('apiStatus', 'success', '✅ 保存しました（' + escapeHtml(getModel()) + '）');
+    }
+
+    function clearApiKey() {
+        storageRemove(API_KEY_STORAGE[selectedAPI]);
+        document.getElementById('apiKeyInput').value = '';
+        showStatus('apiStatus', 'info', 'APIキーを削除しました');
+    }
+
+    function getModel() {
+        const custom = document.getElementById('customModel').value.trim();
+        return custom || document.getElementById('modelSelect').value;
+    }
+
+    async function callAI(prompt, maxTokens) {
+        const apiKey = document.getElementById('apiKeyInput').value.trim() || storageGet(API_KEY_STORAGE[selectedAPI]) || '';
+        if (!apiKey) {
+            throw new Error('APIキーが設定されていません（1. API設定）');
+        }
+        const endpoint = selectedAPI === 'claude' ? '/api/claude' : '/api/gemini';
+        const response = await fetch(window.location.origin + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                apiKey: apiKey,
+                prompt: prompt,
+                model: getModel(),
+                temperature: getTemperature(),
+                maxTokens: maxTokens
+            })
+        });
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error('サーバーの応答を読み取れませんでした（HTTP ' + response.status + '）');
+        }
+
+        if (!response.ok) {
+            const message = (data && data.error && (data.error.message || data.error)) || (data && data.details) || ('HTTP ' + response.status);
+            throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+        }
+
+        if (selectedAPI === 'claude') {
+            if (data.content && data.content.length) {
+                if (data.stop_reason === 'max_tokens') {
+                    console.warn('出力が上限で切れました');
+                }
+                return data.content.filter(function (part) { return part.type === 'text'; }).map(function (part) { return part.text; }).join('');
+            }
+        } else if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+            return data.candidates[0].content.parts.filter(function (part) { return !part.thought && part.text; }).map(function (part) { return part.text; }).join('');
+        }
+        throw new Error('AIから応答がありませんでした');
+    }
+
+    function getTemperature() {
+        const creativity = document.getElementById('creativity').value;
+        if (creativity === 'close') {
+            return 0.7;
+        }
+        if (creativity === 'explore') {
+            return 1.0;
+        }
+        return 0.9;
+    }
+
+    // ---------- ライブラリ ----------
+
+    function handleFile(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+        if (typeof XLSX === 'undefined') {
+            showStatus('libraryStatus', 'error', '❌ Excel読み込み用のライブラリを読み込めませんでした。インターネット接続を確認してページを再読み込みしてください。');
+            return;
+        }
+        showStatus('libraryStatus', 'info', '⏳ 読み込み中: ' + escapeHtml(file.name));
+        const reader = new FileReader();
+        reader.onload = function (loadEvent) {
+            try {
+                const workbook = XLSX.read(new Uint8Array(loadEvent.target.result), { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: null, raw: false });
+                library = StyleNormalizer.buildLibrary(rows);
+                library.sourceFile = file.name;
+                library.sheetName = sheetName;
+                const saved = storageSet(STORAGE_KEYS.library, JSON.stringify(library));
+                showStatus('libraryStatus', saved ? 'success' : 'info',
+                    '✅ ' + escapeHtml(file.name) + '（シート「' + escapeHtml(sheetName) + '」）から ' + library.stats.total + ' 曲を読み込みました' +
+                    (saved ? '' : '<br>※ ブラウザに保存できなかったため、ページを閉じると消えます'));
+                renderLibraryStats();
+            } catch (error) {
+                console.error(error);
+                showStatus('libraryStatus', 'error', '❌ 読み込みエラー: ' + escapeHtml(error.message));
+            }
+        };
+        reader.onerror = function () {
+            showStatus('libraryStatus', 'error', '❌ ファイルを読めませんでした');
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function renderBars(items, limit) {
+        const list = items.slice(0, limit);
+        if (list.length === 0) {
+            return '<div class="empty-note">データなし</div>';
+        }
+        const max = list[0].count;
+        return '<div class="bars">' + list.map(function (item) {
+            const width = Math.max(2, Math.round(item.count / max * 100));
+            return '<div class="bar-row"><span class="name" title="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + '</span>' +
+                '<span class="track"><span class="fill" style="display:block;width:' + width + '%"></span></span>' +
+                '<span class="count">' + item.count + '</span></div>';
+        }).join('') + '</div>';
+    }
+
+    const CATEGORY_LABELS = {
+        genre: '🎸 ジャンル',
+        vocal: '🎤 ボーカル',
+        instrument: '🎹 楽器',
+        mood: '🌈 ムード',
+        tempo: '⏱️ テンポ',
+        other: '🧩 その他'
+    };
+
+    const KIND_LABELS = {
+        tags: 'タグ形式',
+        description: '文章形式',
+        empty: '空欄',
+        no_info: '情報なし',
+        unmapped: '未変換のみ'
+    };
+
+    function renderLibraryStats() {
+        const container = document.getElementById('libraryStats');
+        if (!library) {
+            container.innerHTML = '<div class="empty-note">まだ読み込まれていません</div>';
+            return;
+        }
+        const stats = library.stats;
+        const languageText = stats.languages.map(function (item) { return escapeHtml(item.name) + ' ' + item.count; }).join(' / ');
+        const kindText = stats.kinds.map(function (item) { return escapeHtml(KIND_LABELS[item.name] || item.name) + ' ' + item.count; }).join(' / ');
+        const statusText = stats.statuses.map(function (item) { return escapeHtml(item.name) + ' ' + item.count; }).join(' / ');
+        const metaText = stats.meta.map(function (item) { return escapeHtml(item.name) + ' ' + item.count; }).join(' / ') || 'なし';
+
+        let html = '<div class="stat-grid">' +
+            '<div class="stat"><div class="value">' + stats.total + '</div><div class="label">曲</div></div>' +
+            '<div class="stat"><div class="value">' + stats.uniqueStyles + '</div><div class="label">異なるスタイル</div></div>' +
+            '<div class="stat"><div class="value">' + stats.uniqueTagCount + '</div><div class="label">整理後のタグ種類</div></div>' +
+            '<div class="stat"><div class="value">' + (stats.bpm.median || '-') + '</div><div class="label">BPM中央値（' + stats.bpm.count + '曲）</div></div>' +
+            '<div class="stat"><div class="value">' + stats.withLyrics + '</div><div class="label">歌詞あり</div></div>' +
+            '</div>' +
+            '<p class="help">言語: ' + languageText + '<br>状態: ' + statusText + '<br>書き方: ' + kindText + '<br>Suno用の構成指示: ' + metaText + '</p>';
+
+        StyleNormalizer.CATEGORY_ORDER.forEach(function (category, index) {
+            html += '<details' + (index < 2 ? ' open' : '') + '><summary>' + CATEGORY_LABELS[category] + ' 上位</summary>' +
+                renderBars(stats.categories[category], 15) + '</details>';
+        });
+
+        html += '<details><summary>⚠️ 英語タグに変換できなかった日本語（上位）</summary>' +
+            '<p class="help" style="margin-top:8px">ここに出る語は辞書（style-ai/style-normalizer.js の JA_DICT）に追加すると変換されるようになります。</p>' +
+            '<div class="chip-list">' + (stats.unmapped.length ? stats.unmapped.slice(0, 40).map(function (item) {
+                return '<span class="chip warn">' + escapeHtml(truncate(item.name, 30)) + ' ×' + item.count + '</span>';
+            }).join('') : '<span class="empty-note">なし</span>') + '</div></details>';
+
+        html += '<details><summary>🔍 整理結果を確認する（元のスタイル → 英語タグ）</summary>' +
+            '<input type="text" id="previewSearch" placeholder="曲名やスタイルで検索" style="margin-top:8px" oninput="renderPreview()">' +
+            '<div id="previewList"></div></details>';
+
+        container.innerHTML = html;
+        renderPreview();
+    }
+
+    function renderPreview() {
+        const list = document.getElementById('previewList');
+        if (!list || !library) {
+            return;
+        }
+        const query = (document.getElementById('previewSearch').value || '').trim().toLowerCase();
+        const matched = library.entries.filter(function (entry) {
+            if (!query) {
+                return true;
+            }
+            return entry.title.toLowerCase().indexOf(query) !== -1 ||
+                entry.styleRaw.toLowerCase().indexOf(query) !== -1 ||
+                entry.aceStepTags.indexOf(query) !== -1;
+        });
+        const shown = matched.slice(0, 40);
+        list.innerHTML = '<p class="help" style="margin-top:8px">' + matched.length + ' 件中 ' + shown.length + ' 件を表示</p>' +
+            shown.map(function (entry) {
+                return '<div class="preview-item">' +
+                    '<div class="meta-line">#' + entry.id + ' ' + escapeHtml(entry.title) + '（' + escapeHtml(entry.language) + ' / ' + escapeHtml(entry.status) + ' / ' + escapeHtml(KIND_LABELS[entry.normalized.kind] || entry.normalized.kind) + '）</div>' +
+                    '<div class="raw">元: ' + escapeHtml(truncate(entry.styleRaw, 220) || '（空欄）') + '</div>' +
+                    '<div class="norm">→ ' + escapeHtml(entry.aceStepTags || '（タグなし）') + '</div>' +
+                    (entry.normalized.meta.length ? '<div class="meta-line">構成指示: ' + escapeHtml(entry.normalized.meta.join(', ')) + '</div>' : '') +
+                    '</div>';
+            }).join('');
+    }
+
+    function exportNormalizedCsv() {
+        if (!library) {
+            showStatus('libraryStatus', 'error', '❌ 先に suno_styles.xlsx を読み込んでください');
+            return;
+        }
+        const header = ['番号', '曲名', '状態', '言語', '書き方', '元のスタイル', '英語タグ（ACE-Step用）', 'ジャンル', 'ボーカル', '楽器', 'ムード', 'テンポ', 'その他', 'BPM', 'Suno用の構成指示', '未変換の日本語', 'Sunoリンク'];
+        const lines = [header.map(csvCell).join(',')];
+        library.entries.forEach(function (entry) {
+            const n = entry.normalized;
+            lines.push([
+                entry.id,
+                entry.title,
+                entry.status,
+                entry.language,
+                KIND_LABELS[n.kind] || n.kind,
+                entry.styleRaw,
+                entry.aceStepTags,
+                n.categories.genre.join(', '),
+                n.categories.vocal.join(', '),
+                n.categories.instrument.join(', '),
+                n.categories.mood.join(', '),
+                n.categories.tempo.join(', '),
+                n.categories.other.join(', '),
+                n.bpm || '',
+                n.meta.join(', '),
+                n.unmapped.join(' / '),
+                entry.link
+            ].map(csvCell).join(','));
+        });
+        // Excelで文字化けしないようにBOMを付ける
+        downloadFile('style-library-' + timestamp() + '.csv', '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+    }
+
+    function clearLibrary() {
+        if (!confirm('読み込んだスタイルライブラリを削除しますか？（元のExcelファイルは消えません）')) {
+            return;
+        }
+        library = null;
+        storageRemove(STORAGE_KEYS.library);
+        document.getElementById('fileInput').value = '';
+        showStatus('libraryStatus', 'info', 'ライブラリを削除しました');
+        renderLibraryStats();
+    }
+
+    // ---------- プロンプト作成 ----------
+
+    function pickExamples() {
+        const source = document.getElementById('exampleSource').value;
+        const language = document.getElementById('languageSelect').value;
+        const count = parseInt(document.getElementById('exampleCount').value, 10);
+        const filterTags = document.getElementById('tagFilter').value.split(/[,、]/).map(function (tag) { return tag.trim().toLowerCase(); }).filter(Boolean);
+
+        let candidates = library.entries.filter(function (entry) {
+            const kind = entry.normalized.kind;
+            if (kind !== 'tags' && kind !== 'description') {
+                return false;
+            }
+            if (source === 'released' && entry.status !== '配信済み') {
+                return false;
+            }
+            if (source === 'released_planned' && entry.status !== '配信済み' && entry.status !== '配信予定') {
+                return false;
+            }
+            if (filterTags.length) {
+                const haystack = (entry.aceStepTags + ' ' + entry.styleRaw).toLowerCase();
+                return filterTags.every(function (tag) { return haystack.indexOf(tag) !== -1; });
+            }
+            return true;
+        });
+
+        // 指定言語の曲を優先（足りなければ他の言語も使う）
+        if (language !== 'auto') {
+            const sameLanguage = candidates.filter(function (entry) { return entry.language === language; });
+            if (sameLanguage.length >= Math.min(count, 5)) {
+                candidates = sameLanguage.concat(candidates.filter(function (entry) { return entry.language !== language; }).slice(0, Math.max(0, count - sameLanguage.length)));
+            }
+        }
+
+        // 同じスタイルの使い回しは1件にまとめる
+        const seen = {};
+        const unique = [];
+        shuffle(candidates).forEach(function (entry) {
+            const key = entry.styleRaw.trim();
+            if (!seen[key]) {
+                seen[key] = true;
+                unique.push(entry);
+            }
+        });
+        return unique.slice(0, count);
+    }
+
+    function formatTop(items, limit) {
+        return items.slice(0, limit).map(function (item) { return item.name + '(' + item.count + ')'; }).join(', ');
+    }
+
+    function buildPrompt(examples) {
+        const stats = library.stats;
+        const count = parseInt(document.getElementById('songCount').value, 10);
+        const language = document.getElementById('languageSelect').value;
+        const theme = document.getElementById('themeInput').value.trim();
+        const includeLyrics = document.getElementById('includeLyrics').checked;
+        const creativity = document.getElementById('creativity').value;
+
+        const creativityText = {
+            close: 'この人がいつも使う組み合わせに近づけてください。目新しさより「この人らしさ」を優先します。',
+            balanced: 'この人らしさを保ちつつ、少しだけ新しい要素を加えてください。',
+            explore: 'この人の好みの軸（よく使うジャンル・楽器・ムード）は保ちつつ、これまでにない組み合わせに挑戦してください。'
+        }[creativity];
+
+        const languageText = language === 'auto'
+            ? 'ライブラリの言語比率（' + stats.languages.map(function (item) { return item.name + ' ' + item.count; }).join(', ') + '）に近くなるように、曲ごとに Japanese / English / Instrumental を選んでください。'
+            : 'すべての曲を ' + language + ' にしてください。';
+
+        const exampleText = examples.map(function (entry, index) {
+            let line = (index + 1) + '. [' + entry.language + '] 原文: ' + truncate(entry.styleRaw, 320) + '\n   整理タグ: ' + entry.aceStepTags;
+            if (entry.lyrics) {
+                line += '\n   歌詞の冒頭: ' + truncate(entry.lyrics, 200);
+            }
+            return line;
+        }).join('\n');
+
+        const lyricsRule = includeLyrics
+            ? '- "lyrics": オリジナルの歌詞。構成タグ [intro] [verse] [pre-chorus] [chorus] [bridge] [outro] を行頭に付け、各セクションを改行で区切る。Japanese の曲は日本語（サビに短い英語フレーズを入れるのは可）、English の曲は英語。3〜4分の曲に収まる長さ。Instrumental の曲は "[instrumental]" のみ。'
+            : '- "lyrics": 空文字列 ""（今回は歌詞を作らない）。';
+
+        return [
+            'あなたは、ある音楽クリエイターの専属プロデューサーAIです。',
+            'このクリエイターが過去に音楽生成AIで使ってきた「スタイル指定（本人が書いたプロンプト）」の傾向を読み取り、',
+            'この人の好みに合った新しい曲の企画を ' + count + ' 曲分つくってください。',
+            '',
+            '## このクリエイターのスタイル傾向（全 ' + stats.total + ' 曲の集計）',
+            '- ジャンル: ' + formatTop(stats.categories.genre, 20),
+            '- ボーカル: ' + formatTop(stats.categories.vocal, 12),
+            '- 楽器: ' + formatTop(stats.categories.instrument, 20),
+            '- ムード: ' + formatTop(stats.categories.mood, 20),
+            '- テンポ: ' + formatTop(stats.categories.tempo, 8) + (stats.bpm.median ? ' / BPM中央値 ' + stats.bpm.median + '（' + stats.bpm.min + '〜' + stats.bpm.max + '）' : ''),
+            '- 言語: ' + stats.languages.map(function (item) { return item.name + ' ' + item.count; }).join(', '),
+            '',
+            '## 実際のスタイル指定の見本（ランダムに選んだ ' + examples.length + ' 件）',
+            exampleText,
+            '',
+            '## 今回の依頼',
+            '- 曲数: ' + count,
+            '- 言語: ' + languageText,
+            '- テーマ・リクエスト: ' + (theme || '指定なし（この人が好みそうなテーマを曲ごとに考える）'),
+            '- 方針: ' + creativityText,
+            '',
+            '## ルール',
+            '- 見本をそのままコピーしないこと。傾向を学んだうえで新しく作ること。',
+            '- 実在のアーティスト名・曲名・既存曲の歌詞は使わないこと。',
+            '- スタイルは特定の音楽生成サービスに依存しない書き方にすること。',
+            '',
+            '## 出力形式',
+            '次の形の JSON だけを出力してください。説明文やコードブロック記号は付けないでください。',
+            '{"songs":[{',
+            '  "title_ja": "日本語タイトル",',
+            '  "title_en": "English title",',
+            '  "language": "Japanese | English | Instrumental",',
+            '  "concept": "曲のテーマと聴かせどころ（日本語で1〜2文）",',
+            '  "style_tags": "英語のカンマ区切りタグ 8〜14個。ジャンル→ボーカル→楽器→ムード→テンポの順。例: j-pop, lo-fi, female vocals, piano, synth pad, nostalgic, warm, 92 bpm",',
+            '  "style_prompt": "この人の書き方に寄せた、そのまま音楽生成AIに入れられるスタイル指定（英語中心、600文字以内）",',
+            '  "bpm": 数値,',
+            '  "key": "例: A minor",',
+            '  "lyrics": "..."',
+            '}]}',
+            '',
+            '各項目の注意:',
+            lyricsRule
+        ].join('\n');
+    }
+
+    function parseSongs(text) {
+        let cleaned = String(text || '').trim();
+        cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start === -1 || end === -1 || end <= start) {
+            throw new Error('AIの応答からJSONが見つかりませんでした');
+        }
+        let parsed;
+        try {
+            parsed = JSON.parse(cleaned.slice(start, end + 1));
+        } catch (error) {
+            throw new Error('AIの応答のJSONが壊れていました（出力が途中で切れた可能性があります。曲数を減らして再実行してください）');
+        }
+        const list = Array.isArray(parsed) ? parsed : parsed.songs;
+        if (!Array.isArray(list) || list.length === 0) {
+            throw new Error('AIの応答に曲が含まれていませんでした');
+        }
+        return list.map(function (song) {
+            const bpm = parseInt(song.bpm, 10);
+            return {
+                id: 'song-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+                createdAt: new Date().toISOString(),
+                favorite: false,
+                titleJa: String(song.title_ja || ''),
+                titleEn: String(song.title_en || ''),
+                language: String(song.language || ''),
+                concept: String(song.concept || ''),
+                styleTags: String(song.style_tags || ''),
+                stylePrompt: String(song.style_prompt || ''),
+                bpm: isNaN(bpm) ? null : bpm,
+                key: String(song.key || ''),
+                lyrics: String(song.lyrics || ''),
+                model: getModel(),
+                theme: document.getElementById('themeInput').value.trim()
+            };
+        });
+    }
+
+    async function generateSongs() {
+        if (isGenerating) {
+            return;
+        }
+        if (!library) {
+            showStatus('generateStatus', 'error', '❌ 先に「2. スタイルライブラリ」で suno_styles.xlsx を読み込んでください');
+            return;
+        }
+        const examples = pickExamples();
+        if (examples.length === 0) {
+            showStatus('generateStatus', 'error', '❌ 条件に合う見本がありません。絞り込みタグや「見本にする曲」を変えてください');
+            return;
+        }
+
+        const count = parseInt(document.getElementById('songCount').value, 10);
+        const includeLyrics = document.getElementById('includeLyrics').checked;
+        const maxTokens = Math.min(32000, 1500 + count * (includeLyrics ? 2000 : 600));
+        const button = document.getElementById('generateBtn');
+
+        isGenerating = true;
+        button.disabled = true;
+        button.textContent = '⏳ 生成中...';
+        document.getElementById('generateStatus').innerHTML = '<div class="loading"><div class="spinner"></div>見本 ' + examples.length + ' 件をもとに ' + count + ' 曲分を作っています（' + escapeHtml(getModel()) + '）</div>';
+
+        try {
+            const text = await callAI(buildPrompt(examples), maxTokens);
+            const newSongs = parseSongs(text);
+            songs = newSongs.concat(songs).slice(0, MAX_SAVED_SONGS);
+            saveSongs();
+            renderSongs();
+            showStatus('generateStatus', 'success', '✅ ' + newSongs.length + ' 曲分のスタイルを作りました');
+        } catch (error) {
+            console.error(error);
+            showStatus('generateStatus', 'error', '❌ 生成エラー: ' + escapeHtml(error.message));
+        } finally {
+            isGenerating = false;
+            button.disabled = false;
+            button.textContent = '🚀 スタイルと歌詞を生成';
+        }
+    }
+
+    // ---------- 結果 ----------
+
+    function saveSongs() {
+        if (!storageSet(STORAGE_KEYS.songs, JSON.stringify(songs))) {
+            showStatus('generateStatus', 'info', '※ ブラウザに履歴を保存できませんでした。必要な曲はJSONで保存してください');
+        }
+    }
+
+    function findSong(id) {
+        return songs.find(function (song) { return song.id === id; });
+    }
+
+    function toggleFavorite(id) {
+        const song = findSong(id);
+        if (!song) {
+            return;
+        }
+        song.favorite = !song.favorite;
+        saveSongs();
+        renderSongs();
+    }
+
+    function deleteSong(id) {
+        songs = songs.filter(function (song) { return song.id !== id; });
+        saveSongs();
+        renderSongs();
+    }
+
+    function aceStepText(song) {
+        return 'Tags:\n' + song.styleTags + '\n\nLyrics:\n' + (song.lyrics || '[instrumental]');
+    }
+
+    function copyField(id, field, button) {
+        const song = findSong(id);
+        if (!song) {
+            return;
+        }
+        const value = field === 'ace' ? aceStepText(song) : song[field];
+        copyText(value || '', button);
+    }
+
+    function renderField(song, field, label, extraClass) {
+        if (!song[field]) {
+            return '';
+        }
+        return '<div class="field"><div class="field-head"><span>' + label + '</span>' +
+            '<button class="copy-btn" onclick="copyField(\'' + song.id + '\', \'' + field + '\', this)">📋 コピー</button></div>' +
+            '<div class="field-body ' + (extraClass || '') + '">' + escapeHtml(song[field]) + '</div></div>';
+    }
+
+    function renderSongs() {
+        const container = document.getElementById('results');
+        if (songs.length === 0) {
+            container.innerHTML = '<div class="empty-note">まだ生成した曲はありません</div>';
+            return;
+        }
+        const favoriteCount = songs.filter(function (song) { return song.favorite; }).length;
+        container.innerHTML = '<p class="help" style="margin-top:10px">全 ' + songs.length + ' 曲 / ⭐ ' + favoriteCount + ' 曲</p>' +
+            songs.map(function (song) {
+                const sub = [song.titleEn, song.language, song.bpm ? song.bpm + ' BPM' : '', song.key].filter(Boolean).map(escapeHtml).join(' ・ ');
+                return '<div class="song-card' + (song.favorite ? ' favorite' : '') + '">' +
+                    '<div class="song-head"><div><div class="song-title">' + escapeHtml(song.titleJa || song.titleEn || '（無題）') + '</div>' +
+                    '<div class="song-sub">' + sub + '</div></div>' +
+                    '<button class="fav-btn" title="お気に入り" onclick="toggleFavorite(\'' + song.id + '\')">' + (song.favorite ? '⭐' : '☆') + '</button></div>' +
+                    (song.concept ? '<div class="field"><div class="field-body">' + escapeHtml(song.concept) + '</div></div>' : '') +
+                    renderField(song, 'styleTags', '🏷️ 英語タグ（ACE-Step用）') +
+                    renderField(song, 'stylePrompt', '📝 スタイル指定（あなたの書き方）') +
+                    renderField(song, 'lyrics', '🎤 歌詞', 'lyrics-body') +
+                    '<button class="btn btn-small btn-secondary" onclick="copyField(\'' + song.id + '\', \'ace\', this)">🎛️ タグ＋歌詞をまとめてコピー</button>' +
+                    '<button class="btn btn-small btn-light" onclick="deleteSong(\'' + song.id + '\')">🗑️ 削除</button>' +
+                    '<div class="song-sub" style="margin-top:6px">' + escapeHtml(new Date(song.createdAt).toLocaleString('ja-JP')) + ' ・ ' + escapeHtml(song.model) + '</div>' +
+                    '</div>';
+            }).join('');
+    }
+
+    function exportSongs(scope, format) {
+        const list = scope === 'favorites' ? songs.filter(function (song) { return song.favorite; }) : songs;
+        if (list.length === 0) {
+            alert(scope === 'favorites' ? '⭐ を付けた曲がありません' : '書き出す曲がありません');
+            return;
+        }
+        if (format === 'json') {
+            // 第2段階（ACE-Step）でそのまま読み込める形
+            const data = list.map(function (song) {
+                return {
+                    title: song.titleJa || song.titleEn,
+                    title_en: song.titleEn,
+                    language: song.language,
+                    tags: song.styleTags,
+                    lyrics: song.lyrics || '[instrumental]',
+                    bpm: song.bpm,
+                    key: song.key,
+                    style_prompt: song.stylePrompt,
+                    concept: song.concept,
+                    favorite: song.favorite,
+                    created_at: song.createdAt,
+                    model: song.model
+                };
+            });
+            downloadFile('style-ai-songs-' + scope + '-' + timestamp() + '.json', JSON.stringify(data, null, 2), 'application/json');
+        } else {
+            const header = ['お気に入り', '日本語タイトル', '英語タイトル', '言語', 'コンセプト', '英語タグ', 'スタイル指定', 'BPM', 'キー', '歌詞', '作成日時', 'モデル'];
+            const lines = [header.map(csvCell).join(',')];
+            list.forEach(function (song) {
+                lines.push([
+                    song.favorite ? '⭐' : '',
+                    song.titleJa,
+                    song.titleEn,
+                    song.language,
+                    song.concept,
+                    song.styleTags,
+                    song.stylePrompt,
+                    song.bpm || '',
+                    song.key,
+                    song.lyrics,
+                    song.createdAt,
+                    song.model
+                ].map(csvCell).join(','));
+            });
+            downloadFile('style-ai-songs-' + scope + '-' + timestamp() + '.csv', '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+        }
+    }
+
+    function clearSongs() {
+        if (!confirm('生成した曲の履歴をすべて削除しますか？（⭐ の曲も消えます）')) {
+            return;
+        }
+        songs = [];
+        storageRemove(STORAGE_KEYS.songs);
+        renderSongs();
+    }
+
+    // ---------- 初期化 ----------
+
+    window.addEventListener('load', function () {
+        document.getElementById('fileInput').addEventListener('change', handleFile);
+
+        const savedApi = storageGet(STORAGE_KEYS.api);
+        if (savedApi === 'claude' || savedApi === 'gemini') {
+            selectAPI(savedApi);
+        } else if (!storageGet(API_KEY_STORAGE.claude) && storageGet(API_KEY_STORAGE.gemini)) {
+            selectAPI('gemini');
+        } else {
+            selectAPI('claude');
+        }
+
+        const savedLibrary = storageGet(STORAGE_KEYS.library);
+        if (savedLibrary) {
+            try {
+                library = JSON.parse(savedLibrary);
+                showStatus('libraryStatus', 'success', '✅ 保存済みのライブラリ（' + escapeHtml(library.sourceFile || '') + '・' + library.stats.total + ' 曲）を使用中。更新するにはファイルを選び直してください');
+            } catch (error) {
+                library = null;
+            }
+        }
+        renderLibraryStats();
+
+        const savedSongs = storageGet(STORAGE_KEYS.songs);
+        if (savedSongs) {
+            try {
+                songs = JSON.parse(savedSongs) || [];
+            } catch (error) {
+                songs = [];
+            }
+        }
+        renderSongs();
+    });
+</script>
+</body>
+</html>
